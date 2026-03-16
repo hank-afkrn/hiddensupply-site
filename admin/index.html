@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hidden Supply — Admin</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #1a1714;
+      --cream: #faf8f5;
+      --cream-dark: #f3f1ed;
+      --line: rgba(26,23,20,0.08);
+      --ink-mid: #6b6762;
+      --ink-faint: #b0aca7;
+      --candy-pink: #ff4e91;
+      --candy-orange: #ff7b35;
+      --candy-yellow: #ffc933;
+      --candy-lime: #7ed957;
+      --candy-blue: #3fbdff;
+      --candy-purple: #a259ff;
+      --green: #22c55e;
+      --red: #ef4444;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── GATE ── */
+    #gate {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--ink);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 24px;
+      transition: opacity 0.7s ease;
+    }
+    #gate.unlocking { opacity: 0; pointer-events: none; }
+    #gate.gone { display: none; }
+
+    .gate-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; color: rgba(250,248,245,0.4);
+      margin-bottom: 48px; letter-spacing: 0.04em;
+    }
+    .gate-title {
+      font-size: 0.62rem; font-weight: 600;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: rgba(250,248,245,0.25); margin-bottom: 32px;
+    }
+    .gate-form {
+      display: flex; gap: 0;
+      border: 1px solid rgba(250,248,245,0.12);
+    }
+    .gate-input {
+      background: rgba(250,248,245,0.05); border: none; outline: none;
+      padding: 14px 18px; width: 220px;
+      font-family: 'Inter', sans-serif; font-size: 0.88rem;
+      color: var(--cream); -webkit-appearance: none;
+    }
+    .gate-input::placeholder { color: rgba(250,248,245,0.2); }
+    .gate-btn {
+      background: var(--candy-pink); color: #fff;
+      border: none; padding: 14px 20px; cursor: pointer;
+      font-family: 'Inter', sans-serif; font-size: 0.65rem;
+      font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+    }
+    .gate-error {
+      margin-top: 12px; font-size: 0.72rem; color: var(--candy-pink);
+      font-family: 'Inter', sans-serif; opacity: 0; transition: opacity 0.2s;
+      min-height: 18px; text-align: center;
+    }
+    .gate-error.show { opacity: 1; }
+
+    /* ── LAYOUT ── */
+    header {
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem; color: var(--ink);
+    }
+    .header-badge {
+      font-size: 0.6rem; font-weight: 600; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--ink-faint);
+      background: var(--cream-dark); padding: 4px 10px;
+      border: 1px solid var(--line);
+    }
+
+    main { max-width: 900px; margin: 0 auto; padding: 60px 40px; }
+
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 400; margin-bottom: 8px;
+    }
+    .page-sub {
+      font-size: 0.82rem; color: var(--ink-faint);
+      font-weight: 300; margin-bottom: 52px;
+    }
+
+    /* ── CARDS ── */
+    .section-label {
+      font-size: 0.6rem; font-weight: 600; letter-spacing: 0.28em;
+      text-transform: uppercase; color: var(--ink-faint);
+      margin-bottom: 20px;
+    }
+    .card {
+      background: #fff; border: 1px solid var(--line);
+      padding: 28px 32px; margin-bottom: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 24px;
+    }
+    .card-left { flex: 1; }
+    .card-name {
+      font-size: 0.95rem; font-weight: 500; margin-bottom: 4px;
+    }
+    .card-desc { font-size: 0.78rem; color: var(--ink-mid); font-weight: 300; }
+
+    /* ── TOGGLE ── */
+    .toggle-wrap { display: flex; align-items: center; gap: 12px; }
+    .toggle-label { font-size: 0.72rem; font-weight: 500; color: var(--ink-mid); min-width: 52px; text-align: right; }
+    .toggle {
+      position: relative; width: 48px; height: 26px; cursor: pointer;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: #d1cdc9; border-radius: 26px;
+      transition: background 0.25s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute;
+      width: 20px; height: 20px; left: 3px; top: 3px;
+      background: #fff; border-radius: 50%;
+      transition: transform 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .toggle input:checked + .toggle-slider { background: var(--candy-pink); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+    /* ── STATUS PILL ── */
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 4px 10px;
+    }
+    .status-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .status-pill.on { color: var(--green); }
+    .status-pill.on .dot { background: var(--green); }
+    .status-pill.off { color: var(--ink-faint); }
+    .status-pill.off .dot { background: var(--ink-faint); }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+      background: var(--ink); color: var(--cream);
+      padding: 12px 24px; font-size: 0.78rem; font-weight: 400;
+      letter-spacing: 0.04em; opacity: 0;
+      transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
+    }
+    #toast.show { opacity: 1; }
+
+    /* ── DEPLOY STATUS ── */
+    .deploy-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 32px; background: var(--cream-dark);
+      border: 1px solid var(--line); border-top: none;
+      font-size: 0.75rem; color: var(--ink-mid);
+    }
+    .deploy-row .spin {
+      width: 12px; height: 12px; border: 2px solid var(--line);
+      border-top-color: var(--candy-pink); border-radius: 50%;
+      animation: spin 0.8s linear infinite; display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* candy bar */
+    .candy-bar {
+      display: grid; grid-template-columns: repeat(6,1fr); height: 3px;
+      margin-bottom: 52px;
+    }
+    .candy-bar span:nth-child(1) { background: var(--candy-pink); }
+    .candy-bar span:nth-child(2) { background: var(--candy-orange); }
+    .candy-bar span:nth-child(3) { background: var(--candy-yellow); }
+    .candy-bar span:nth-child(4) { background: var(--candy-lime); }
+    .candy-bar span:nth-child(5) { background: var(--candy-blue); }
+    .candy-bar span:nth-child(6) { background: var(--candy-purple); }
+
+    footer {
+      margin-top: 80px; padding: 24px 0;
+      border-top: 1px solid var(--line);
+      font-size: 0.7rem; color: var(--ink-faint); font-weight: 300;
+    }
+  </style>
+  <script src="/admin/token.js"></script>
+</head>
+<body>
+
+<!-- GATE -->
+<div id="gate">
+  <div class="gate-logo">Hidden Supply</div>
+  <div class="gate-title">Admin Access</div>
+  <div class="gate-form">
+    <input class="gate-input" type="password" id="gateInput" placeholder="Password" autocomplete="off" />
+    <button class="gate-btn" onclick="adminUnlock()">Enter</button>
+  </div>
+  <div class="gate-error" id="gateError">Incorrect password</div>
+</div>
+
+<script>
+  (function() {
+    if (sessionStorage.getItem('hs_admin') === '1') {
+      var g = document.getElementById('gate');
+      if (g) g.classList.add('gone');
+    }
+  })();
+
+  function adminUnlock() {
+    var val = document.getElementById('gateInput').value.trim().toLowerCase();
+    if (val === 'chungus') {
+      sessionStorage.setItem('hs_admin', '1');
+      var gate = document.getElementById('gate');
+      gate.classList.add('unlocking');
+      setTimeout(function() { gate.classList.add('gone'); }, 750);
+    } else {
+      var err = document.getElementById('gateError');
+      err.classList.add('show');
+      document.getElementById('gateInput').value = '';
+      setTimeout(function() { err.classList.remove('show'); }, 2200);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var input = document.getElementById('gateInput');
+    if (input) input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') adminUnlock();
+    });
+  });
+</script>
+
+<!-- HEADER -->
+<header>
+  <div class="header-brand">Hidden Supply</div>
+  <div class="header-badge">Admin</div>
+</header>
+
+<main>
+  <div class="candy-bar"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+  <h1 class="page-title">Site Controls</h1>
+  <p class="page-sub">Manage hiddensupply.co — changes deploy automatically via GitHub.</p>
+
+  <div class="section-label">Password Gate</div>
+
+  <div class="card">
+    <div class="card-left">
+      <div class="card-name">Password Protection</div>
+      <div class="card-desc">When ON — visitors see the "Built from Culture." gate before the site. Turn OFF to go fully public.</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:20px;">
+      <span class="status-pill on" id="gatePill"><span class="dot"></span><span id="gateStatus">On</span></span>
+      <div class="toggle-wrap">
+        <label class="toggle">
+          <input type="checkbox" id="gateToggle" checked onchange="toggleGate(this)" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="deploy-row" id="deployRow" style="display:none;">
+    <div class="spin" id="deploySpin"></div>
+    <span id="deployMsg">Deploying change...</span>
+  </div>
+
+  <div class="section-label" style="margin-top:48px;">Coming Soon</div>
+  <div class="card" style="opacity:0.45;pointer-events:none;">
+    <div class="card-left">
+      <div class="card-name">Edit Hero Copy</div>
+      <div class="card-desc">Change the main headline and subheading on the homepage.</div>
+    </div>
+    <div class="header-badge">Soon</div>
+  </div>
+  <div class="card" style="opacity:0.45;pointer-events:none;">
+    <div class="card-left">
+      <div class="card-name">Form Submissions</div>
+      <div class="card-desc">View buyer inquiry submissions from the contact form.</div>
+    </div>
+    <div class="header-badge">Soon</div>
+  </div>
+  <div class="card" style="opacity:0.45;pointer-events:none;">
+    <div class="card-left">
+      <div class="card-name">Maintenance Mode</div>
+      <div class="card-desc">Show a maintenance page across the entire site.</div>
+    </div>
+    <div class="header-badge">Soon</div>
+  </div>
+
+  <footer>Hidden Supply Admin · hiddensupply.co/admin · Session only — re-enter password each visit</footer>
+</main>
+
+<div id="toast"></div>
+
+<script>
+  // Read current gate state from the page
+  var GITHUB_TOKEN = window.__HS_ADMIN_TOKEN || '';
+  var REPO = 'hank-afkrn/hiddensupply-site';
+
+  // Detect current state by fetching index.html and checking if gate is enabled
+  function detectGateState() {
+    fetch('/index.html').then(function(r) { return r.text(); }).then(function(html) {
+      var hasGate = html.indexOf("id=\"hs-gate\"") !== -1 && html.indexOf("hs-gate.gone") === -1;
+      // More reliable: check if the gate div exists and isn't permanently hidden
+      var gateActive = html.indexOf("plums") !== -1;
+      setGateUI(gateActive);
+    }).catch(function() {});
+  }
+
+  function setGateUI(active) {
+    var toggle = document.getElementById('gateToggle');
+    var pill = document.getElementById('gatePill');
+    var status = document.getElementById('gateStatus');
+    toggle.checked = active;
+    if (active) {
+      pill.className = 'status-pill on';
+      status.textContent = 'On';
+    } else {
+      pill.className = 'status-pill off';
+      status.textContent = 'Off';
+    }
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
+  }
+
+  function showDeploy(msg) {
+    var row = document.getElementById('deployRow');
+    var spin = document.getElementById('deploySpin');
+    var msgEl = document.getElementById('deployMsg');
+    row.style.display = 'flex';
+    spin.style.display = 'block';
+    msgEl.textContent = msg;
+  }
+
+  function hideDeploy(msg) {
+    var spin = document.getElementById('deploySpin');
+    var msgEl = document.getElementById('deployMsg');
+    spin.style.display = 'none';
+    msgEl.textContent = msg;
+    setTimeout(function() {
+      document.getElementById('deployRow').style.display = 'none';
+    }, 4000);
+  }
+
+  function toggleGate(el) {
+    var enabling = el.checked;
+    setGateUI(enabling);
+    showDeploy(enabling ? 'Enabling password gate...' : 'Disabling password gate...');
+
+    // Fetch current index.html from GitHub
+    fetch('https://api.github.com/repos/' + REPO + '/contents/index.html', {
+      headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json' }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var content = atob(data.content.replace(/\n/g, ''));
+      var sha = data.sha;
+
+      var newContent;
+      if (enabling) {
+        // Re-enable: remove the 'gone' class from initial state
+        newContent = content.replace(
+          "if (localStorage.getItem('hs_unlocked') === '1') {\n      var g = document.getElementById('hs-gate');\n      if (g) g.classList.add('gone');\n    }",
+          "if (localStorage.getItem('hs_unlocked') === '1') {\n      var g = document.getElementById('hs-gate');\n      if (g) g.classList.add('gone');\n    }"
+        );
+        // Actually add the gate back if it was removed — simpler: toggle a CSS class
+        newContent = content.replace(
+          '#hs-gate { display: none !important; }', ''
+        );
+        if (newContent === content) {
+          // Gate already enabled
+          hideDeploy('✓ Gate is already enabled.');
+          return;
+        }
+      } else {
+        // Disable: inject a CSS rule that hides the gate
+        if (content.indexOf('#hs-gate { display: none !important; }') !== -1) {
+          hideDeploy('✓ Gate is already disabled.');
+          return;
+        }
+        newContent = content.replace(
+          '/* ─── PASSWORD GATE ─── */',
+          '/* ─── PASSWORD GATE ─── */\n    #hs-gate { display: none !important; }'
+        );
+      }
+
+      var encoded = btoa(unescape(encodeURIComponent(newContent)));
+      return fetch('https://api.github.com/repos/' + REPO + '/contents/index.html', {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'token ' + GITHUB_TOKEN,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: enabling ? 'Admin: enable password gate' : 'Admin: disable password gate',
+          content: encoded,
+          sha: sha
+        })
+      });
+    })
+    .then(function(r) { if (r) return r.json(); })
+    .then(function(data) {
+      if (data && data.commit) {
+        hideDeploy('✓ Deployed — live in ~30 seconds.');
+        showToast(enabling ? 'Gate enabled ✓' : 'Gate disabled ✓ — site is now public');
+        // Clear localStorage so gate shows fresh next visit
+        if (enabling) localStorage.removeItem('hs_unlocked');
+      } else {
+        hideDeploy('⚠ Something went wrong. Try again.');
+      }
+    })
+    .catch(function(err) {
+      hideDeploy('⚠ Deploy failed. Check connection.');
+      console.error(err);
+    });
+  }
+
+  detectGateState();
+</script>
+
+</body>
+</html>
