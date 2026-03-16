@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hidden Supply — A Candy Brand House</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #faf8f5;
+      --cream-dark: #f2ede5;
+      --ink: #1a1714;
+      --ink-mid: #5a5650;
+      --ink-faint: #a8a49e;
+      --line: rgba(26,23,20,0.08);
+      --candy-pink:   #ff4e91;
+      --candy-orange: #ff7b35;
+      --candy-yellow: #ffc933;
+      --candy-lime:   #7ed957;
+      --candy-blue:   #3fbdff;
+      --candy-purple: #a259ff;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--cream); color: var(--ink); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+    /* ─── NAV ─── */
+    nav#nav { position: fixed; top: 0; left: 0; right: 0; z-index: 99; padding: 22px 52px; display: flex; align-items: center; justify-content: space-between; transition: background 0.4s, border-color 0.4s; border-bottom: 1px solid transparent; }
+    nav#nav.solid { background: rgba(250,248,245,0.96); backdrop-filter: blur(18px); border-color: var(--line); }
+    .nav-logo { font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink); text-decoration: none; }
+    .nav-right { display: flex; align-items: center; gap: 36px; }
+    .nav-right a { font-size: 0.67rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mid); text-decoration: none; transition: color 0.2s; }
+    .nav-right a:hover { color: var(--ink); }
+    .nav-cta { background: var(--ink) !important; color: var(--cream) !important; padding: 9px 22px !important; border-radius: 2px; transition: background 0.2s !important; }
+    .nav-cta:hover { background: var(--candy-pink) !important; color: #fff !important; }
+    @media(max-width:768px) { nav#nav { padding: 18px 20px; } .nav-right a:not(.nav-cta) { display: none; } }
+
+    /* ─── HERO (centered, solid) ─── */
+    #hero {
+      min-height: 100svh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 140px 48px 100px; position: relative; overflow: hidden;
+    }
+    .hero-blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.14; pointer-events: none; }
+    .blob-1 { width: 560px; height: 560px; background: var(--candy-pink);   top: -160px; left: -200px; }
+    .blob-2 { width: 420px; height: 420px; background: var(--candy-yellow);  bottom: -80px; left: 20%; }
+    .blob-3 { width: 340px; height: 340px; background: var(--candy-blue);    top: 10%; right: -80px; }
+    .hero-left { position: relative; z-index: 2; max-width: 780px; }
+    .hero-eyebrow { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink-mid); margin-bottom: 36px; }
+    .hero-headline { font-family: 'Playfair Display', serif; font-size: clamp(4rem, 9.5vw, 9.5rem); font-weight: 400; line-height: 0.97; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 32px; }
+    .hero-headline em { font-style: italic; }
+    .hl-color { display: inline-block; position: relative; }
+    .hl-color::after { content: ''; position: absolute; bottom: 2px; left: 0; right: 0; height: 5px; background: var(--candy-pink); opacity: 0.35; border-radius: 2px; }
+    .hero-sub { font-size: clamp(0.9rem, 1.4vw, 1.05rem); color: var(--ink-mid); font-weight: 300; line-height: 1.8; max-width: 400px; margin: 0 auto 52px; }
+    .hero-actions { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; justify-content: center; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 12px; font-size: 0.67rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--cream); background: var(--ink); padding: 16px 34px; text-decoration: none; border-radius: 2px; transition: background 0.22s, gap 0.22s; }
+    .btn-primary:hover { background: var(--candy-pink); gap: 18px; }
+    .btn-secondary { display: inline-flex; align-items: center; gap: 10px; font-size: 0.67rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-mid); text-decoration: none; padding: 16px 0; border-bottom: 1px solid var(--line); transition: color 0.2s, border-color 0.2s; }
+    .btn-secondary:hover { color: var(--ink); border-color: var(--ink); }
+    /* hero-right hidden until we have the image */
+    .hero-right { display: none; }
+    @media(max-width:768px) { #hero { padding: 120px 20px 80px; } }
+
+    /* ─── MARQUEE ─── */
+    .marquee-wrap { overflow: hidden; padding: 15px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--ink); }
+    .marquee-track { display: flex; width: max-content; animation: marquee 32s linear infinite; }
+    .marquee-track:hover { animation-play-state: paused; }
+    @keyframes marquee { to { transform: translateX(-50%); } }
+    .marquee-item { display: flex; align-items: center; gap: 20px; padding: 0 32px; font-size: 0.57rem; font-weight: 600; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(250,248,245,0.22); white-space: nowrap; }
+    .marquee-dot { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; }
+    .marquee-dot.pink   { background: var(--candy-pink); }
+    .marquee-dot.orange { background: var(--candy-orange); }
+    .marquee-dot.yellow { background: var(--candy-yellow); }
+    .marquee-dot.lime   { background: var(--candy-lime); }
+    .marquee-dot.blue   { background: var(--candy-blue); }
+    .marquee-dot.purple { background: var(--candy-purple); }
+
+    /* ─── BRANDS ─── */
+    #brands { padding: 110px 52px; border-bottom: 1px solid var(--line); }
+    .section-eyebrow { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 20px; }
+    .brands-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 60px; flex-wrap: wrap; gap: 20px; }
+    .brands-header h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 3.8vw, 3.2rem); font-weight: 400; line-height: 1.1; }
+    .brands-header h2 em { font-style: italic; }
+    .brands-header-note { font-size: 0.8rem; color: var(--ink-mid); font-weight: 300; max-width: 220px; text-align: right; line-height: 1.75; }
+    .brand-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+    .brand-card { background: var(--cream); overflow: hidden; cursor: pointer; display: flex; flex-direction: column; height: 480px; position: relative; text-decoration: none; color: inherit; transition: transform 0.2s; }
+    .brand-card:hover { transform: translateY(-3px); }
+    .brand-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; z-index: 2; }
+    .brand-img-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 36px; background: #fff; overflow: hidden; }
+    .brand-img-wrap img { max-width: 100%; max-height: 300px; width: auto; height: auto; object-fit: contain; display: block; transition: transform 0.55s cubic-bezier(0.16,1,0.3,1); }
+    .brand-card:hover .brand-img-wrap img { transform: scale(1.06); }
+    .brand-info { padding: 22px 26px 26px; background: var(--cream); border-top: 1px solid var(--line); flex-shrink: 0; }
+    .brand-name { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 400; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 4px; }
+    .brand-tagline { font-size: 0.72rem; color: var(--ink-mid); font-weight: 300; line-height: 1.5; }
+    .brand-card[data-brand="juice-bomb"]  .brand-accent { background: var(--candy-orange); }
+    .brand-card[data-brand="dirty-sips"]  .brand-accent { background: var(--candy-blue); }
+    .brand-card[data-brand="peelpals"]    .brand-accent { background: var(--candy-lime); }
+    .brand-card[data-brand="candu"]       .brand-accent { background: var(--candy-yellow); }
+    .brand-card[data-brand="nauti-labs"]  .brand-accent { background: var(--candy-purple); }
+    .brand-filler { background: var(--ink); display: flex; flex-direction: column; justify-content: flex-end; padding: 44px 36px; height: 480px; position: relative; overflow: hidden; }
+    .brand-filler::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 70%, rgba(255,78,145,0.15), transparent 60%), radial-gradient(circle at 80% 20%, rgba(63,189,255,0.1), transparent 50%); }
+    .brand-filler-text { position: relative; font-family: 'Playfair Display', serif; font-size: clamp(1.3rem, 2.2vw, 1.9rem); font-weight: 400; line-height: 1.4; color: var(--cream); }
+    .brand-filler-text em { font-style: italic; color: rgba(250,248,245,0.3); }
+    .brand-filler-tag { position: relative; margin-top: 28px; font-size: 0.56rem; font-weight: 600; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(250,248,245,0.18); }
+    @media(max-width:900px) { #brands { padding: 80px 20px; } .brand-grid { grid-template-columns: 1fr 1fr; } .brand-filler { display: none; } .brands-header-note { display: none; } .brand-card { height: 400px; } }
+    @media(max-width:560px) { .brand-grid { grid-template-columns: 1fr; } .brand-card { height: 360px; } }
+
+    /* ─── CANDY BAR ─── */
+    .candy-bar { display: grid; grid-template-columns: repeat(6, 1fr); height: 5px; }
+    .candy-bar span:nth-child(1) { background: var(--candy-pink); }
+    .candy-bar span:nth-child(2) { background: var(--candy-orange); }
+    .candy-bar span:nth-child(3) { background: var(--candy-yellow); }
+    .candy-bar span:nth-child(4) { background: var(--candy-lime); }
+    .candy-bar span:nth-child(5) { background: var(--candy-blue); }
+    .candy-bar span:nth-child(6) { background: var(--candy-purple); }
+
+    /* ─── STATEMENT ─── */
+    #statement { padding: 140px 52px; background: var(--ink); color: var(--cream); }
+    .statement-inner { max-width: 860px; }
+    .statement-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(250,248,245,0.22); margin-bottom: 48px; }
+    .statement-text { font-family: 'Playfair Display', serif; font-size: clamp(1.7rem, 3.2vw, 2.8rem); font-weight: 400; line-height: 1.45; letter-spacing: -0.01em; color: var(--cream); }
+    .statement-text em { font-style: italic; color: rgba(250,248,245,0.32); }
+    @media(max-width:768px) { #statement { padding: 100px 20px; } }
+
+    /* ─── HOW IT WORKS ─── */
+    #how { padding: 120px 52px; border-bottom: 1px solid var(--line); }
+    .how-inner { max-width: 1100px; margin: 0 auto; }
+    .how-header { margin-bottom: 72px; max-width: 660px; }
+    .how-header h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 3.6vw, 3rem); font-weight: 400; line-height: 1.1; margin-bottom: 16px; }
+    .how-header h2 em { font-style: italic; }
+    .how-header-sub { font-size: 0.88rem; color: var(--ink-mid); font-weight: 300; line-height: 1.85; }
+    .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); }
+    .how-card { background: var(--cream); padding: 48px 36px; }
+    .how-num { font-size: 0.58rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 28px; }
+    .how-card:nth-child(1) .how-num { color: var(--candy-pink); }
+    .how-card:nth-child(2) .how-num { color: var(--candy-blue); }
+    .how-card:nth-child(3) .how-num { color: var(--candy-lime); }
+    .how-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 400; margin-bottom: 14px; line-height: 1.2; }
+    .how-body { font-size: 0.85rem; color: var(--ink-mid); font-weight: 300; line-height: 1.85; }
+    @media(max-width:768px) { #how { padding: 80px 20px; } .how-grid { grid-template-columns: 1fr; } }
+
+    /* ─── NUMBERS ─── */
+    #numbers { padding: 100px 52px; background: var(--ink); border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .numbers-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(250,248,245,0.08); }
+    .num-card { background: var(--ink); padding: 52px 36px; }
+    .num-val { font-family: 'Playfair Display', serif; font-size: clamp(2.4rem, 4vw, 3.6rem); font-weight: 400; line-height: 1; margin-bottom: 12px; }
+    .num-card:nth-child(1) .num-val { color: var(--candy-pink); }
+    .num-card:nth-child(2) .num-val { color: var(--candy-yellow); }
+    .num-card:nth-child(3) .num-val { color: var(--candy-lime); }
+    .num-card:nth-child(4) .num-val { color: var(--candy-blue); }
+    .num-label { font-size: 0.65rem; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(250,248,245,0.35); line-height: 1.5; }
+    @media(max-width:768px) { #numbers { padding: 60px 20px; } .numbers-inner { grid-template-columns: 1fr 1fr; } }
+
+    /* ─── RETAIL CHANNELS ─── */
+    #shelf { padding: 120px 52px; border-bottom: 1px solid var(--line); }
+    .shelf-inner { max-width: 1100px; margin: 0 auto; }
+    .shelf-header { margin-bottom: 60px; max-width: 640px; }
+    .shelf-header h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 3.6vw, 3rem); font-weight: 400; line-height: 1.1; margin-bottom: 16px; }
+    .shelf-header h2 em { font-style: italic; }
+    .shelf-header-sub { font-size: 0.88rem; color: var(--ink-mid); font-weight: 300; line-height: 1.75; }
+    .channels-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); }
+    .channel-card { background: var(--cream); padding: 44px 36px; position: relative; overflow: hidden; }
+    .channel-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .channel-card:nth-child(1)::before { background: var(--candy-pink); }
+    .channel-card:nth-child(2)::before { background: var(--candy-blue); }
+    .channel-card:nth-child(3)::before { background: var(--candy-orange); }
+    .channel-icon { font-size: 1.6rem; margin-bottom: 20px; }
+    .channel-name { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 400; margin-bottom: 10px; color: var(--ink); }
+    .channel-desc { font-size: 0.82rem; color: var(--ink-mid); font-weight: 300; line-height: 1.8; margin-bottom: 20px; }
+    .channel-examples { font-size: 0.65rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
+    .shelf-cta { margin-top: 52px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+    .shelf-cta-note { font-size: 0.82rem; color: var(--ink-mid); font-weight: 300; }
+    @media(max-width:768px) { #shelf { padding: 80px 20px; } .channels-grid { grid-template-columns: 1fr; } }
+
+    /* ─── CONTACT ─── */
+    #contact { padding: 160px 52px; border-bottom: 1px solid var(--line); }
+    .contact-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 100px; }
+    .contact-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 36px; }
+    .contact-headline { font-family: 'Playfair Display', serif; font-size: clamp(1.9rem, 3.6vw, 3rem); font-weight: 400; line-height: 1.1; margin-bottom: 24px; }
+    .contact-headline em { font-style: italic; }
+    .contact-body { font-size: 0.88rem; color: var(--ink-mid); font-weight: 300; line-height: 1.9; margin-bottom: 44px; }
+    .cd-item { margin-bottom: 18px; }
+    .cd-label { font-size: 0.57rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 4px; }
+    .cd-val { font-size: 0.85rem; color: var(--ink-mid); }
+    .form-stack { display: flex; flex-direction: column; gap: 1px; }
+    .form-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; }
+    .fg { display: flex; flex-direction: column; }
+    .fg label { font-size: 0.56rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint); padding: 13px 16px 5px; background: var(--cream-dark); border: 1px solid var(--line); border-bottom: none; }
+    .fg input, .fg textarea { background: var(--cream-dark); border: 1px solid var(--line); border-top: none; padding: 11px 16px; color: var(--ink); font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 300; outline: none; width: 100%; transition: border-color 0.2s; -webkit-appearance: none; }
+    .fg input:focus, .fg textarea:focus { border-color: var(--candy-pink); }
+    .fg textarea { resize: vertical; min-height: 120px; }
+    .btn-submit { margin-top: 1px; width: 100%; background: var(--ink); color: var(--cream); font-size: 0.67rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; border: none; padding: 20px 40px; cursor: pointer; transition: background 0.22s; font-family: 'Inter', sans-serif; }
+    .btn-submit:hover { background: var(--candy-pink); }
+    .form-success { display: none; padding: 80px 40px; text-align: center; border: 1px solid var(--line); }
+    .form-success.on { display: block; }
+    .form-success h3 { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 400; margin-bottom: 14px; }
+    .form-success p { font-size: 0.88rem; color: var(--ink-mid); line-height: 1.75; }
+    @media(max-width:900px) { #contact { padding: 100px 20px; } .contact-inner { grid-template-columns: 1fr; gap: 52px; } .form-pair { grid-template-columns: 1fr; } }
+
+    /* ─── FOOTER ─── */
+    footer { padding: 44px 52px; border-top: 1px solid var(--line); }
+    .foot-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 28px; }
+    .foot-logo { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink); text-decoration: none; }
+    .foot-nav { display: flex; gap: 32px; }
+    .foot-nav a { font-size: 0.63rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); text-decoration: none; transition: color 0.2s; font-weight: 400; }
+    .foot-nav a:hover { color: var(--ink); }
+    .foot-bottom { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 28px; border-top: 1px solid var(--line); }
+    .foot-copy { font-size: 0.62rem; color: var(--ink-faint); }
+    .foot-tag { font-size: 0.62rem; color: var(--ink-faint); font-style: italic; }
+    @media(max-width:768px) { footer { padding: 36px 20px; } .foot-nav { display: none; } .foot-tag { display: none; } }
+
+    /* ─── REVEAL ─── */
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.75s cubic-bezier(0.16,1,0.3,1), transform 0.75s cubic-bezier(0.16,1,0.3,1); }
+    .reveal.d1 { transition-delay: 0.08s; } .reveal.d2 { transition-delay: 0.16s; } .reveal.d3 { transition-delay: 0.24s; }
+    .reveal.in { opacity: 1; transform: none; }
+    ::selection { background: rgba(255,78,145,0.12); }
+    ::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-track { background: var(--cream); } ::-webkit-scrollbar-thumb { background: var(--ink-faint); }
+  </style>
+  <style>
+    /* ─── PASSWORD GATE ─── */
+    #hs-gate {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #faf8f5;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 24px;
+      transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1);
+    }
+    #hs-gate.unlocking { opacity: 0; pointer-events: none; }
+    #hs-gate.gone { display: none; }
+
+    .gate-inner {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 0;
+      max-width: 480px; width: 100%;
+    }
+
+    .gate-brand {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.62rem; font-weight: 600;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: #5a5650; margin-bottom: 52px;
+    }
+
+    .gate-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.6rem, 7vw, 4.2rem);
+      font-weight: 400; line-height: 1.0;
+      letter-spacing: -0.02em; color: #1a1714;
+      margin-bottom: 16px;
+    }
+
+    .gate-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem; font-weight: 300;
+      color: #a8a49e; margin-bottom: 28px;
+    }
+
+    .gate-divider {
+      width: 100%; height: 1px;
+      background: rgba(26,23,20,0.1);
+      margin-bottom: 28px;
+    }
+
+    .gate-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.65rem; font-weight: 400;
+      letter-spacing: 0.08em; color: #a8a49e;
+      margin-bottom: 14px;
+    }
+
+    .gate-form {
+      display: flex; width: 100%; gap: 0;
+      border: 1px solid rgba(26,23,20,0.12);
+    }
+
+    .gate-input {
+      flex: 1; background: #fff; border: none; outline: none;
+      padding: 14px 18px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem; font-weight: 300; color: #1a1714;
+      -webkit-appearance: none;
+    }
+    .gate-input::placeholder { color: #c8c4be; }
+
+    .gate-btn {
+      background: #1a1714; color: #faf8f5;
+      border: none; padding: 14px 24px; cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.65rem; font-weight: 600;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      transition: background 0.2s; white-space: nowrap;
+    }
+    .gate-btn:hover { background: #ff4e91; }
+
+    .gate-error {
+      margin-top: 12px;
+      font-size: 0.72rem; color: #ff4e91;
+      font-family: 'Inter', sans-serif;
+      font-weight: 400; letter-spacing: 0.04em;
+      opacity: 0; transition: opacity 0.2s;
+      min-height: 18px;
+    }
+    .gate-error.show { opacity: 1; }
+
+    .gate-location {
+      margin-top: 48px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.62rem; font-weight: 400;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: #c8c4be;
+    }
+
+    /* candy bar at bottom of gate */
+    #hs-gate .gate-candy {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      display: grid; grid-template-columns: repeat(6,1fr); height: 4px;
+    }
+    #hs-gate .gate-candy span:nth-child(1) { background: #ff4e91; }
+    #hs-gate .gate-candy span:nth-child(2) { background: #ff7b35; }
+    #hs-gate .gate-candy span:nth-child(3) { background: #ffc933; }
+    #hs-gate .gate-candy span:nth-child(4) { background: #7ed957; }
+    #hs-gate .gate-candy span:nth-child(5) { background: #3fbdff; }
+    #hs-gate .gate-candy span:nth-child(6) { background: #a259ff; }
+  </style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="hs-gate">
+  <div class="gate-inner">
+    <div class="gate-brand">Hidden Supply</div>
+    <div class="gate-headline">Built from<br><em>Culture.</em></div>
+    <div class="gate-sub">The house is opening soon.</div>
+    <div class="gate-divider"></div>
+    <div class="gate-label">Enter password to continue</div>
+    <div class="gate-form">
+      <input class="gate-input" type="password" id="gateInput" placeholder="Password" autocomplete="off" />
+      <button class="gate-btn" id="gateBtn" onclick="hsUnlock()">Enter →</button>
+    </div>
+    <div class="gate-error" id="gateError">Incorrect password</div>
+    <div class="gate-location">Los Angeles, CA</div>
+  </div>
+  <div class="gate-candy"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+</div>
+
+<script>
+  (function() {
+    // Check if already unlocked
+    if (localStorage.getItem('hs_unlocked') === '1') {
+      var g = document.getElementById('hs-gate');
+      if (g) g.classList.add('gone');
+    }
+  })();
+
+  function hsUnlock() {
+    var val = document.getElementById('gateInput').value.trim().toLowerCase();
+    var err = document.getElementById('gateError');
+    if (val === 'plums') {
+      localStorage.setItem('hs_unlocked', '1');
+      var gate = document.getElementById('hs-gate');
+      gate.classList.add('unlocking');
+      setTimeout(function() { gate.classList.add('gone'); }, 950);
+    } else {
+      err.classList.add('show');
+      document.getElementById('gateInput').value = '';
+      document.getElementById('gateInput').focus();
+      setTimeout(function() { err.classList.remove('show'); }, 2200);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var input = document.getElementById('gateInput');
+    if (input) {
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') hsUnlock();
+      });
+      // Focus input if gate is visible
+      var g = document.getElementById('hs-gate');
+      if (g && !g.classList.contains('gone')) input.focus();
+    }
+  });
+</script>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">Hidden Supply</a>
+  <div class="nav-right">
+    <a href="#brands">Brands</a>
+    <a href="#how">The Model</a>
+    <a href="#shelf">Retailers</a>
+    <a href="#contact" class="nav-cta">Work With Us</a>
+  </div>
+</nav>
+
+<!-- HERO — split layout -->
+<section id="hero">
+  <div class="hero-blob blob-1"></div>
+  <div class="hero-blob blob-2"></div>
+  <div class="hero-blob blob-3"></div>
+
+  <div class="hero-left">
+    <div class="hero-eyebrow reveal">Los Angeles, CA &mdash; Est. 2024</div>
+    <h1 class="hero-headline reveal d1">
+      <span class="hl-color">Candy</span> is<br /><em>culture.</em>
+    </h1>
+    <p class="hero-sub reveal d2">A candy brand house built for national retail. Five distinct brands, one powerful engine — and a social playbook that drives customers straight to your shelf.</p>
+    <div class="hero-actions reveal d3">
+      <a href="#brands" class="btn-primary">
+        Explore the Brands
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5h12M8 1l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#contact" class="btn-secondary">
+        Buyer Inquiries
+        <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5h10M7 1l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item">Juice Bomb<span class="marquee-dot orange"></span></div>
+    <div class="marquee-item">Dirty Sips<span class="marquee-dot blue"></span></div>
+    <div class="marquee-item">PeelPals<span class="marquee-dot lime"></span></div>
+    <div class="marquee-item">Candu<span class="marquee-dot yellow"></span></div>
+    <div class="marquee-item">Nauti Labs<span class="marquee-dot purple"></span></div>
+    <div class="marquee-item">Hidden Supply<span class="marquee-dot pink"></span></div>
+    <div class="marquee-item">Juice Bomb<span class="marquee-dot orange"></span></div>
+    <div class="marquee-item">Dirty Sips<span class="marquee-dot blue"></span></div>
+    <div class="marquee-item">PeelPals<span class="marquee-dot lime"></span></div>
+    <div class="marquee-item">Candu<span class="marquee-dot yellow"></span></div>
+    <div class="marquee-item">Nauti Labs<span class="marquee-dot purple"></span></div>
+    <div class="marquee-item">Hidden Supply<span class="marquee-dot pink"></span></div>
+  </div>
+</div>
+
+<!-- BRANDS -->
+<section id="brands">
+  <div class="brands-header">
+    <div>
+      <div class="section-eyebrow reveal">Our Portfolio</div>
+      <h2 class="reveal d1">Five brands —<br /><em>each one its own world.</em></h2>
+    </div>
+    <p class="brands-header-note reveal d1">Five distinct identities. Built for culture.<br />Distributed by Hidden Supply.</p>
+  </div>
+  <div class="brand-grid">
+    <a href="brands/juice-bomb.html" class="brand-card reveal" data-brand="juice-bomb">
+      <div class="brand-accent"></div>
+      <div class="brand-img-wrap"><img src="img/jb_hero.jpg" alt="Juice Bomb" loading="lazy" /></div>
+      <div class="brand-info"><div class="brand-name">Juice Bomb</div><div class="brand-tagline">Bold, juice-filled wax candy</div></div>
+    </a>
+    <a href="brands/dirty-sips.html" class="brand-card reveal d1" data-brand="dirty-sips">
+      <div class="brand-accent"></div>
+      <div class="brand-img-wrap"><img src="img/ds_hero.jpg" alt="Dirty Sips" loading="lazy" /></div>
+      <div class="brand-info"><div class="brand-name">Dirty Sips</div><div class="brand-tagline">Dirty soda culture meets wax candy</div></div>
+    </a>
+    <a href="brands/peelpals.html" class="brand-card reveal d2" data-brand="peelpals">
+      <div class="brand-accent"></div>
+      <div class="brand-img-wrap"><img src="img/pp_hero.jpg" alt="PeelPals" loading="lazy" /></div>
+      <div class="brand-info"><div class="brand-name">PeelPals</div><div class="brand-tagline">Peelable gummies, endlessly satisfying</div></div>
+    </a>
+    <a href="brands/candu.html" class="brand-card reveal d1" data-brand="candu">
+      <div class="brand-accent"></div>
+      <div class="brand-img-wrap"><img src="img/candu_hero.jpg" alt="Candu" loading="lazy" /></div>
+      <div class="brand-info"><div class="brand-name">Candu</div><div class="brand-tagline">Everyday + seasonal gummies for all occasions</div></div>
+    </a>
+    <a href="brands/nauti-labs.html" class="brand-card reveal d2" data-brand="nauti-labs">
+      <div class="brand-accent"></div>
+      <div class="brand-img-wrap"><img src="img/nl_hero.jpg" alt="Nauti Labs" loading="lazy" /></div>
+      <div class="brand-info"><div class="brand-name">Nauti Labs</div><div class="brand-tagline">Novelty candy — crystal candy, kits &amp; more</div></div>
+    </a>
+    <div class="brand-filler reveal d3">
+      <div class="brand-filler-text">Candy is culture.<br /><em>Always has been.</em></div>
+      <div class="brand-filler-tag">A Hidden Supply Brand House</div>
+    </div>
+  </div>
+</section>
+
+<div class="candy-bar"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<!-- STATEMENT -->
+<section id="statement">
+  <div class="statement-inner">
+    <div class="statement-label reveal">What We Believe</div>
+    <p class="statement-text reveal d1">
+      We build brands that earn their place on the shelf —
+      <em>not through promotions or price cuts,</em>
+      but because they mean something
+      to the person standing in front of them.
+      That's the only metric that matters.
+    </p>
+  </div>
+</section>
+
+<div class="candy-bar"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<!-- THE MODEL -->
+<section id="how">
+  <div class="how-inner">
+    <div class="how-header">
+      <div class="section-eyebrow reveal">The Model</div>
+      <h2 class="reveal d1">One engine.<br /><em>Infinite brand skins.</em></h2>
+      <p class="how-header-sub reveal d2">
+        We're retail-first by design. Core products manufactured at scale, wrapped in brand identities tailored per retailer. The result: high-velocity SKUs that turn fast, look great on shelf, and carry a social audience that drives customers straight to the store.
+      </p>
+    </div>
+    <div class="how-grid reveal d2">
+      <div class="how-card">
+        <div class="how-num">01 — Product Engine</div>
+        <div class="how-title">Core SKUs, built to turn.</div>
+        <div class="how-body">Every Hidden Supply product starts as a proven format — wax candy, gummies, novelty candy. Manufactured at scale with quality and margin locked in from day one. High-velocity SKUs your customers reach for on repeat.</div>
+      </div>
+      <div class="how-card">
+        <div class="how-num">02 — Brand Skins</div>
+        <div class="how-title">Your shelf. Your customer.</div>
+        <div class="how-body">Each core product wears its own brand identity. Same great product, different story — letting us match every retailer's customer without redesigning from scratch. Specialty, off-price, or impulse — we speak the language.</div>
+      </div>
+      <div class="how-card">
+        <div class="how-num">03 — Social Pull</div>
+        <div class="how-title">We drive demand in.</div>
+        <div class="how-body">We don't just ship and hope. Our founders built brands to 2M+ followers and 2B+ views. That playbook runs for every Hidden Supply brand — driving customers into your store before they even know they're looking for candy.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NUMBERS -->
+<section id="numbers">
+  <div class="numbers-inner">
+    <div class="num-card reveal"><div class="num-val">5</div><div class="num-label">Active Brands</div></div>
+    <div class="num-card reveal d1"><div class="num-val">76+</div><div class="num-label">SKUs Ready to Ship</div></div>
+    <div class="num-card reveal d2"><div class="num-val">7</div><div class="num-label">Retail Partners</div></div>
+    <div class="num-card reveal d3"><div class="num-val">2B+</div><div class="num-label">Social Views Built</div></div>
+  </div>
+</section>
+
+<!-- RETAIL CHANNELS -->
+<section id="shelf">
+  <div class="shelf-inner">
+    <div class="shelf-header">
+      <div class="section-eyebrow reveal">Where We Play</div>
+      <h2 class="reveal d1">Built for every<br /><em>retail channel.</em></h2>
+      <p class="shelf-header-sub reveal d2">From specialty gifting to off-price, we have brands and SKUs positioned for every door type. Our flexible model means we come with the right product — and the right price — for your floor.</p>
+    </div>
+    <div class="channels-grid reveal d2">
+      <div class="channel-card">
+        <div class="channel-icon">🎁</div>
+        <div class="channel-name">Specialty Gifting</div>
+        <div class="channel-desc">Premium presentation, impulse-driven buying. Our brands are designed to stop a customer mid-aisle — and make great gifts. Strong seasonal programs built for gift-focused retailers.</div>
+        <div class="channel-examples">It's Sugar · World Market · FYE · Box Lunch</div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-icon">💰</div>
+        <div class="channel-name">Off-Price & Value</div>
+        <div class="channel-desc">Real brands at real value. We design specific SKUs and programs for value-oriented retailers — strong margin, clean price points, and the brand equity that makes it feel like a find, not a discount.</div>
+        <div class="channel-examples">Five Below · Burlington · TJ Maxx · Ross</div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-icon">🏪</div>
+        <div class="channel-name">Experiential & Entertainment</div>
+        <div class="channel-desc">Candy belongs where culture lives. VR arcades, entertainment complexes, themed retail — our novelty brands are built for high-dwell environments where customers are already in the mood to treat themselves.</div>
+        <div class="channel-examples">Hot Topic · Sandbox VR · Urban Outfitters</div>
+      </div>
+    </div>
+    <div class="shelf-cta reveal d3">
+      <a href="#contact" class="btn-primary">Request Line Sheet &rarr;</a>
+      <span class="shelf-cta-note">Full catalog + wholesale pricing available on request.</span>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="contact-left">
+      <div class="contact-label reveal">Work With Us</div>
+      <h2 class="contact-headline reveal d1">Let's put something<br /><em>real on your shelf.</em></h2>
+      <p class="contact-body reveal d2">We work with buyers, retailers, and distributors who want candy that actually moves. High velocity, strong margin, and a social engine behind every brand. Every inquiry is reviewed personally.</p>
+      <div class="reveal d3">
+        <div class="cd-item"><div class="cd-label">Buyer Inquiries</div><div class="cd-val">buyers@hiddensupply.co</div></div>
+        <div class="cd-item"><div class="cd-label">Based In</div><div class="cd-val">Los Angeles, CA</div></div>
+        <div class="cd-item"><div class="cd-label">Distribution</div><div class="cd-val">Nationwide · Wholesale</div></div>
+      </div>
+    </div>
+    <div class="contact-right">
+      <form class="form-stack reveal d2" id="contactForm">
+        <div class="form-pair">
+          <div class="fg"><label>Name</label><input type="text" placeholder="Your name" required /></div>
+          <div class="fg"><label>Company</label><input type="text" placeholder="Retailer / Company" required /></div>
+        </div>
+        <div class="form-pair">
+          <div class="fg"><label>Role</label><input type="text" placeholder="Buyer · Distributor · Other" /></div>
+          <div class="fg"><label>Email</label><input type="email" placeholder="your@email.com" required /></div>
+        </div>
+        <div class="fg"><label>What are you looking for?</label><textarea placeholder="Tell us about your store, door count, and what categories you're buying for..." required></textarea></div>
+        <button type="submit" class="btn-submit">Send Inquiry &rarr;</button>
+      </form>
+      <div class="form-success" id="formSuccess">
+        <h3>Received.</h3>
+        <p>We review every inquiry personally.<br />You'll hear back within 2 business days.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-top">
+    <a href="#" class="foot-logo">Hidden Supply</a>
+    <nav class="foot-nav">
+      <a href="#brands">Brands</a>
+      <a href="#how">The Model</a>
+      <a href="#shelf">Retailers</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+  <div class="foot-bottom">
+    <div class="foot-copy">&copy; 2026 Hidden Supply · hiddensupply.co</div>
+    <div class="foot-tag">Los Angeles, CA &mdash; Built for the shelf.</div>
+  </div>
+</footer>
+
+<script>
+  // Nav scroll
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => { nav.classList.toggle('solid', window.scrollY > 40); }, { passive: true });
+
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.07, rootMargin: '0px 0px -20px 0px' });
+  reveals.forEach(el => io.observe(el));
+
+  // Hero instant reveal
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('#hero .reveal').forEach((el, i) => { setTimeout(() => el.classList.add('in'), 80 + i * 130); });
+  });
+
+  // Contact form
+  document.getElementById('contactForm').addEventListener('submit', e => {
+    e.preventDefault();
+    e.target.style.display = 'none';
+    document.getElementById('formSuccess').classList.add('on');
+  });
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) { e.preventDefault(); window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' }); }
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retail Presence — Hidden Supply</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #faf8f5;
+      --cream-dark: #f2ede5;
+      --ink: #1a1714;
+      --ink-mid: #5a5650;
+      --ink-faint: #a8a49e;
+      --line: rgba(26,23,20,0.08);
+      --candy-pink:   #ff4e91;
+      --candy-orange: #ff7b35;
+      --candy-yellow: #ffc933;
+      --candy-lime:   #7ed957;
+      --candy-blue:   #3fbdff;
+      --candy-purple: #a259ff;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--cream); color: var(--ink); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+    /* NAV */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 99; padding: 22px 52px; display: flex; align-items: center; justify-content: space-between; transition: background 0.4s, border-color 0.4s; border-bottom: 1px solid transparent; }
+    nav.solid { background: rgba(250,248,245,0.96); backdrop-filter: blur(18px); border-color: var(--line); }
+    .nav-logo { font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink); text-decoration: none; }
+    .nav-right { display: flex; align-items: center; gap: 36px; }
+    .nav-right a { font-size: 0.67rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mid); text-decoration: none; transition: color 0.2s; }
+    .nav-right a:hover { color: var(--ink); }
+    .nav-cta { background: var(--ink) !important; color: var(--cream) !important; padding: 9px 22px !important; border-radius: 2px; }
+    .nav-cta:hover { background: var(--candy-pink) !important; color: #fff !important; }
+    @media(max-width:768px) { nav { padding: 18px 20px; } .nav-right a:not(.nav-cta) { display: none; } }
+
+    /* HERO */
+    .page-hero { padding: 160px 52px 100px; border-bottom: 1px solid var(--line); position: relative; overflow: hidden; }
+    .hero-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.12; pointer-events: none; }
+    .blob-1 { width: 500px; height: 500px; background: var(--candy-blue); top: -100px; right: -100px; }
+    .blob-2 { width: 300px; height: 300px; background: var(--candy-lime); bottom: -60px; left: 5%; }
+    .page-hero-inner { max-width: 860px; position: relative; }
+    .page-eyebrow { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 28px; }
+    .page-headline { font-family: 'Playfair Display', serif; font-size: clamp(3rem, 7vw, 6rem); font-weight: 400; line-height: 0.97; letter-spacing: -0.02em; margin-bottom: 32px; }
+    .page-headline em { font-style: italic; }
+    .page-sub { font-size: clamp(0.9rem, 1.3vw, 1.05rem); color: var(--ink-mid); font-weight: 300; line-height: 1.8; max-width: 480px; }
+    @media(max-width:768px) { .page-hero { padding: 120px 20px 72px; } }
+
+    /* STATS BAR */
+    .stats-bar { background: var(--ink); padding: 56px 52px; }
+    .stats-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: rgba(250,248,245,0.08); }
+    .stat-item { background: var(--ink); padding: 40px 32px; }
+    .stat-val { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem,3.5vw,3.2rem); font-weight: 400; line-height: 1; margin-bottom: 10px; }
+    .stat-item:nth-child(1) .stat-val { color: var(--candy-pink); }
+    .stat-item:nth-child(2) .stat-val { color: var(--candy-yellow); }
+    .stat-item:nth-child(3) .stat-val { color: var(--candy-lime); }
+    .stat-item:nth-child(4) .stat-val { color: var(--candy-blue); }
+    .stat-label { font-size: 0.63rem; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(250,248,245,0.35); line-height: 1.5; }
+    @media(max-width:768px) { .stats-bar { padding: 40px 20px; } .stats-inner { grid-template-columns: 1fr 1fr; } }
+
+    /* CANDY BAR */
+    .candy-bar { display: grid; grid-template-columns: repeat(6,1fr); height: 5px; }
+    .candy-bar span:nth-child(1) { background: var(--candy-pink); }
+    .candy-bar span:nth-child(2) { background: var(--candy-orange); }
+    .candy-bar span:nth-child(3) { background: var(--candy-yellow); }
+    .candy-bar span:nth-child(4) { background: var(--candy-lime); }
+    .candy-bar span:nth-child(5) { background: var(--candy-blue); }
+    .candy-bar span:nth-child(6) { background: var(--candy-purple); }
+
+    /* MAP SECTION */
+    #map-section { padding: 120px 52px; border-bottom: 1px solid var(--line); }
+    .map-inner { max-width: 1100px; margin: 0 auto; }
+    .section-eyebrow { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 20px; }
+    .map-header { margin-bottom: 72px; }
+    .map-header h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem,3.6vw,3rem); font-weight: 400; line-height: 1.1; margin-bottom: 16px; }
+    .map-header h2 em { font-style: italic; }
+    .map-header-sub { font-size: 0.88rem; color: var(--ink-mid); font-weight: 300; line-height: 1.85; max-width: 480px; }
+
+    /* US Map SVG placeholder */
+    .map-viz { background: var(--cream-dark); border: 1px solid var(--line); border-radius: 2px; padding: 60px; margin-bottom: 48px; display: flex; align-items: center; justify-content: center; min-height: 320px; position: relative; overflow: hidden; }
+    .map-viz-bg { position: absolute; inset: 0; background: radial-gradient(circle at 25% 60%, rgba(63,189,255,0.08), transparent 50%), radial-gradient(circle at 75% 40%, rgba(126,217,87,0.08), transparent 50%), radial-gradient(circle at 50% 80%, rgba(255,78,145,0.06), transparent 40%); }
+    .map-dots { position: relative; display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; width: 100%; max-width: 600px; }
+    .map-dot-group { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .map-dot { width: 12px; height: 12px; border-radius: 50%; animation: pulse 2.5s ease-in-out infinite; }
+    .map-dot.pink   { background: var(--candy-pink);   animation-delay: 0s; }
+    .map-dot.blue   { background: var(--candy-blue);   animation-delay: 0.4s; }
+    .map-dot.lime   { background: var(--candy-lime);   animation-delay: 0.8s; }
+    .map-dot.yellow { background: var(--candy-yellow); animation-delay: 1.2s; }
+    .map-dot.orange { background: var(--candy-orange); animation-delay: 1.6s; }
+    .map-dot.purple { background: var(--candy-purple); animation-delay: 2s; }
+    .map-dot-label { font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); text-align: center; }
+    @keyframes pulse { 0%,100% { opacity: 0.4; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+
+    .region-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 2px; }
+    .region-card { background: var(--cream-dark); padding: 40px 32px; position: relative; overflow: hidden; transition: background 0.2s; }
+    .region-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .region-card:nth-child(1)::before { background: var(--candy-pink); }
+    .region-card:nth-child(2)::before { background: var(--candy-blue); }
+    .region-card:nth-child(3)::before { background: var(--candy-orange); }
+    .region-card:nth-child(4)::before { background: var(--candy-lime); }
+    .region-name { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 16px; }
+    .region-doors { font-family: 'Playfair Display', serif; font-size: 2.6rem; font-weight: 400; color: var(--ink); margin-bottom: 6px; line-height: 1; }
+    .region-states { font-size: 0.72rem; color: var(--ink-mid); font-weight: 300; margin-bottom: 16px; }
+    .region-types { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.08em; color: var(--ink-faint); }
+    @media(max-width:900px) { #map-section { padding: 80px 20px; } .region-grid { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:560px) { .region-grid { grid-template-columns: 1fr; } }
+
+    /* CHANNELS */
+    #channels { padding: 120px 52px; background: var(--ink); color: var(--cream); border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .channels-inner { max-width: 1100px; margin: 0 auto; }
+    .channels-header { margin-bottom: 64px; }
+    .channels-header .section-eyebrow { color: rgba(250,248,245,0.22); }
+    .channels-header h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem,3.6vw,3rem); font-weight: 400; line-height: 1.1; color: var(--cream); }
+    .channels-header h2 em { font-style: italic; color: rgba(250,248,245,0.35); }
+    .channel-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: rgba(250,248,245,0.06); }
+    .channel-card { background: var(--ink); padding: 48px 36px; }
+    .channel-icon { width: 40px; height: 40px; border-radius: 2px; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .channel-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 400; color: var(--cream); margin-bottom: 12px; }
+    .channel-body { font-size: 0.83rem; color: rgba(250,248,245,0.45); font-weight: 300; line-height: 1.85; }
+    .channel-card:nth-child(1) .channel-icon { background: rgba(255,78,145,0.15); }
+    .channel-card:nth-child(2) .channel-icon { background: rgba(63,189,255,0.15); }
+    .channel-card:nth-child(3) .channel-icon { background: rgba(126,217,87,0.15); }
+    @media(max-width:768px) { #channels { padding: 80px 20px; } .channel-grid { grid-template-columns: 1fr; } }
+
+    /* CTA */
+    #retail-cta { padding: 140px 52px; border-bottom: 1px solid var(--line); }
+    .cta-inner { max-width: 780px; margin: 0 auto; text-align: center; }
+    .cta-inner .section-eyebrow { margin-bottom: 28px; }
+    .cta-inner h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem,3.8vw,3.2rem); font-weight: 400; line-height: 1.1; margin-bottom: 24px; }
+    .cta-inner h2 em { font-style: italic; }
+    .cta-inner p { font-size: 0.9rem; color: var(--ink-mid); font-weight: 300; line-height: 1.85; max-width: 480px; margin: 0 auto 44px; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 12px; font-size: 0.67rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--cream); background: var(--ink); padding: 16px 34px; text-decoration: none; border-radius: 2px; transition: background 0.22s, gap 0.22s; }
+    .btn-primary:hover { background: var(--candy-pink); gap: 18px; }
+    @media(max-width:768px) { #retail-cta { padding: 100px 20px; } }
+
+    /* FOOTER */
+    footer { padding: 44px 52px; border-top: 1px solid var(--line); }
+    .foot-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 28px; }
+    .foot-logo { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink); }
+    .foot-nav { display: flex; gap: 32px; }
+    .foot-nav a { font-size: 0.63rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); text-decoration: none; transition: color 0.2s; font-weight: 400; }
+    .foot-nav a:hover { color: var(--ink); }
+    .foot-bottom { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 28px; border-top: 1px solid var(--line); }
+    .foot-copy { font-size: 0.62rem; color: var(--ink-faint); }
+    .foot-tag { font-size: 0.62rem; color: var(--ink-faint); font-style: italic; }
+    @media(max-width:768px) { footer { padding: 36px 20px; } .foot-nav { display: none; } .foot-tag { display: none; } }
+
+    /* REVEAL */
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.75s cubic-bezier(0.16,1,0.3,1), transform 0.75s cubic-bezier(0.16,1,0.3,1); }
+    .reveal.d1 { transition-delay: 0.08s; } .reveal.d2 { transition-delay: 0.16s; } .reveal.d3 { transition-delay: 0.24s; }
+    .reveal.in { opacity: 1; transform: none; }
+    ::selection { background: rgba(255,78,145,0.12); }
+    ::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-track { background: var(--cream); } ::-webkit-scrollbar-thumb { background: var(--ink-faint); }
+  </style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">Hidden Supply</a>
+  <div class="nav-right">
+    <a href="brands.html">Brands</a>
+    <a href="about.html">The Model</a>
+    <a href="retailers.html">Retailers</a>
+    <a href="contact.html" class="nav-cta">Work With Us</a>
+  </div>
+</nav>
+
+<section class="page-hero">
+  <div class="hero-blob blob-1"></div>
+  <div class="hero-blob blob-2"></div>
+  <div class="page-hero-inner">
+    <div class="page-eyebrow reveal">Retail Presence</div>
+    <h1 class="page-headline reveal d1">On shelf where<br /><em>culture shops.</em></h1>
+    <p class="page-sub reveal d2">3,000+ doors across the US. Specialty, pop culture, off-price — wherever the customer is, we're there.</p>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item reveal"><div class="stat-val">3,000+</div><div class="stat-label">Retail Doors</div></div>
+    <div class="stat-item reveal d1"><div class="stat-val">7+</div><div class="stat-label">Retail Partners</div></div>
+    <div class="stat-item reveal d2"><div class="stat-val">4</div><div class="stat-label">US Regions</div></div>
+    <div class="stat-item reveal d3"><div class="stat-val">15</div><div class="stat-label">Brands on Shelf</div></div>
+  </div>
+</div>
+
+<div class="candy-bar"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<section id="map-section">
+  <div class="map-inner">
+    <div class="map-header">
+      <div class="section-eyebrow reveal">Where We Are</div>
+      <h2 class="reveal d1">Nationwide presence,<br /><em>regional roots.</em></h2>
+      <p class="map-header-sub reveal d2">Our brands are distributed across all major US markets — from the specialty boutiques on the coasts to the pop culture hubs in between.</p>
+    </div>
+
+    <div class="map-viz reveal">
+      <div class="map-viz-bg"></div>
+      <div class="map-dots">
+        <div class="map-dot-group"><div class="map-dot pink"></div><div class="map-dot-label">Seattle</div></div>
+        <div class="map-dot-group"><div class="map-dot blue"></div><div class="map-dot-label">Chicago</div></div>
+        <div class="map-dot-group"><div class="map-dot lime"></div><div class="map-dot-label">New York</div></div>
+        <div class="map-dot-group"><div class="map-dot orange"></div><div class="map-dot-label">Atlanta</div></div>
+        <div class="map-dot-group"><div class="map-dot purple"></div><div class="map-dot-label">Dallas</div></div>
+        <div class="map-dot-group"><div class="map-dot yellow"></div><div class="map-dot-label">Los Angeles</div></div>
+        <div class="map-dot-group"><div class="map-dot pink"></div><div class="map-dot-label">Miami</div></div>
+        <div class="map-dot-group"><div class="map-dot blue"></div><div class="map-dot-label">Denver</div></div>
+        <div class="map-dot-group"><div class="map-dot lime"></div><div class="map-dot-label">Boston</div></div>
+        <div class="map-dot-group"><div class="map-dot orange"></div><div class="map-dot-label">Phoenix</div></div>
+      </div>
+    </div>
+
+    <div class="region-grid">
+      <div class="region-card reveal">
+        <div class="region-name">West Coast</div>
+        <div class="region-doors">800+</div>
+        <div class="region-states">CA · OR · WA</div>
+        <div class="region-types">Specialty · Pop Culture · Off-Price</div>
+      </div>
+      <div class="region-card reveal d1">
+        <div class="region-name">East Coast</div>
+        <div class="region-doors">700+</div>
+        <div class="region-states">NY · FL · MA · DC</div>
+        <div class="region-types">Specialty · Entertainment · Lifestyle</div>
+      </div>
+      <div class="region-card reveal d2">
+        <div class="region-name">Midwest & South</div>
+        <div class="region-doors">900+</div>
+        <div class="region-states">IL · TX · OH · MI · GA</div>
+        <div class="region-types">Off-Price · Pop Culture · Specialty</div>
+      </div>
+      <div class="region-card reveal d3">
+        <div class="region-name">Nationwide</div>
+        <div class="region-doors">3,000+</div>
+        <div class="region-states">All major US markets</div>
+        <div class="region-types">7+ retail partners · All channels</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="channels">
+  <div class="channels-inner">
+    <div class="channels-header">
+      <div class="section-eyebrow reveal">Retail Channels</div>
+      <h2 class="reveal d1">Every channel.<br /><em>Every customer.</em></h2>
+    </div>
+    <div class="channel-grid">
+      <div class="channel-card reveal">
+        <div class="channel-icon">🍭</div>
+        <div class="channel-title">Specialty Retail</div>
+        <div class="channel-body">Premium candy destinations and lifestyle boutiques where customers come specifically for discovery. High basket size, high engagement. Our brands earn their place here on product merit alone.</div>
+      </div>
+      <div class="channel-card reveal d1">
+        <div class="channel-icon">🎮</div>
+        <div class="channel-title">Pop Culture</div>
+        <div class="channel-body">Entertainment-driven retail where culture and candy naturally collide. Our brands are built for this world — bold identities, social-native design, and the kind of packaging that gets photographed.</div>
+      </div>
+      <div class="channel-card reveal d2">
+        <div class="channel-icon">🏷️</div>
+        <div class="channel-title">Off-Price & Value</div>
+        <div class="channel-body">High-velocity, high-volume. We work with off-price partners to move seasonal and overstock through channels that turn fast. Strong margin discipline means we can play here without compromising the brands.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="retail-cta">
+  <div class="cta-inner">
+    <div class="section-eyebrow reveal">For Buyers</div>
+    <h2 class="reveal d1">Let's put something<br /><em>real on your shelf.</em></h2>
+    <p class="reveal d2">We work with buyers who want candy that actually moves. High velocity, strong margin, and a social engine behind every brand. Every inquiry is reviewed personally.</p>
+    <a href="contact.html" class="btn-primary reveal d3">
+      Buyer Inquiries
+      <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5h12M8 1l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-top">
+    <div class="foot-logo">Hidden Supply</div>
+    <nav class="foot-nav">
+      <a href="brands.html">Brands</a>
+      <a href="about.html">The Model</a>
+      <a href="retailers.html">Retail</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+  <div class="foot-bottom">
+    <div class="foot-copy">&copy; 2026 Hidden Supply · hiddensupply.co</div>
+    <div class="foot-tag">Los Angeles, CA &mdash; Built for the shelf.</div>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => { nav.classList.toggle('solid', window.scrollY > 40); }, { passive: true });
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.07, rootMargin: '0px 0px -20px 0px' });
+  reveals.forEach(el => io.observe(el));
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.page-hero .reveal').forEach((el, i) => { setTimeout(() => el.classList.add('in'), 100 + i * 140); });
+  });
+</script>
+</body>
+</html>

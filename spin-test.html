@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Juice Bomb — 3D Spin Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a12; min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: sans-serif; }
+
+    .stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .spin-wrap {
+      width: 380px;
+      height: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 900px;
+    }
+
+    .spin-inner {
+      width: 320px;
+      height: 420px;
+      position: relative;
+      transform-style: preserve-3d;
+      animation: spinY 8s linear infinite;
+      cursor: pointer;
+    }
+
+    .spin-inner.paused {
+      animation-play-state: paused;
+    }
+
+    @keyframes spinY {
+      from { transform: rotateY(0deg); }
+      to   { transform: rotateY(360deg); }
+    }
+
+    .spin-inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 20px 60px rgba(100,180,255,0.25)) drop-shadow(0 0 40px rgba(255,140,60,0.15));
+    }
+
+    /* subtle glow pulse behind bag */
+    .spin-wrap::after {
+      content: '';
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(80,160,255,0.18) 0%, transparent 70%);
+      animation: pulse 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
+
+    .controls {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 10px 24px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: rgba(255,255,255,0.12); }
+
+    .speed-label {
+      color: rgba(255,255,255,0.4);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 120px;
+      height: 2px;
+      background: rgba(255,255,255,0.2);
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .label {
+      color: rgba(255,255,255,0.25);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-top: -16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="label">Juice Bomb — 3D Spin Test</div>
+
+    <div class="spin-wrap">
+      <div class="spin-inner" id="spinner">
+        <img src="img/jb_3d_space.png" alt="Juice Bomb" />
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="toggle">Pause</button>
+      <span class="speed-label">Speed</span>
+      <input type="range" id="speed" min="2" max="20" value="8" step="1" />
+    </div>
+  </div>
+
+  <script>
+    const spinner = document.getElementById('spinner');
+    const toggle = document.getElementById('toggle');
+    const speed = document.getElementById('speed');
+    let paused = false;
+
+    toggle.addEventListener('click', () => {
+      paused = !paused;
+      spinner.classList.toggle('paused', paused);
+      toggle.textContent = paused ? 'Play' : 'Pause';
+    });
+
+    speed.addEventListener('input', () => {
+      spinner.style.animationDuration = speed.value + 's';
+    });
+
+    // click bag to pause/play too
+    spinner.addEventListener('click', () => toggle.click());
+  </script>
+</body>
+</html>

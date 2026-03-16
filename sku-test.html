@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SKU Card Test — Flavor Swatches</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #faf8f5; font-family: 'Inter', sans-serif; padding: 60px 40px; color: #1a1714; }
+
+    h2 { font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 8px; }
+    .eyebrow { font-size: 0.58rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: #a8a49e; margin-bottom: 16px; }
+    .subtitle { font-size: 0.85rem; color: #5a5650; margin-bottom: 48px; }
+
+    .sku-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      max-width: 960px;
+    }
+
+    .sku-card {
+      background: #fff;
+      border: 1px solid rgba(26,23,20,0.08);
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .sku-card:hover { box-shadow: 0 8px 32px rgba(26,23,20,0.08); }
+
+    .sku-img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      overflow: hidden;
+      background: #faf8f5;
+    }
+    .sku-img img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 16px; }
+
+    .sku-info { padding: 16px; }
+    .sku-name { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+    .sku-meta { font-size: 0.7rem; color: #a8a49e; margin-bottom: 12px; }
+
+    /* FLAVOR SWATCHES */
+    .sku-flavors { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .flavor-swatch {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #5a5650;
+    }
+    .flavor-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .sku-tag {
+      display: inline-block;
+      font-size: 0.55rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      background: #f2ede5;
+      color: #5a5650;
+    }
+    .sku-tag.seasonal { background: #fff3e0; color: #b35c00; }
+    .sku-tag.core { background: #e8f4e8; color: #2d6a2d; }
+
+    /* coming soon state */
+    .sku-img.ph {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sku-img.ph span {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #c8c4be;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="eyebrow">The Line</div>
+  <h2>Every SKU,<br><em>shelf-ready.</em></h2>
+  <p class="subtitle">Current lineup — everyday + seasonal</p>
+
+  <div class="sku-grid">
+
+    <!-- SKU 1: Space Astronaut (core, existing) -->
+    <div class="sku-card">
+      <div class="sku-img">
+        <img src="img/jb_hero.jpg" alt="Space Astronaut" />
+      </div>
+      <div class="sku-info">
+        <div class="sku-name">Space Astronaut</div>
+        <div class="sku-meta">Wax Candy · 5oz · Everyday</div>
+        <div class="sku-flavors">
+          <div class="flavor-swatch"><div class="flavor-dot" style="background:#ff6b9d;"></div>Strawberry</div>
+          <div class="flavor-swatch"><div class="flavor-dot" style="background:#4ecb71;"></div>Apple</div>
+          <div class="flavor-swatch"><div class="flavor-dot" style="background:#6bb5ff;"></div>Blue Razz</div>
+          <div class="flavor-swatch"><div class="flavor-dot" style="background:#ffd93d;"></div>Lemon</div>
+        </div>
+        <span class="sku-tag core">Core SKU</span>
+      </div>
+    </div>
+
+    <!-- SKU 2: Christmas Creatures (seasonal) -->
+    <div class="sku-card">
+      <div class="sku-img">
+        <img src="img/juice_bomb_christmas.png" alt="Christmas Creatures" />
+      </div>
+      <div class="sku-info">
+        <div class="sku-name">Christmas Creatures</div>
+        <div class="sku-meta">Wax Candy · 5oz · Seasonal</div>
+        <div class="sku-flavors">
+          <div class="flavor-swatch"><div class="flavor-dot" style="background:#e63946;"></div>Cherry</div>
+          <div class="flavor-swatch"><div class="flavor-dot" style="background:#2a9d8f;"></div>Mint</div>
+          <div class="flavor-swatch"><div class="flavor-dot" style="background:#f4a261;"></div>Orange</div>
+        </div>
+        <span class="sku-tag seasonal">Holiday</span>
+      </div>
+    </div>
+
+    <!-- SKU 3: Coming Soon -->
+    <div class="sku-card">
+      <div class="sku-img ph"><span>Coming Soon</span></div>
+      <div class="sku-info">
+        <div class="sku-name">Spring Drop</div>
+        <div class="sku-meta">Wax Candy · Everyday</div>
+        <div class="sku-flavors">
+          <div class="flavor-swatch"><div class="flavor-dot" style="background:#d9d9d9;"></div>TBD</div>
+        </div>
+        <span class="sku-tag">In Development</span>
+      </div>
+    </div>
+
+    <!-- SKU 4: Coming Soon -->
+    <div class="sku-card">
+      <div class="sku-img ph"><span>Coming Soon</span></div>
+      <div class="sku-info">
+        <div class="sku-name">New Flavor TBD</div>
+        <div class="sku-meta">Wax Candy · Everyday</div>
+        <div class="sku-flavors">
+          <div class="flavor-swatch"><div class="flavor-dot" style="background:#d9d9d9;"></div>TBD</div>
+        </div>
+        <span class="sku-tag">In Development</span>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
