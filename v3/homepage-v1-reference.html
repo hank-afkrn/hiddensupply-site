@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hidden Supply — Candy is Culture.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:        #0a0a0f;
+      --black-mid:    #111118;
+      --black-soft:   #1a1a24;
+      --yellow:       #ffe600;
+      --pink:         #ff2d6b;
+      --purple:       #7c3aed;
+      --cream:        #faf8f2;
+      --cream-dark:   #f0ede4;
+      --ink:          #1a1714;
+      --ink-mid:      #6b6762;
+      --ink-faint:    #b0aca7;
+      --line-dark:    rgba(255,255,255,0.08);
+      --line-light:   rgba(26,23,20,0.08);
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--black); color: var(--cream); overflow-x: hidden; }
+
+    /* ── STARS ── */
+    .stars { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+    .star {
+      position: absolute; background: #fff; border-radius: 50%;
+      animation: twinkle var(--d,3s) ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%,100% { opacity: var(--op,0.3); }
+      50%      { opacity: 0.04; }
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 0 52px; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(10,10,15,0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line-dark);
+      transition: background 0.3s;
+    }
+    .nav-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem; font-weight: 700; color: var(--yellow);
+      letter-spacing: 0.02em; text-decoration: none;
+    }
+    .nav-brand span { font-weight: 400; font-style: italic; color: rgba(250,248,242,0.45); font-size: 0.85rem; }
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a {
+      font-size: 0.7rem; font-weight: 500; letter-spacing: 0.12em;
+      text-transform: uppercase; color: rgba(250,248,242,0.5);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--cream); }
+    .nav-cta {
+      background: var(--yellow); color: var(--black);
+      padding: 9px 20px; font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .nav-cta:hover { background: #fff; transform: translateY(-1px); }
+    @media(max-width:768px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+    }
+
+    /* ── REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+    .reveal.d1 { transition-delay: 0.1s; }
+    .reveal.d2 { transition-delay: 0.2s; }
+    .reveal.d3 { transition-delay: 0.3s; }
+    .reveal.d4 { transition-delay: 0.4s; }
+    .reveal.d5 { transition-delay: 0.5s; }
+
+    .section-label {
+      font-size: 0.6rem; font-weight: 600; letter-spacing: 0.3em;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .section-label.light  { color: var(--ink-faint); }
+    .section-label.dark   { color: rgba(250,248,242,0.3); }
+    .section-label.yellow { color: var(--yellow); }
+
+    /* ════════════════════════════════════════════════
+       SECTION 1 — HERO
+    ════════════════════════════════════════════════ */
+    #hero {
+      position: relative; min-height: 100vh;
+      background: var(--black); overflow: hidden;
+      display: flex; align-items: center;
+      padding: 100px 52px 80px;
+    }
+    .hero-inner {
+      position: relative; z-index: 2;
+      max-width: 1280px; margin: 0 auto; width: 100%;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+    }
+    .hero-eyebrow {
+      font-size: 0.62rem; font-weight: 600; letter-spacing: 0.32em;
+      text-transform: uppercase; color: var(--yellow); margin-bottom: 28px;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .hero-eyebrow.in { opacity: 1; transform: none; }
+    .hero-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3.2rem, 7vw, 6.2rem); font-weight: 900;
+      line-height: 0.92; letter-spacing: -0.025em; color: var(--cream);
+      margin-bottom: 32px;
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s;
+    }
+    .hero-headline.in { opacity: 1; transform: none; }
+    .hero-headline em { font-style: italic; color: var(--yellow); }
+    .hero-sub {
+      font-size: 1rem; font-weight: 300; line-height: 1.75;
+      color: rgba(250,248,242,0.55); max-width: 420px; margin-bottom: 48px;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.6s ease 0.25s, transform 0.6s ease 0.25s;
+    }
+    .hero-sub.in { opacity: 1; transform: none; }
+    .hero-actions {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.6s ease 0.35s, transform 0.6s ease 0.35s;
+    }
+    .hero-actions.in { opacity: 1; transform: none; }
+    .btn-primary {
+      background: var(--yellow); color: var(--black);
+      padding: 15px 32px; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { background: #fff; transform: translateY(-2px); }
+    .btn-secondary {
+      border: 1px solid rgba(250,248,242,0.2); color: var(--cream);
+      padding: 15px 32px; font-size: 0.72rem; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+    .btn-secondary:hover { border-color: var(--cream); background: rgba(250,248,242,0.05); transform: translateY(-2px); }
+
+    /* Hero product collage */
+    .hero-right {
+      opacity: 0; transform: scale(0.93) translateY(20px);
+      transition: opacity 1s ease 0.2s, transform 1s ease 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-right.in { opacity: 1; transform: none; }
+    .hero-collage {
+      position: relative; width: 100%; max-width: 560px; aspect-ratio: 1/1;
+    }
+    .hero-collage-item {
+      position: absolute;
+      border-radius: 4px; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .hero-collage-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* Floating composition — layered, varied sizes + rotations */
+    .hci-1 { width: 52%; left: 0;    top: 5%;   z-index: 4; transform: rotate(-2deg);  box-shadow: 0 24px 64px rgba(255,230,0,0.12), 0 8px 32px rgba(0,0,0,0.5); }
+    .hci-2 { width: 38%; right: 0;   top: 0;    z-index: 3; transform: rotate(2.5deg); box-shadow: 0 20px 50px rgba(0,212,255,0.1), 0 6px 24px rgba(0,0,0,0.45); }
+    .hci-3 { width: 36%; right: 8%;  bottom: 5%; z-index: 2; transform: rotate(-1.5deg);box-shadow: 0 16px 40px rgba(126,217,87,0.1), 0 6px 20px rgba(0,0,0,0.4); }
+    .hci-4 { width: 34%; left: 18%;  bottom: 0; z-index: 5; transform: rotate(1.5deg); box-shadow: 0 20px 50px rgba(255,123,53,0.12), 0 6px 24px rgba(0,0,0,0.45); }
+
+    .hero-scroll {
+      position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 2; opacity: 0.35;
+    }
+    .hero-scroll span { font-size: 0.6rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; }
+    .scroll-line { width: 1px; height: 32px; background: var(--cream); animation: scrollpulse 2s ease-in-out infinite; }
+    @keyframes scrollpulse { 0%,100%{opacity:0.3;transform:scaleY(1)} 50%{opacity:1;transform:scaleY(1.3)} }
+
+    @media(max-width:960px) {
+      #hero { padding: 100px 24px 60px; }
+      .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+      .hero-right { order: -1; }
+      .hero-collage { max-width: 380px; aspect-ratio: 1/1; margin: 0 auto; }
+    }
+
+    /* ════════════════════════════════════════════════
+       SECTION 2 — THE BRANDS
+    ════════════════════════════════════════════════ */
+    #brands { background: var(--cream); padding: 120px 52px; }
+    .brands-inner { max-width: 1280px; margin: 0 auto; }
+    .brands-header { margin-bottom: 64px; }
+    .brands-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 4.5vw, 3.8rem); font-weight: 900;
+      color: var(--ink); letter-spacing: -0.02em; line-height: 1.05;
+    }
+    .brands-header h2 em { font-style: italic; color: var(--pink); }
+    .brands-header p { font-size: 0.9rem; color: var(--ink-mid); font-weight: 300; line-height: 1.7; margin-top: 14px; max-width: 480px; }
+
+    /* 3+2 grid on desktop, 2-col on tablet, 1-col on mobile */
+    .brands-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--ink);
+    }
+    .brand-card {
+      background: var(--cream); overflow: hidden;
+      text-decoration: none; display: block; position: relative;
+      transition: background 0.25s;
+    }
+    .brand-card:hover { background: var(--cream-dark); }
+    .brand-card-bar {
+      height: 3px;
+      /* set inline via style="background: {color}" per card */
+    }
+    .brand-card-img {
+      width: 100%; aspect-ratio: 3/4; overflow: hidden;
+    }
+    .brand-card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .brand-card:hover .brand-card-img img { transform: scale(1.04); }
+    .brand-card-info { padding: 24px 24px 28px; }
+    .brand-card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 900; color: var(--ink);
+      letter-spacing: -0.01em; margin-bottom: 6px;
+    }
+    .brand-card-desc { font-size: 0.82rem; color: var(--ink-mid); font-weight: 300; line-height: 1.55; }
+    .brand-card-arrow {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 16px;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--ink); text-decoration: none; transition: gap 0.2s;
+    }
+    .brand-card:hover .brand-card-arrow { gap: 12px; }
+
+    /* 4th and 5th cards span to center the bottom row */
+    .brand-card:nth-child(4) { grid-column: 1 / span 1; }
+    .brand-card:nth-child(5) { grid-column: 2 / span 1; }
+
+    @media(max-width:960px) {
+      #brands { padding: 80px 20px; }
+      .brands-grid { grid-template-columns: repeat(2, 1fr); }
+      .brand-card:nth-child(4),
+      .brand-card:nth-child(5) { grid-column: auto; }
+    }
+    @media(max-width:480px) {
+      .brands-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ════════════════════════════════════════════════
+       SECTION 3 — THE SYSTEM
+    ════════════════════════════════════════════════ */
+    #system {
+      background: var(--black-mid); padding: 140px 52px;
+      border-top: 1px solid var(--line-dark); border-bottom: 1px solid var(--line-dark);
+    }
+    .system-inner { max-width: 1100px; margin: 0 auto; }
+    .system-header { text-align: center; margin-bottom: 80px; }
+    .system-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4.5vw, 3.5rem); font-weight: 900;
+      color: var(--cream); letter-spacing: -0.02em; line-height: 1.0;
+    }
+    .system-header h2 em { font-style: italic; color: var(--yellow); }
+    .system-header p { font-size: 0.88rem; color: rgba(250,248,242,0.4); margin-top: 14px; font-weight: 300; max-width: 480px; margin-left: auto; margin-right: auto; }
+    .system-steps {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line-dark);
+    }
+    .system-step { background: var(--black-mid); padding: 52px 44px; position: relative; overflow: hidden; }
+    .system-step::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    }
+    .system-step:nth-child(1)::before { background: var(--yellow); }
+    .system-step:nth-child(2)::before { background: var(--pink); }
+    .system-step:nth-child(3)::before { background: var(--purple); }
+    .system-num {
+      font-family: 'Playfair Display', serif; font-size: 5.5rem; font-weight: 900;
+      line-height: 1; color: rgba(250,248,242,0.04); margin-bottom: 24px; display: block;
+    }
+    .system-title {
+      font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700;
+      font-style: italic; margin-bottom: 12px; display: block;
+    }
+    .system-step:nth-child(1) .system-title { color: var(--yellow); }
+    .system-step:nth-child(2) .system-title { color: var(--pink); }
+    .system-step:nth-child(3) .system-title { color: var(--purple); }
+    .system-desc { font-size: 0.85rem; color: rgba(250,248,242,0.5); font-weight: 300; line-height: 1.75; }
+    @media(max-width:768px) {
+      #system { padding: 80px 20px; }
+      .system-steps { grid-template-columns: 1fr; }
+    }
+
+    /* ════════════════════════════════════════════════
+       SECTION 4 — BRAND WORLD / CANDY CULTURE
+    ════════════════════════════════════════════════ */
+    #culture { background: var(--black-soft); padding: 140px 52px; }
+    .culture-inner { max-width: 1200px; margin: 0 auto; }
+    .culture-manifesto { max-width: 900px; margin: 0 auto 80px; text-align: center; }
+    .culture-manifesto blockquote {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 3.5vw, 2.8rem); font-weight: 400;
+      font-style: italic; line-height: 1.4; color: var(--cream); letter-spacing: -0.01em;
+    }
+    .culture-manifesto blockquote em { color: var(--yellow); font-style: normal; }
+    .culture-manifesto cite {
+      display: block; margin-top: 24px; font-size: 0.65rem; font-weight: 600;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: rgba(250,248,242,0.28); font-style: normal;
+    }
+
+    /* Multi-brand masonry */
+    .culture-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr;
+      gap: 3px;
+      background: rgba(255,255,255,0.04);
+    }
+    .culture-img { overflow: hidden; }
+    .culture-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s ease; }
+    .culture-img:hover img { transform: scale(1.03); }
+    /* Layout: 6 images, asymmetric */
+    .culture-img:nth-child(1) { grid-column: 1; grid-row: 1 / 3; }
+    .culture-img:nth-child(1) img { min-height: 540px; }
+    .culture-img:nth-child(2) { grid-column: 2; grid-row: 1; aspect-ratio: 4/3; }
+    .culture-img:nth-child(3) { grid-column: 3; grid-row: 1; aspect-ratio: 1/1; }
+    .culture-img:nth-child(4) { grid-column: 2 / 4; grid-row: 2; aspect-ratio: 16/7; }
+    .culture-img:nth-child(5) { grid-column: 1 / 3; grid-row: 3; aspect-ratio: 16/7; }
+    .culture-img:nth-child(6) { grid-column: 3; grid-row: 3; aspect-ratio: 4/3; }
+
+    @media(max-width:900px) {
+      #culture { padding: 80px 20px; }
+      .culture-grid { grid-template-columns: 1fr 1fr; }
+      .culture-img:nth-child(1) { grid-column: 1/3; grid-row: auto; }
+      .culture-img:nth-child(1) img { min-height: 240px; }
+      .culture-img:nth-child(4),
+      .culture-img:nth-child(5),
+      .culture-img:nth-child(6) { grid-column: auto; grid-row: auto; aspect-ratio: 4/3; }
+    }
+
+    /* ════════════════════════════════════════════════
+       SECTION 5 — RETAIL FOCUS
+    ════════════════════════════════════════════════ */
+    #retail { background: var(--black); padding: 140px 52px; border-top: 1px solid var(--line-dark); }
+    .retail-inner { max-width: 1100px; margin: 0 auto; }
+    .retail-header { text-align: center; margin-bottom: 80px; }
+    .retail-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 900;
+      color: var(--cream); letter-spacing: -0.02em;
+    }
+    .retail-header h2 em { font-style: italic; color: var(--yellow); }
+    .retail-header p { font-size: 0.88rem; color: rgba(250,248,242,0.45); margin-top: 14px; font-weight: 300; max-width: 440px; margin-left: auto; margin-right: auto; }
+    .retail-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+      background: var(--line-dark); margin-bottom: 1px;
+    }
+    .retail-stat { background: var(--black); padding: 40px 32px; text-align: center; }
+    .retail-stat-num {
+      font-family: 'Playfair Display', serif; font-size: 3.2rem; font-weight: 900;
+      line-height: 1; margin-bottom: 10px; display: block;
+    }
+    .retail-stat:nth-child(1) .retail-stat-num { color: var(--yellow); }
+    .retail-stat:nth-child(2) .retail-stat-num { color: var(--pink); }
+    .retail-stat:nth-child(3) .retail-stat-num { color: var(--purple); }
+    .retail-stat:nth-child(4) .retail-stat-num { color: #00d4ff; }
+    .retail-stat-label { font-size: 0.65rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(250,248,242,0.35); }
+    .retail-channels {
+      background: var(--black); padding: 28px 32px;
+      display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+      border: 1px solid var(--line-dark);
+    }
+    .retail-channel {
+      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+      padding: 9px 18px; border: 1px solid rgba(250,248,242,0.1); color: rgba(250,248,242,0.55);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .retail-channel:hover { border-color: var(--yellow); color: var(--yellow); }
+    @media(max-width:768px) {
+      #retail { padding: 80px 20px; }
+      .retail-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ════════════════════════════════════════════════
+       SECTION 6 — BRAND PORTFOLIO PREVIEW
+    ════════════════════════════════════════════════ */
+    #portfolio { background: var(--cream); padding: 120px 52px; }
+    .portfolio-inner { max-width: 1280px; margin: 0 auto; }
+    .portfolio-header { margin-bottom: 64px; }
+    .portfolio-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 4.5vw, 3.8rem); font-weight: 900;
+      color: var(--ink); letter-spacing: -0.02em;
+    }
+    .portfolio-header h2 em { font-style: italic; color: var(--pink); }
+    .portfolio-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      gap: 2px; background: var(--ink);
+    }
+    .portfolio-card {
+      background: var(--cream-dark); overflow: hidden; position: relative;
+      text-decoration: none; display: block;
+    }
+    .portfolio-card-img {
+      aspect-ratio: 2/3; overflow: hidden; position: relative;
+    }
+    .portfolio-card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .portfolio-card:hover .portfolio-card-img img { transform: scale(1.06); }
+    .portfolio-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 55%);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 20px 18px;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .portfolio-card:hover .portfolio-overlay { opacity: 1; }
+    .portfolio-overlay-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; font-weight: 900; color: #fff; margin-bottom: 4px;
+    }
+    .portfolio-overlay-arrow {
+      font-size: 0.62rem; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: rgba(255,255,255,0.65);
+    }
+    .portfolio-card-bar { height: 3px; }
+    @media(max-width:900px) {
+      #portfolio { padding: 80px 20px; }
+      .portfolio-grid { grid-template-columns: repeat(2, 1fr); }
+      .portfolio-card:last-child { grid-column: 1/3; }
+    }
+    @media(max-width:480px) {
+      .portfolio-grid { grid-template-columns: 1fr; }
+      .portfolio-card:last-child { grid-column: auto; }
+    }
+
+    /* ════════════════════════════════════════════════
+       SECTION 7 — BUYER CTA
+    ════════════════════════════════════════════════ */
+    #contact { background: var(--cream); padding: 160px 52px; border-top: 2px solid var(--cream-dark); }
+    .contact-inner { max-width: 900px; margin: 0 auto; text-align: center; }
+    .contact-inner h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 5vw, 4.5rem); font-weight: 900;
+      color: var(--ink); line-height: 1.0; letter-spacing: -0.02em; margin-bottom: 24px;
+    }
+    .contact-inner h2 em { font-style: italic; color: var(--pink); }
+    .contact-inner p { font-size: 0.9rem; color: var(--ink-mid); font-weight: 300; line-height: 1.7; margin-bottom: 52px; max-width: 520px; margin-left: auto; margin-right: auto; }
+    .contact-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-dark {
+      background: var(--ink); color: var(--cream);
+      padding: 16px 36px; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-dark:hover { background: var(--black); transform: translateY(-2px); }
+    .btn-outline-dark {
+      border: 1px solid rgba(26,23,20,0.2); color: var(--ink);
+      padding: 16px 36px; font-size: 0.72rem; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+    .btn-outline-dark:hover { border-color: var(--ink); background: rgba(26,23,20,0.04); transform: translateY(-2px); }
+    .contact-note { margin-top: 36px; font-size: 0.72rem; color: var(--ink-faint); font-weight: 300; }
+    .contact-divider { width: 40px; height: 2px; background: var(--pink); margin: 0 auto 40px; }
+    @media(max-width:768px) { #contact { padding: 80px 20px; } }
+
+    /* ════════════════════════════════════════════════
+       SECTION 8 — FOOTER
+    ════════════════════════════════════════════════ */
+    footer {
+      background: var(--black); padding: 48px 52px;
+      border-top: 1px solid var(--line-dark);
+    }
+    .footer-inner {
+      max-width: 1280px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: start; gap: 40px;
+    }
+    .foot-brand-block {}
+    .foot-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 700; color: var(--yellow);
+      letter-spacing: 0.02em; margin-bottom: 8px; display: block;
+    }
+    .foot-tagline { font-size: 0.75rem; color: rgba(250,248,242,0.3); font-weight: 300; font-style: italic; }
+    .foot-nav {
+      display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center;
+    }
+    .foot-nav a {
+      font-size: 0.65rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(250,248,242,0.35); text-decoration: none; transition: color 0.2s;
+    }
+    .foot-nav a:hover { color: rgba(250,248,242,0.7); }
+    .foot-right { text-align: right; }
+    .foot-copy { font-size: 0.65rem; color: rgba(250,248,242,0.18); margin-bottom: 8px; }
+    .foot-contact { font-size: 0.7rem; color: rgba(250,248,242,0.3); font-weight: 300; }
+    @media(max-width:768px) {
+      footer { padding: 36px 20px; }
+      .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+      .foot-nav { align-items: flex-start; }
+      .foot-right { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════ NAV ═══════ -->
+<nav id="nav">
+  <a href="#hero" class="nav-brand">Hidden Supply <span>— Brand House</span></a>
+  <div class="nav-links">
+    <a href="#brands">Brands</a>
+    <a href="#system">The System</a>
+    <a href="#retail">Retail</a>
+    <a href="#portfolio">Portfolio</a>
+  </div>
+  <a href="#contact" class="nav-cta">Buyer Inquiries</a>
+</nav>
+
+<!-- ═══════ SECTION 1 — HERO ═══════ -->
+<section id="hero">
+  <div class="stars" id="stars"></div>
+
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Brand House · Los Angeles</div>
+      <h1 class="hero-headline">
+        Candy is<br /><em>culture.</em>
+      </h1>
+      <p class="hero-sub">Hidden Supply builds playful candy brands designed for the modern retail shelf.</p>
+      <div class="hero-actions">
+        <a href="#brands" class="btn-primary">Explore the Brands →</a>
+        <a href="#contact" class="btn-secondary">Buyer Inquiries</a>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-collage">
+        <div class="hero-collage-item hci-1">
+          <img src="../img/jb_3d_space.png" alt="Juice Bomb" />
+        </div>
+        <div class="hero-collage-item hci-2">
+          <img src="../img/ds_hero.jpg" alt="Dirty Sips" />
+        </div>
+        <div class="hero-collage-item hci-3">
+          <img src="../img/pp_hero.jpg" alt="PeelPals" />
+        </div>
+        <div class="hero-collage-item hci-4">
+          <img src="../img/candu_hero.jpg" alt="Candü" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 2 — THE BRANDS ═══════ -->
+<section id="brands">
+  <div class="brands-inner">
+    <div class="brands-header">
+      <div class="section-label light reveal">The Portfolio</div>
+      <h2 class="reveal d1">Five brands — each one<br /><em>its own world.</em></h2>
+      <p class="reveal d2">One engine powering five distinct universes. Every brand built for a different consumer moment — but all designed to move.</p>
+    </div>
+
+    <div class="brands-grid">
+
+      <!-- Juice Bomb -->
+      <a href="./juice-bomb.html" class="brand-card reveal">
+        <div class="brand-card-bar" style="background:#ffe600;"></div>
+        <div class="brand-card-img">
+          <img src="../img/jb_hero.jpg" alt="Juice Bomb" />
+        </div>
+        <div class="brand-card-info">
+          <div class="brand-card-name">Juice Bomb</div>
+          <div class="brand-card-desc">Juice-filled wax astronauts.</div>
+          <span class="brand-card-arrow">Explore →</span>
+        </div>
+      </a>
+
+      <!-- Dirty Sips -->
+      <a href="./dirty-sips.html" class="brand-card reveal d1">
+        <div class="brand-card-bar" style="background:#00d4ff;"></div>
+        <div class="brand-card-img">
+          <img src="../img/ds_hero.jpg" alt="Dirty Sips" />
+        </div>
+        <div class="brand-card-info">
+          <div class="brand-card-name">Dirty Sips</div>
+          <div class="brand-card-desc">Dirty soda culture meets wax candy.</div>
+          <span class="brand-card-arrow">Explore →</span>
+        </div>
+      </a>
+
+      <!-- PeelPals -->
+      <a href="./peelpals.html" class="brand-card reveal d2">
+        <div class="brand-card-bar" style="background:#7ed957;"></div>
+        <div class="brand-card-img">
+          <img src="../img/pp_hero.jpg" alt="PeelPals" />
+        </div>
+        <div class="brand-card-info">
+          <div class="brand-card-name">PeelPals</div>
+          <div class="brand-card-desc">Giant peelable fruit gummies.</div>
+          <span class="brand-card-arrow">Explore →</span>
+        </div>
+      </a>
+
+      <!-- Candü -->
+      <a href="./candu.html" class="brand-card reveal d1">
+        <div class="brand-card-bar" style="background:#ff7b35;"></div>
+        <div class="brand-card-img">
+          <img src="../img/candu_hero.jpg" alt="Candü" />
+        </div>
+        <div class="brand-card-info">
+          <div class="brand-card-name">Candü</div>
+          <div class="brand-card-desc">Playful seasonal candy formats.</div>
+          <span class="brand-card-arrow">Explore →</span>
+        </div>
+      </a>
+
+      <!-- Nauti Labs -->
+      <a href="./nauti-labs.html" class="brand-card reveal d2">
+        <div class="brand-card-bar" style="background:#a259ff;"></div>
+        <div class="brand-card-img">
+          <img src="../img/nl_hero.jpg" alt="Nauti Labs" />
+        </div>
+        <div class="brand-card-info">
+          <div class="brand-card-name">Nauti Labs</div>
+          <div class="brand-card-desc">Novelty candy for curious minds.</div>
+          <span class="brand-card-arrow">Explore →</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 3 — THE SYSTEM ═══════ -->
+<section id="system">
+  <div class="system-inner">
+    <div class="system-header">
+      <div class="section-label dark reveal">How We Build</div>
+      <h2 class="reveal d1">One engine.<br /><em>Infinite brand skins.</em></h2>
+      <p class="reveal d2">The same operational foundation powers every brand in our house — just with a different world built around it.</p>
+    </div>
+
+    <div class="system-steps">
+      <div class="system-step reveal">
+        <span class="system-num">01</span>
+        <span class="system-title">Product Engine</span>
+        <p class="system-desc">Core SKUs, proven formats, manufactured at scale. The physical product is the foundation — reliable, margin-healthy, designed to turn.</p>
+      </div>
+      <div class="system-step reveal d1">
+        <span class="system-num">02</span>
+        <span class="system-title">Brand Skins</span>
+        <p class="system-desc">Distinct worlds, packaging, and storytelling for every retailer. Same product, completely different universe — tailored to the door and the consumer standing in front of it.</p>
+      </div>
+      <div class="system-step reveal d2">
+        <span class="system-num">03</span>
+        <span class="system-title">Retail Pull</span>
+        <p class="system-desc">Built to move. Designed for shelf velocity and impulse conversion. Social-native brands that bring consumers in before they even walk through the door.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 4 — BRAND WORLD / CANDY CULTURE ═══════ -->
+<section id="culture">
+  <div class="culture-inner">
+
+    <div class="culture-manifesto reveal">
+      <div class="section-label dark" style="text-align:center;margin-bottom:32px;">Our Philosophy</div>
+      <blockquote>
+        "We build brands that earn their place on the shelf — not through promotions or price cuts, but because they <em>mean something</em> to the person standing in front of them."
+      </blockquote>
+      <cite>— Hidden Supply · Los Angeles</cite>
+    </div>
+
+    <div class="culture-grid reveal d1">
+      <div class="culture-img"><img src="../img/jb_lifestyle_space.jpg" alt="Juice Bomb space" /></div>
+      <div class="culture-img"><img src="../img/jb_lifestyle_action.jpg" alt="Juice Bomb action" /></div>
+      <div class="culture-img"><img src="../img/ds_lifestyle_hero.jpg" alt="Dirty Sips" /></div>
+      <div class="culture-img"><img src="../img/pp_lifestyle_hero.jpg" alt="PeelPals" /></div>
+      <div class="culture-img"><img src="../img/candu_lifestyle_hero.jpg" alt="Candü" /></div>
+      <div class="culture-img"><img src="../img/jb_unhinged.jpg" alt="Juice Bomb unhinged" /></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════ SECTION 5 — RETAIL FOCUS ═══════ -->
+<section id="retail">
+  <div class="retail-inner">
+    <div class="retail-header">
+      <div class="section-label dark reveal">Distribution</div>
+      <h2 class="reveal d1">Built for the <em>shelf.</em></h2>
+      <p class="reveal d2">From specialty gifting to off-price, we have brands and SKUs for every door type.</p>
+    </div>
+
+    <div class="retail-stats reveal d1">
+      <div class="retail-stat">
+        <span class="retail-stat-num">5</span>
+        <div class="retail-stat-label">Active Brands</div>
+      </div>
+      <div class="retail-stat">
+        <span class="retail-stat-num">76+</span>
+        <div class="retail-stat-label">SKUs</div>
+      </div>
+      <div class="retail-stat">
+        <span class="retail-stat-num">3,000+</span>
+        <div class="retail-stat-label">Retail Doors</div>
+      </div>
+      <div class="retail-stat">
+        <span class="retail-stat-num">2B+</span>
+        <div class="retail-stat-label">Social Views</div>
+      </div>
+    </div>
+
+    <div class="retail-channels reveal d2">
+      <span class="retail-channel">Specialty Gifting</span>
+      <span class="retail-channel">Off-Price</span>
+      <span class="retail-channel">Entertainment</span>
+      <span class="retail-channel">Impulse</span>
+      <span class="retail-channel">Value</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════ SECTION 6 — BRAND PORTFOLIO PREVIEW ═══════ -->
+<section id="portfolio">
+  <div class="portfolio-inner">
+    <div class="portfolio-header">
+      <div class="section-label light reveal">All Brands</div>
+      <h2 class="reveal d1">The <em>Portfolio</em></h2>
+    </div>
+
+    <div class="portfolio-grid">
+
+      <a href="./juice-bomb.html" class="portfolio-card reveal">
+        <div class="portfolio-card-bar" style="background:#ffe600;"></div>
+        <div class="portfolio-card-img">
+          <img src="../img/jb_hero.jpg" alt="Juice Bomb" />
+          <div class="portfolio-overlay">
+            <div class="portfolio-overlay-name">Juice Bomb</div>
+            <div class="portfolio-overlay-arrow">View Brand →</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="./dirty-sips.html" class="portfolio-card reveal d1">
+        <div class="portfolio-card-bar" style="background:#00d4ff;"></div>
+        <div class="portfolio-card-img">
+          <img src="../img/ds_hero.jpg" alt="Dirty Sips" />
+          <div class="portfolio-overlay">
+            <div class="portfolio-overlay-name">Dirty Sips</div>
+            <div class="portfolio-overlay-arrow">View Brand →</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="./peelpals.html" class="portfolio-card reveal d2">
+        <div class="portfolio-card-bar" style="background:#7ed957;"></div>
+        <div class="portfolio-card-img">
+          <img src="../img/pp_hero.jpg" alt="PeelPals" />
+          <div class="portfolio-overlay">
+            <div class="portfolio-overlay-name">PeelPals</div>
+            <div class="portfolio-overlay-arrow">View Brand →</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="./candu.html" class="portfolio-card reveal d3">
+        <div class="portfolio-card-bar" style="background:#ff7b35;"></div>
+        <div class="portfolio-card-img">
+          <img src="../img/candu_hero.jpg" alt="Candü" />
+          <div class="portfolio-overlay">
+            <div class="portfolio-overlay-name">Candü</div>
+            <div class="portfolio-overlay-arrow">View Brand →</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="./nauti-labs.html" class="portfolio-card reveal d4">
+        <div class="portfolio-card-bar" style="background:#a259ff;"></div>
+        <div class="portfolio-card-img">
+          <img src="../img/nl_hero.jpg" alt="Nauti Labs" />
+          <div class="portfolio-overlay">
+            <div class="portfolio-overlay-name">Nauti Labs</div>
+            <div class="portfolio-overlay-arrow">View Brand →</div>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 7 — BUYER CTA ═══════ -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="section-label light reveal" style="margin-bottom:32px;">Work With Us</div>
+    <div class="contact-divider reveal"></div>
+    <h2 class="reveal d1">Let's build the<br /><em>candy aisle.</em></h2>
+    <p class="reveal d2">Catalog, pricing, seasonal programs, and display options available upon request. Every inquiry reviewed personally.</p>
+    <div class="contact-actions reveal d3">
+      <a href="mailto:buyers@hiddensupply.co" class="btn-dark">Request Line Sheet →</a>
+      <a href="mailto:buyers@hiddensupply.co" class="btn-outline-dark">Buyer Inquiry</a>
+    </div>
+    <p class="contact-note reveal d4">buyers@hiddensupply.co · Los Angeles, CA</p>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 8 — FOOTER ═══════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="foot-brand-block">
+      <span class="foot-logo">Hidden Supply</span>
+      <div class="foot-tagline">Candy is culture.</div>
+    </div>
+    <nav class="foot-nav">
+      <a href="#brands">Brands</a>
+      <a href="#system">The System</a>
+      <a href="#retail">Retail</a>
+      <a href="#contact">Buyer Inquiries</a>
+    </nav>
+    <div class="foot-right">
+      <div class="foot-copy">© 2026 Hidden Supply</div>
+      <div class="foot-contact">buyers@hiddensupply.co · Los Angeles, CA</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── Stars (120 dots) ──
+  (function() {
+    var stars = document.getElementById('stars');
+    for (var i = 0; i < 120; i++) {
+      var s = document.createElement('div');
+      s.className = 'star';
+      var size = Math.random() * 2 + 0.5;
+      s.style.cssText =
+        'width:' + size + 'px;' +
+        'height:' + size + 'px;' +
+        'top:' + Math.random() * 100 + '%;' +
+        'left:' + Math.random() * 100 + '%;' +
+        '--op:' + (0.1 + Math.random() * 0.5) + ';' +
+        '--d:' + (2 + Math.random() * 4) + 's;' +
+        'animation-delay:' + (Math.random() * 4) + 's';
+      stars.appendChild(s);
+    }
+  })();
+
+  // ── Hero animated load-in ──
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      document.querySelector('.hero-eyebrow').classList.add('in');
+      document.querySelector('.hero-headline').classList.add('in');
+      document.querySelector('.hero-sub').classList.add('in');
+      document.querySelector('.hero-actions').classList.add('in');
+      document.querySelector('.hero-right').classList.add('in');
+    }, 100);
+  });
+
+  // ── Scroll reveals via IntersectionObserver ──
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+
+  // ── Nav scroll effect ──
+  window.addEventListener('scroll', function() {
+    document.getElementById('nav').style.background = window.scrollY > 60
+      ? 'rgba(10,10,15,0.98)'
+      : 'rgba(10,10,15,0.92)';
+  });
+</script>
+
+</body>
+</html>
