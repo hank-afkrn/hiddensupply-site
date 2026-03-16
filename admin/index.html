@@ -313,9 +313,36 @@
 <div id="toast"></div>
 
 <script>
-  var GITHUB_TOKEN = window.__HS_ADMIN_TOKEN || '';
-  var REPO = 'hank-afkrn/hiddensupply-site';
-  var API = window.HS_API || 'http://20.165.197.60:8083';
+  var API = 'https://hengli-rao-263c75ba-1316-vm.westcentralus.cloudapp.azure.com:8443/hs-api';
+
+  function setGateUI(active) {
+    var toggle = document.getElementById('gateToggle');
+    var pill = document.getElementById('gatePill');
+    var status = document.getElementById('gateStatus');
+    if (!toggle) return;
+    toggle.checked = active;
+    pill.className = active ? 'status-pill on' : 'status-pill off';
+    status.textContent = active ? 'On' : 'Off';
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
+  }
+
+  function showDeploy(msg) {
+    var row = document.getElementById('deployRow');
+    var spin = document.getElementById('deploySpin');
+    row.style.display = 'flex'; spin.style.display = 'block';
+    document.getElementById('deployMsg').textContent = msg;
+  }
+
+  function hideDeploy(msg) {
+    document.getElementById('deploySpin').style.display = 'none';
+    document.getElementById('deployMsg').textContent = msg;
+    setTimeout(function() { document.getElementById('deployRow').style.display = 'none'; }, 4000);
+  }
 
   function detectGateState() {
     fetch(API + '/gate/status')
@@ -328,7 +355,6 @@
     var enabling = el.checked;
     setGateUI(enabling);
     showDeploy(enabling ? 'Enabling password gate...' : 'Disabling password gate...');
-
     fetch(API + '/gate/toggle', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -350,7 +376,7 @@
     });
   }
 
-  detectGateState();
+  document.addEventListener('DOMContentLoaded', function() { detectGateState(); });
 </script>
 
 </body>
