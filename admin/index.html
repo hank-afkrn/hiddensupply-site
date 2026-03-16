@@ -204,6 +204,7 @@
     }
   </style>
   <script src="/admin/token.js"></script>
+  <script>var HS_API = 'http://20.165.197.60:8083';</script>
 </head>
 <body>
 
@@ -312,58 +313,15 @@
 <div id="toast"></div>
 
 <script>
-  // Read current gate state from the page
   var GITHUB_TOKEN = window.__HS_ADMIN_TOKEN || '';
   var REPO = 'hank-afkrn/hiddensupply-site';
+  var API = window.HS_API || 'http://20.165.197.60:8083';
 
-  // Detect current state by fetching index.html and checking if gate is enabled
   function detectGateState() {
-    fetch('/index.html').then(function(r) { return r.text(); }).then(function(html) {
-      var hasGate = html.indexOf("id=\"hs-gate\"") !== -1 && html.indexOf("hs-gate.gone") === -1;
-      // More reliable: check if the gate div exists and isn't permanently hidden
-      var gateActive = html.indexOf("plums") !== -1;
-      setGateUI(gateActive);
-    }).catch(function() {});
-  }
-
-  function setGateUI(active) {
-    var toggle = document.getElementById('gateToggle');
-    var pill = document.getElementById('gatePill');
-    var status = document.getElementById('gateStatus');
-    toggle.checked = active;
-    if (active) {
-      pill.className = 'status-pill on';
-      status.textContent = 'On';
-    } else {
-      pill.className = 'status-pill off';
-      status.textContent = 'Off';
-    }
-  }
-
-  function showToast(msg) {
-    var t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(function() { t.classList.remove('show'); }, 3000);
-  }
-
-  function showDeploy(msg) {
-    var row = document.getElementById('deployRow');
-    var spin = document.getElementById('deploySpin');
-    var msgEl = document.getElementById('deployMsg');
-    row.style.display = 'flex';
-    spin.style.display = 'block';
-    msgEl.textContent = msg;
-  }
-
-  function hideDeploy(msg) {
-    var spin = document.getElementById('deploySpin');
-    var msgEl = document.getElementById('deployMsg');
-    spin.style.display = 'none';
-    msgEl.textContent = msg;
-    setTimeout(function() {
-      document.getElementById('deployRow').style.display = 'none';
-    }, 4000);
+    fetch(API + '/gate/status')
+      .then(function(r) { return r.json(); })
+      .then(function(d) { setGateUI(d.enabled); })
+      .catch(function() { setGateUI(true); });
   }
 
   function toggleGate(el) {
@@ -371,67 +329,19 @@
     setGateUI(enabling);
     showDeploy(enabling ? 'Enabling password gate...' : 'Disabling password gate...');
 
-    // Fetch current index.html from GitHub
-    fetch('https://api.github.com/repos/' + REPO + '/contents/index.html', {
-      headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json' }
+    fetch(API + '/gate/toggle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enable: enabling })
     })
     .then(function(r) { return r.json(); })
-    .then(function(data) {
-      var content = atob(data.content.replace(/\n/g, ''));
-      var sha = data.sha;
-
-      var newContent;
-      if (enabling) {
-        // Re-enable: remove the 'gone' class from initial state
-        newContent = content.replace(
-          "if (localStorage.getItem('hs_unlocked') === '1') {\n      var g = document.getElementById('hs-gate');\n      if (g) g.classList.add('gone');\n    }",
-          "if (localStorage.getItem('hs_unlocked') === '1') {\n      var g = document.getElementById('hs-gate');\n      if (g) g.classList.add('gone');\n    }"
-        );
-        // Actually add the gate back if it was removed — simpler: toggle a CSS class
-        newContent = content.replace(
-          '#hs-gate { display: none !important; }', ''
-        );
-        if (newContent === content) {
-          // Gate already enabled
-          hideDeploy('✓ Gate is already enabled.');
-          return;
-        }
-      } else {
-        // Disable: inject a CSS rule that hides the gate
-        if (content.indexOf('#hs-gate { display: none !important; }') !== -1) {
-          hideDeploy('✓ Gate is already disabled.');
-          return;
-        }
-        newContent = content.replace(
-          '/* ─── PASSWORD GATE ─── */',
-          '/* ─── PASSWORD GATE ─── */\n    #hs-gate { display: none !important; }'
-        );
-      }
-
-      var encoded = btoa(unescape(encodeURIComponent(newContent)));
-      return fetch('https://api.github.com/repos/' + REPO + '/contents/index.html', {
-        method: 'PUT',
-        headers: {
-          'Authorization': 'token ' + GITHUB_TOKEN,
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: enabling ? 'Admin: enable password gate' : 'Admin: disable password gate',
-          content: encoded,
-          sha: sha
-        })
-      });
-    })
-    .then(function(r) { if (r) return r.json(); })
-    .then(function(data) {
-      if (data && data.commit) {
+    .then(function(d) {
+      if (d.ok) {
         hideDeploy('✓ Deployed — live in ~30 seconds.');
         showToast(enabling ? 'Gate enabled ✓' : 'Gate disabled ✓ — site is now public');
-        // Clear localStorage so gate shows fresh next visit
         if (enabling) localStorage.removeItem('hs_unlocked');
       } else {
-        hideDeploy('⚠ Something went wrong. Try again.');
+        hideDeploy('⚠ ' + (d.error || 'Something went wrong.'));
       }
     })
     .catch(function(err) {
