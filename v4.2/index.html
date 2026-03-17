@@ -100,28 +100,28 @@
        FLOAT ANIMATIONS — Hero products
     ════════════════════════════════════════════════ */
     @keyframes floatA {
-      0%   { transform: rotate(-3deg) translateY(0px) scale(1); }
-      30%  { transform: rotate(-2deg) translateY(-14px) scale(1.02); }
-      60%  { transform: rotate(-4deg) translateY(-8px) scale(1.01); }
-      100% { transform: rotate(-3deg) translateY(0px) scale(1); }
+      0%   { transform: rotate(0deg) translateY(0px) scale(1); }
+      30%  { transform: rotate(0deg) translateY(-14px) scale(1.02); }
+      60%  { transform: rotate(0deg) translateY(-8px) scale(1.01); }
+      100% { transform: rotate(0deg) translateY(0px) scale(1); }
     }
     @keyframes floatB {
-      0%   { transform: rotate(3.5deg) translateY(0px) scale(1); }
-      40%  { transform: rotate(2.5deg) translateY(-16px) scale(1.03); }
-      70%  { transform: rotate(4deg) translateY(-6px) scale(1.01); }
-      100% { transform: rotate(3.5deg) translateY(0px) scale(1); }
+      0%   { transform: rotate(-3deg) translateY(0px) scale(1); }
+      40%  { transform: rotate(-2deg) translateY(-16px) scale(1.02); }
+      70%  { transform: rotate(-3.5deg) translateY(-6px) scale(1.01); }
+      100% { transform: rotate(-3deg) translateY(0px) scale(1); }
     }
     @keyframes floatC {
-      0%   { transform: rotate(-1.5deg) translateY(0px) scale(1); }
-      35%  { transform: rotate(-0.5deg) translateY(-18px) scale(1.02); }
-      65%  { transform: rotate(-2deg) translateY(-10px) scale(1.015); }
-      100% { transform: rotate(-1.5deg) translateY(0px) scale(1); }
+      0%   { transform: rotate(4deg) translateY(0px) scale(1); }
+      35%  { transform: rotate(3deg) translateY(-12px) scale(1.02); }
+      65%  { transform: rotate(4.5deg) translateY(-5px) scale(1.01); }
+      100% { transform: rotate(4deg) translateY(0px) scale(1); }
     }
     @keyframes floatD {
-      0%   { transform: rotate(2.2deg) translateY(0px) scale(1); }
-      45%  { transform: rotate(1deg) translateY(-14px) scale(1.03); }
-      75%  { transform: rotate(3deg) translateY(-5px) scale(1.01); }
-      100% { transform: rotate(2.2deg) translateY(0px) scale(1); }
+      0%   { transform: rotate(-5deg) translateY(0px) scale(1); }
+      45%  { transform: rotate(-4deg) translateY(-10px) scale(1.02); }
+      75%  { transform: rotate(-5.5deg) translateY(-4px) scale(1.01); }
+      100% { transform: rotate(-5deg) translateY(0px) scale(1); }
     }
 
     /* Mobile — reduced travel so products stay inside box */
@@ -151,6 +151,7 @@
       display: flex; align-items: center;
       padding: 100px 52px 80px;
       z-index: 1;
+      background-image: radial-gradient(ellipse 120% 80% at 50% 0%, transparent 40%, rgba(10,10,15,0.55) 100%);
     }
     .hero-inner {
       position: relative; z-index: 2;
@@ -214,9 +215,35 @@
     .hero-collage {
       position: relative; width: 100%; max-width: 560px; aspect-ratio: 1/1;
     }
-    /* Ensure stage always fills collage height */
+    /* Hero media stage */
     .hero-media-stage {
       position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-media-stage::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: radial-gradient(ellipse 110% 90% at 52% 52%, rgba(255,230,0,0.05) 0%, rgba(10,10,15,0.0) 75%);
+      pointer-events: none;
+    }
+    .hero-media-stage::after {
+      content: '';
+      position: absolute;
+      bottom: 2%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70%;
+      height: 60px;
+      background: radial-gradient(ellipse 100% 100% at 50% 100%, rgba(0,0,0,0.32) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-comp-img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      object-position: center;
     }
     /* Collage wrapper trick — give it explicit height on mobile */
     @media(max-width:960px) {
@@ -234,35 +261,41 @@
     }
     .hcp img {
       width: 100%; height: auto; display: block;
-      mix-blend-mode: multiply;
     }
 
-    /* JB — top-left, largest, yellow shadow */
+    /* FRONT — JB, dominant, center-right, largest, straight */
     .hcp-1 {
-      width: 58%; left: -2%; top: 2%; z-index: 4;
-      filter: drop-shadow(0 28px 56px rgba(255,230,0,0.35)) drop-shadow(0 8px 20px rgba(0,0,0,0.6));
-      animation: floatA 5.2s ease-in-out infinite;
+      width: 52%; left: 22%; top: 3%; z-index: 5;
+      filter: drop-shadow(0 28px 56px rgba(255,230,0,0.28)) drop-shadow(0 8px 20px rgba(0,0,0,0.5));
+      animation: floatA 5.8s ease-in-out infinite;
     }
-    /* DS — top-right, cyan shadow */
+    /* MID-LEFT — DS, overlaps JB left edge */
     .hcp-2 {
-      width: 42%; right: -2%; top: 0%; z-index: 3;
-      filter: drop-shadow(0 24px 48px rgba(0,212,255,0.32)) drop-shadow(0 6px 16px rgba(0,0,0,0.55));
-      animation: floatB 5.8s ease-in-out infinite;
-      animation-delay: 0.6s;
+      width: 36%; left: -2%; top: 6%; z-index: 3;
+      filter: drop-shadow(0 20px 40px rgba(0,212,255,0.25)) drop-shadow(0 6px 16px rgba(0,0,0,0.45)) brightness(0.88);
+      animation: floatB 6.6s ease-in-out infinite;
+      animation-delay: 0.7s;
     }
-    /* PP — bottom-right, green shadow */
+    /* MID-RIGHT — PP, overlaps JB right side */
     .hcp-3 {
-      width: 40%; right: 2%; bottom: 4%; z-index: 2;
-      filter: drop-shadow(0 20px 44px rgba(126,217,87,0.32)) drop-shadow(0 6px 14px rgba(0,0,0,0.5));
-      animation: floatC 6.4s ease-in-out infinite;
-      animation-delay: 1.2s;
+      width: 38%; right: -4%; top: 14%; z-index: 3;
+      filter: drop-shadow(0 18px 36px rgba(126,217,87,0.25)) drop-shadow(0 6px 14px rgba(0,0,0,0.4));
+      animation: floatC 7.2s ease-in-out infinite;
+      animation-delay: 1.3s;
     }
-    /* Candu — bottom-center, orange shadow, highest z */
+    /* BACK-LEFT — Candu, small, low, partially cropped */
     .hcp-4 {
-      width: 38%; left: 20%; bottom: 0%; z-index: 5;
-      filter: drop-shadow(0 24px 48px rgba(255,123,53,0.35)) drop-shadow(0 6px 18px rgba(0,0,0,0.55));
-      animation: floatD 6.0s ease-in-out infinite;
-      animation-delay: 1.8s;
+      width: 31%; left: 4%; bottom: 0%; z-index: 2;
+      filter: drop-shadow(0 14px 28px rgba(255,123,53,0.22)) drop-shadow(0 4px 12px rgba(0,0,0,0.38));
+      animation: floatD 6.4s ease-in-out infinite;
+      animation-delay: 2.1s;
+    }
+    /* BACK-RIGHT — NL, small, rotated, bleeds right edge */
+    .hcp-5 {
+      width: 30%; right: -2%; bottom: 4%; z-index: 2;
+      filter: drop-shadow(0 12px 24px rgba(162,89,255,0.22)) drop-shadow(0 4px 10px rgba(0,0,0,0.36));
+      animation: floatA 7.8s ease-in-out infinite;
+      animation-delay: 3s;
     }
 
 
@@ -313,7 +346,18 @@
     ════════════════════════════════════════════════ */
     #brands { background: var(--cream); padding: 120px 52px; }
     .brands-inner { max-width: 1280px; margin: 0 auto; }
-    .brands-header { margin-bottom: 64px; }
+    .brands-header { margin-bottom: 48px; }
+    .lineup-strip {
+      margin-bottom: 56px;
+      overflow: hidden;
+    }
+    .lineup-strip img {
+      width: 100%; height: auto; display: block;
+      max-height: 180px; object-fit: contain; object-position: left center;
+    }
+    @media(max-width:768px) {
+      .lineup-strip img { max-height: 120px; }
+    }
     .brands-header h2 {
       font-family: 'Playfair Display', serif;
       font-size: clamp(2.2rem, 4.5vw, 3.8rem); font-weight: 900;
@@ -418,7 +462,15 @@
       background: var(--black-mid); padding: 140px 52px;
       border-top: 1px solid var(--line-dark); border-bottom: 1px solid var(--line-dark);
     }
-    .system-inner { max-width: 1100px; margin: 0 auto; }
+    .system-inner { max-width: 1100px; margin: 0 auto; position: relative; }
+    .system-ghost {
+      position: absolute;
+      inset: 0;
+      background: url('../img/jb_pack_iso.png') center/contain no-repeat;
+      opacity: 0.04;
+      pointer-events: none;
+      z-index: 0;
+    }
     .system-header { text-align: center; margin-bottom: 56px; }
     .system-header h2 {
       font-family: 'Playfair Display', serif;
@@ -699,6 +751,14 @@
       text-transform: uppercase; color: rgba(255,255,255,0.65);
     }
     .portfolio-card-bar { height: 3px; }
+    /* Portfolio depth — scale variation */
+    #portfolio .brand-card:nth-child(1) { transform: scale(0.96) translateY(4px); }
+    #portfolio .brand-card:nth-child(2) { transform: scale(0.98) translateY(2px); }
+    #portfolio .brand-card:nth-child(3) { transform: scale(1.0)  translateY(0px); }
+    #portfolio .brand-card:nth-child(4) { transform: scale(0.98) translateY(2px); }
+    #portfolio .brand-card:nth-child(5) { transform: scale(0.96) translateY(4px); }
+    #portfolio .brand-card { box-shadow: 0 8px 32px rgba(0,0,0,0.35); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    #portfolio .brand-card:hover { transform: scale(1.02) translateY(-4px) !important; box-shadow: 0 16px 48px rgba(0,0,0,0.5); }
     @media(max-width:900px) {
       #portfolio { padding: 80px 20px; }
       .portfolio-grid { grid-template-columns: repeat(2, 1fr); }
@@ -713,7 +773,7 @@
        SECTION 7 — BUYER CTA
     ════════════════════════════════════════════════ */
     #contact { background: var(--cream); padding: 160px 52px; border-top: 2px solid var(--cream-dark); }
-    .contact-inner { max-width: 900px; margin: 0 auto; text-align: center; }
+    .contact-inner { max-width: 900px; margin: 0 auto; text-align: center; position: relative; }
     .contact-inner h2 {
       font-family: 'Playfair Display', serif;
       font-size: clamp(2.4rem, 5vw, 4.5rem); font-weight: 900;
@@ -819,19 +879,14 @@
     <div class="hero-right">
       <div class="hero-collage">
         <div class="hero-media-stage" id="heroMediaStage">
-          <!-- Natural floating composition — no frames, no cards -->
-          <div class="hcp hcp-1">
-            <img src="../img/webp/juice-bomb/product/jb_space_astronaut.webp" alt="Juice Bomb" />
-          </div>
-          <div class="hcp hcp-2">
-            <img src="../img/webp/dirty-sips/product/ds_everyday.webp" alt="Dirty Sips" />
-          </div>
-          <div class="hcp hcp-3">
-            <img src="../img/webp/peelpals/product/pp_giant_grape.webp" alt="PeelPals" />
-          </div>
-          <div class="hcp hcp-4">
-            <img src="../img/webp/candu/product/candu_body_parts.webp" alt="Candü" />
-          </div>
+          <!-- Back layer -->
+          <div class="hcp hcp-5"><img src="../img/nl_pack_iso.png" alt="Nauti Labs" /></div>
+          <div class="hcp hcp-4"><img src="../img/candu_pack_iso.png" alt="Candü" /></div>
+          <!-- Mid layer -->
+          <div class="hcp hcp-2"><img src="../img/ds_pack_iso.png" alt="Dirty Sips" /></div>
+          <div class="hcp hcp-3"><img src="../img/pp_pack_iso.png" alt="PeelPals" /></div>
+          <!-- Front — JB dominant -->
+          <div class="hcp hcp-1"><img src="../img/jb_pack_iso.png" alt="Juice Bomb" /></div>
         </div>
       </div>
     </div>
@@ -882,7 +937,7 @@
       <a href="./peelpals.html" class="brand-card reveal d2" data-color="pp">
         <div class="brand-card-bar" style="background:#7ed957;"></div>
         <div class="brand-card-img">
-          <img src="../img/webp/nauti-labs/lifestyle/nl_lifestyle_new_main.webp" alt="PeelPals" />
+          <img src="../img/pp_portfolio.png" alt="PeelPals" />
         </div>
         <div class="brand-card-info">
           <div class="brand-card-name">PeelPals</div>
@@ -896,7 +951,7 @@
         <a href="./candu.html" class="brand-card reveal d1" data-color="candu">
           <div class="brand-card-bar" style="background:#ff7b35;"></div>
           <div class="brand-card-img">
-            <img src="../img/webp/candu/lifestyle/candu_lifestyle_bags.webp" alt="Candü" />
+            <img src="../img/candu_portfolio.png" alt="Candü" />
           </div>
           <div class="brand-card-info">
             <div class="brand-card-name">Candu</div>
@@ -908,7 +963,7 @@
         <a href="./nauti-labs.html" class="brand-card reveal d2" data-color="nl">
           <div class="brand-card-bar" style="background:#a259ff;"></div>
           <div class="brand-card-img">
-            <img src="../img/webp/nauti-labs/lifestyle/nl_lifestyle_new_alt.webp" alt="Nauti Labs" />
+            <img src="../img/nl_portfolio.jpg" alt="Nauti Labs" />
           </div>
           <div class="brand-card-info">
             <div class="brand-card-name">Nauti Labs</div>
@@ -940,6 +995,8 @@
       <div class="sf-box">Retail Shelf</div>
     </div>
 
+    <div class="system-ghost" aria-hidden="true"></div>
+
     <div class="system-steps">
       <div class="system-step reveal">
         <span class="system-num">01</span>
@@ -970,34 +1027,34 @@
         "We build brands that earn their place on the shelf — not through promotions or price cuts, but because they <em>mean something</em> to the person standing in front of them."
       </blockquote>
       <cite>— Hidden Supply · Los Angeles</cite>
-      <p>Candy isn't just a category — it's a cultural moment. Hidden Supply builds brands designed to live at that intersection.</p>
+      <p>Candy isn't just a category — it's a cultural moment.</p>
     </div>
 
     <!-- Editorial masonry gallery -->
     <div class="culture-masonry reveal d1">
       <div class="culture-masonry-item">
-        <img src="../img/webp/juice-bomb/lifestyle/jb_lifestyle_new_hero2.webp" alt="Juice Bomb lifestyle" />
+        <img src="../img/jb_lifestyle_new_hero2.png" alt="Juice Bomb lifestyle" />
       </div>
       <div class="culture-masonry-item">
-        <img src="../img/webp/dirty-sips/lifestyle/ds_lifestyle_new_main.webp" alt="Dirty Sips lifestyle" />
+        <img src="../img/pp_gallery_1.png" alt="PeelPals interaction" />
       </div>
       <div class="culture-masonry-item">
-        <img src="../img/webp/nauti-labs/lifestyle/nl_lifestyle_new_alt.webp" alt="PeelPals lifestyle" />
+        <img src="../img/ds_lifestyle_new_main.png" alt="Dirty Sips environment" />
       </div>
       <div class="culture-masonry-item">
-        <img src="../img/webp/peelpals/lifestyle/pp_lifestyle_new_main.webp" alt="Juice Bomb macro" />
+        <img src="../img/pp_gallery_2.png" alt="PeelPals tropical" />
       </div>
       <div class="culture-masonry-item">
-        <img src="../img/webp/candu/lifestyle/candu_lifestyle_bags.webp" alt="Dirty Sips tropical" />
+        <img src="../img/candu_gallery_1.png" alt="Candu neon street" />
       </div>
       <div class="culture-masonry-item">
-        <img src="../img/webp/juice-bomb/lifestyle/jb_lifestyle_new_alt.webp" alt="Juice Bomb unhinged" />
+        <img src="../img/nl_gallery_1.png" alt="Nauti Labs tabletop" />
       </div>
       <div class="culture-masonry-item">
-        <img src="../img/webp/dirty-sips/lifestyle/ds_lifestyle_new_hero.webp" alt="Candü lifestyle" />
+        <img src="../img/candu_gallery_2.png" alt="Candu hot cocoa" />
       </div>
       <div class="culture-masonry-item">
-        <img src="../img/webp/nauti-labs/lifestyle/nl_lifestyle_new_spooky.webp" alt="PeelPals macro" />
+        <img src="../img/nl_gallery_2.png" alt="Nauti Labs spooky alt" />
       </div>
     </div>
 
@@ -1042,7 +1099,7 @@
       <div class="retail-place-card">
         <div class="rpc-icon">🗂️</div>
         <div class="rpc-label">PDQ Countertop</div>
-        <div class="rpc-desc">Pre-packed display-ready cases. Zero store labor required.</div>
+        <div class="rpc-desc">Consistent Case Packs — standardized 12-unit cases for simple ordering, clean shelf stocking, and predictable replenishment.</div>
       </div>
       <div class="retail-place-card">
         <div class="rpc-icon">📦</div>
@@ -1186,7 +1243,6 @@
       <a href="mailto:buyers@hiddensupply.co" class="btn-dark">Request Line Sheet →</a>
       <a href="mailto:buyers@hiddensupply.co" class="btn-outline-dark">Buyer Inquiry</a>
     </div>
-    <p class="contact-note reveal d4">buyers@hiddensupply.co · Los Angeles, CA</p>
   </div>
 </section>
 
