@@ -3,26 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hidden Supply — SKU Admin v0</title>
+<title>Hidden Supply — SKU Admin v1</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
     --bg: #0f0f0f;
     --surface: #1a1a1a;
-    --surface-2: #222;
+    --surface-2: #212121;
     --surface-3: #2a2a2a;
     --border: #2e2e2e;
-    --border-active: #444;
+    --border-active: #484848;
     --text: #e8e8e8;
     --text-muted: #666;
     --text-dim: #999;
     --accent: #f0e040;
-    --accent-dim: rgba(240,224,64,0.12);
+    --accent-dim: rgba(240,224,64,0.10);
     --green: #4ade80;
-    --green-dim: rgba(74,222,128,0.1);
+    --green-dim: rgba(74,222,128,0.08);
     --red: #f87171;
-    --red-dim: rgba(248,113,113,0.1);
     --radius: 8px;
     --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --mono: 'SF Mono', 'Monaco', 'Fira Code', monospace;
@@ -37,92 +36,123 @@
     min-height: 100vh;
   }
 
-  /* ---- HEADER ---- */
+  /* HEADER */
   header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 16px 32px;
+    padding: 0 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    height: 56px;
     position: sticky;
     top: 0;
     z-index: 100;
   }
-  .header-left h1 {
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: -0.2px;
-    color: var(--text);
-  }
-  .header-left .tag {
-    display: inline-block;
-    margin-left: 10px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent);
-    background: var(--accent-dim);
-    padding: 2px 8px;
-    border-radius: 3px;
-  }
-  .header-right {
-    font-size: 11px;
-    color: var(--text-muted);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
+  .header-brand { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: -0.2px; }
+  .header-brand .v { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); background: var(--accent-dim); padding: 2px 8px; border-radius: 3px; margin-left: 10px; }
+  .header-right { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; }
 
-  /* ---- LAYOUT ---- */
-  .workspace {
-    display: grid;
-    grid-template-columns: 400px 1fr;
+  /* STEPPER */
+  .stepper {
+    display: flex;
+    align-items: center;
     gap: 0;
-    min-height: calc(100vh - 57px);
+    padding: 20px 32px 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
   }
-  .panel-left {
-    border-right: 1px solid var(--border);
-    padding: 28px 28px;
+  .step {
     display: flex;
-    flex-direction: column;
-    gap: 24px;
+    align-items: center;
+    gap: 10px;
+    padding: 0 0 16px;
+    cursor: default;
+    position: relative;
   }
-  .panel-right {
-    padding: 28px 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
+  .step::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: transparent;
+    transition: background 0.2s;
+  }
+  .step.active::after { background: var(--accent); }
+  .step-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    background: var(--surface-3);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .step.active .step-num { background: var(--accent); color: #111; border-color: var(--accent); }
+  .step.done .step-num { background: var(--green-dim); color: var(--green); border-color: var(--green); }
+  .step-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+  .step.active .step-label { color: var(--text); }
+  .step.done .step-label { color: var(--text-dim); }
+  .step-divider {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    margin: 0 16px 16px;
+    min-width: 24px;
   }
 
-  /* ---- SECTION HEADERS ---- */
-  .section-label {
+  /* MAIN CONTENT AREA */
+  .content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 36px 32px;
+  }
+
+  /* SCREEN (each step) */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .screen-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .screen-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  /* SECTION LABEL */
+  .sec-label {
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--text-muted);
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
   }
-  .section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
+  .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-  /* ---- FORM ELEMENTS ---- */
-  .field { display: flex; flex-direction: column; gap: 6px; }
-  label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-  }
+  /* FORM */
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
   input[type="text"], select, textarea {
     background: var(--surface-2);
     border: 1px solid var(--border);
@@ -135,13 +165,11 @@
     transition: border-color 0.15s;
     width: 100%;
   }
-  input[type="text"]:focus, select:focus, textarea:focus {
-    border-color: var(--border-active);
-  }
+  input[type="text"]:focus, select:focus, textarea:focus { border-color: var(--border-active); }
   select option { background: var(--surface-2); }
-  textarea { resize: vertical; min-height: 72px; }
+  textarea { resize: vertical; min-height: 80px; }
 
-  /* ---- CONCEPT DROP ZONE ---- */
+  /* DROP ZONE */
   .drop-zone {
     background: var(--surface-2);
     border: 1px dashed var(--border-active);
@@ -150,337 +178,268 @@
     text-align: center;
     cursor: pointer;
     transition: border-color 0.15s, background 0.15s;
+    margin-bottom: 16px;
   }
-  .drop-zone:hover, .drop-zone.drag-over {
-    border-color: var(--accent);
-    background: var(--accent-dim);
-  }
-  .drop-zone .drop-icon { font-size: 24px; margin-bottom: 8px; }
-  .drop-zone .drop-text {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-  .drop-zone .drop-sub {
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-top: 4px;
-  }
-  .drop-zone.has-image {
-    border-style: solid;
-    border-color: var(--accent);
-    padding: 0;
-    overflow: hidden;
-  }
-  .drop-zone.has-image img {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-    display: block;
-  }
+  .drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: var(--accent-dim); }
+  .drop-zone .dz-icon { font-size: 22px; margin-bottom: 8px; }
+  .drop-zone .dz-text { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+  .drop-zone .dz-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+  .drop-zone.has-image { border-style: solid; border-color: var(--accent); padding: 0; overflow: hidden; }
+  .drop-zone.has-image img { width: 100%; height: 140px; object-fit: cover; display: block; }
   #concept-file-input { display: none; }
 
-  /* ---- TAG SELECTOR ---- */
-  .tag-selector { display: flex; gap: 8px; flex-wrap: wrap; }
+  /* TAG SELECTOR */
+  .tag-row { display: flex; gap: 8px; flex-wrap: wrap; }
   .tag-btn {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text-dim);
-    cursor: pointer;
-    font-family: var(--font);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    padding: 6px 14px;
-    text-transform: uppercase;
-    transition: all 0.15s;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px;
+    color: var(--text-dim); cursor: pointer; font-family: var(--font);
+    font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+    padding: 6px 14px; text-transform: uppercase; transition: all 0.15s;
   }
   .tag-btn:hover { border-color: var(--border-active); color: var(--text); }
   .tag-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 
-  /* ---- GENERATE BUTTON ---- */
-  .btn-generate {
-    background: var(--accent);
-    border: none;
-    border-radius: var(--radius);
-    color: #111;
-    cursor: pointer;
-    font-family: var(--font);
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.14em;
-    padding: 14px 24px;
-    text-transform: uppercase;
+  /* BUTTONS */
+  .btn-primary {
+    background: var(--accent); border: none; border-radius: var(--radius);
+    color: #111; cursor: pointer; font-family: var(--font);
+    font-size: 12px; font-weight: 800; letter-spacing: 0.14em;
+    padding: 14px 28px; text-transform: uppercase;
     transition: opacity 0.15s, transform 0.1s;
-    width: 100%;
   }
-  .btn-generate:hover { opacity: 0.9; transform: translateY(-1px); }
-  .btn-generate:active { transform: translateY(0); }
-  .btn-generate:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
 
-  /* ---- OUTPUT: SKU PREVIEW ---- */
-  .output-panel {
-    display: none;
-    flex-direction: column;
-    gap: 20px;
+  .btn-secondary {
+    background: transparent; border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text-dim); cursor: pointer; font-family: var(--font);
+    font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
+    padding: 12px 20px; text-transform: uppercase; transition: all 0.15s;
   }
-  .output-panel.visible { display: flex; }
+  .btn-secondary:hover { border-color: var(--border-active); color: var(--text); }
 
-  .sku-preview-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .sku-preview-name {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-    color: var(--text);
-    line-height: 1.2;
-  }
-  .sku-preview-desc {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    margin-top: 4px;
-  }
-  .sku-type-badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 3px;
-    white-space: nowrap;
-  }
-  .badge-core { background: rgba(240,224,64,0.15); color: var(--accent); }
-  .badge-seasonal { background: rgba(251,146,60,0.15); color: #fb923c; }
-  .badge-concept { background: rgba(167,139,250,0.15); color: #a78bfa; }
+  .btn-row { display: flex; gap: 10px; align-items: center; margin-top: 24px; }
 
-  /* ---- PROMPT SET ---- */
-  .prompt-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .prompt-card {
+  /* CONCEPT CARDS (Step 2) */
+  .concept-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+  .concept-card {
     background: var(--surface-2);
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
     border-radius: var(--radius);
-    padding: 14px;
-  }
-  .prompt-card-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-  }
-  .prompt-card-text {
-    font-size: 11px;
-    color: var(--text-dim);
-    line-height: 1.6;
-  }
-  .prompt-card-copy {
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text-muted);
+    padding: 20px;
     cursor: pointer;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    margin-top: 10px;
-    padding: 4px 10px;
-    text-transform: uppercase;
-    transition: all 0.15s;
-  }
-  .prompt-card-copy:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* ---- JSON OUTPUT ---- */
-  .json-block {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
+    transition: all 0.18s;
     position: relative;
   }
+  .concept-card:hover { border-color: var(--border-active); transform: translateY(-2px); }
+  .concept-card.selected { border-color: var(--accent); background: var(--accent-dim); }
+  .concept-card .card-num {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 12px;
+  }
+  .concept-card.selected .card-num { color: var(--accent); }
+  .concept-card .card-name {
+    font-size: 17px; font-weight: 700; letter-spacing: -0.2px; color: var(--text);
+    margin-bottom: 6px; line-height: 1.2;
+  }
+  .concept-card .card-desc {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 12px;
+  }
+  .concept-card .card-type {
+    display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 3px 9px; border-radius: 3px;
+  }
+  .badge-core { background: rgba(240,224,64,0.12); color: var(--accent); }
+  .badge-seasonal { background: rgba(251,146,60,0.12); color: #fb923c; }
+  .badge-concept { background: rgba(167,139,250,0.12); color: #a78bfa; }
+  .concept-card .check {
+    position: absolute; top: 14px; right: 14px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--accent); color: #111;
+    display: none; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800;
+  }
+  .concept-card.selected .check { display: flex; }
+
+  /* SELECTED SUMMARY BAR */
+  .selection-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .selection-bar .sel-label { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+  .selection-bar .sel-name { font-size: 16px; font-weight: 700; color: var(--text); }
+  .selection-bar .sel-desc { font-size: 11px; color: var(--text-dim); }
+  .selection-bar .sel-change { margin-left: auto; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); cursor: pointer; text-decoration: underline; }
+  .selection-bar .sel-change:hover { color: var(--text); }
+
+  /* IMAGE PROMPT CARDS (Step 3) */
+  .prompt-section { margin-bottom: 32px; }
+  .img-prompt-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .img-prompt-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .ipc-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ipc-slot { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); }
+  .ipc-slot-badge {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 3px;
+  }
+  .slot-hero    { background: rgba(96,165,250,0.1); color: #60a5fa; }
+  .slot-life    { background: rgba(52,211,153,0.1); color: #34d399; }
+  .slot-zoom    { background: rgba(251,191,36,0.1); color: #fbbf24; }
+  .slot-community { background: rgba(232,121,249,0.1); color: #e879f9; }
+  .ipc-body { padding: 14px 16px; }
+  .ipc-variant-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 6px; margin-top: 10px;
+  }
+  .ipc-variant-label:first-child { margin-top: 0; }
+  .ipc-prompt-text {
+    font-size: 11px; color: var(--text-dim); line-height: 1.65;
+    background: var(--surface-3); border-radius: 6px; padding: 10px 12px;
+  }
+  .ipc-actions { padding: 10px 16px 14px; display: flex; gap: 8px; }
+  .ipc-copy {
+    background: transparent; border: 1px solid var(--border); border-radius: 4px;
+    color: var(--text-muted); cursor: pointer; font-family: var(--font);
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+    padding: 5px 12px; text-transform: uppercase; transition: all 0.15s;
+  }
+  .ipc-copy:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* JSON OUTPUT */
+  .json-block {
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px; position: relative; margin-bottom: 16px;
+  }
   .json-block pre {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text-dim);
-    overflow-x: auto;
-    white-space: pre-wrap;
-    word-break: break-all;
+    font-family: var(--mono); font-size: 11px; color: var(--text-dim);
+    overflow-x: auto; white-space: pre-wrap; word-break: break-all; max-height: 320px;
   }
   .json-copy-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: var(--surface-3);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    padding: 4px 10px;
-    text-transform: uppercase;
-    transition: all 0.15s;
+    position: absolute; top: 12px; right: 12px;
+    background: var(--surface-3); border: 1px solid var(--border); border-radius: 4px;
+    color: var(--text-muted); cursor: pointer; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em; padding: 4px 10px; text-transform: uppercase; transition: all 0.15s;
   }
   .json-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-  /* ---- QA PANEL ---- */
-  .qa-panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
+  /* QA */
+  .qa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .qa-item {
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
   }
-  .qa-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .qa-row:last-child { border-bottom: none; }
-  .qa-label {
-    font-size: 12px;
-    color: var(--text-dim);
-  }
-  .qa-status {
-    font-size: 12px;
-    font-weight: 700;
-  }
+  .qa-item-label { font-size: 12px; color: var(--text-dim); }
+  .qa-item-status { font-size: 12px; font-weight: 700; }
   .qa-pass { color: var(--green); }
   .qa-fail { color: var(--red); }
 
-  /* ---- DEPLOY BUTTON ---- */
+  /* DEPLOY */
+  .deploy-section { margin-top: 24px; }
   .btn-deploy {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--text-muted);
-    cursor: not-allowed;
-    font-family: var(--font);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    padding: 14px 24px;
-    text-transform: uppercase;
-    transition: all 0.2s;
-    width: 100%;
-    position: relative;
-    overflow: hidden;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text-muted); cursor: not-allowed; font-family: var(--font);
+    font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
+    padding: 14px 28px; text-transform: uppercase; transition: all 0.2s; width: 100%;
   }
   .btn-deploy.ready {
-    background: var(--green-dim);
-    border-color: var(--green);
-    color: var(--green);
-    cursor: pointer;
+    background: var(--green-dim); border-color: var(--green); color: var(--green); cursor: pointer;
   }
   .btn-deploy.ready:hover { opacity: 0.85; }
-  .deploy-hint {
-    font-size: 10px;
-    color: var(--text-muted);
-    text-align: center;
-    letter-spacing: 0.06em;
-    margin-top: 6px;
-  }
+  .deploy-hint { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 8px; letter-spacing: 0.04em; }
 
-  /* ---- TOAST ---- */
+  /* TOAST */
   .toast {
-    position: fixed;
-    bottom: 32px;
-    right: 32px;
-    background: var(--surface);
-    border: 1px solid var(--border-active);
-    border-radius: var(--radius);
-    padding: 14px 20px;
-    font-size: 13px;
-    color: var(--text);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    transform: translateY(80px);
-    opacity: 0;
-    transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
-    z-index: 999;
-    max-width: 320px;
+    position: fixed; bottom: 28px; right: 28px;
+    background: var(--surface); border: 1px solid var(--border-active);
+    border-radius: var(--radius); padding: 14px 20px;
+    font-size: 13px; color: var(--text);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    transform: translateY(60px); opacity: 0;
+    transition: all 0.24s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 999; max-width: 300px;
   }
-  .toast.show {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  .toast .toast-title { font-weight: 700; margin-bottom: 2px; }
-  .toast .toast-body { font-size: 12px; color: var(--text-dim); }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-title { font-weight: 700; margin-bottom: 2px; }
+  .toast-body { font-size: 12px; color: var(--text-dim); }
 
-  /* ---- EMPTY STATE ---- */
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    gap: 12px;
-    padding: 80px 40px;
-    text-align: center;
-  }
-  .empty-state .empty-icon { font-size: 40px; opacity: 0.3; }
-  .empty-state .empty-text {
-    font-size: 13px;
-    color: var(--text-muted);
-    max-width: 260px;
-    line-height: 1.6;
-  }
-
-  /* ---- RESPONSIVE ---- */
-  @media (max-width: 900px) {
-    .workspace { grid-template-columns: 1fr; }
-    .panel-left { border-right: none; border-bottom: 1px solid var(--border); }
-    .prompt-grid { grid-template-columns: 1fr; }
+  @media (max-width: 700px) {
+    .content { padding: 24px 16px; }
+    .concept-cards { grid-template-columns: 1fr; }
+    .img-prompt-cards { grid-template-columns: 1fr; }
+    .qa-grid { grid-template-columns: 1fr; }
+    .stepper { padding: 16px 16px 0; overflow-x: auto; }
+    header { padding: 0 16px; }
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-left">
-    <h1>Hidden Supply — SKU Admin <span class="tag">v0</span></h1>
-  </div>
+  <div class="header-brand">Hidden Supply — SKU Admin <span class="v">v1</span></div>
   <div class="header-right">Internal Use Only</div>
 </header>
 
-<div class="workspace">
+<!-- STEPPER -->
+<div class="stepper">
+  <div class="step active" id="step-tab-1">
+    <div class="step-num">1</div>
+    <div class="step-label">Input Concept</div>
+  </div>
+  <div class="step-divider"></div>
+  <div class="step" id="step-tab-2">
+    <div class="step-num">2</div>
+    <div class="step-label">Pick SKU</div>
+  </div>
+  <div class="step-divider"></div>
+  <div class="step" id="step-tab-3">
+    <div class="step-num">3</div>
+    <div class="step-label">Generate Images</div>
+  </div>
+</div>
 
-  <!-- LEFT PANEL: INPUT -->
-  <div class="panel-left">
+<!-- MAIN -->
+<div class="content">
 
-    <div>
-      <div class="section-label">1 · Concept Input</div>
-      <div class="field" style="margin-bottom:14px;">
-        <label>Concept Description</label>
-        <textarea id="concept-text" placeholder="e.g. Space-themed wax candy with astronaut characters, collectible blind box series..."></textarea>
-      </div>
-      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('concept-file-input').click()">
-        <div class="drop-icon">🖼</div>
-        <div class="drop-text">Drop concept image</div>
-        <div class="drop-sub">or click to browse</div>
-      </div>
-      <input type="file" id="concept-file-input" accept="image/*" />
+  <!-- ======= STEP 1: INPUT ======= -->
+  <div class="screen active" id="screen-1">
+    <div class="screen-title">What's the concept?</div>
+    <div class="screen-sub">Describe the candy, vibe, format, or anything you have. The more specific, the better the output.</div>
+
+    <div class="sec-label">Concept</div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="concept-text" rows="4" placeholder="e.g. Space-themed wax candy with astronaut characters, collectible blind box series, bold primary colors, aimed at Gen Z..."></textarea>
     </div>
 
-    <div>
-      <div class="section-label">2 · Brand + Type</div>
-      <div class="field" style="margin-bottom:14px;">
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('concept-file-input').click()">
+      <div class="dz-icon">🖼</div>
+      <div class="dz-text">Drop a reference image</div>
+      <div class="dz-sub">or click to browse · optional</div>
+    </div>
+    <input type="file" id="concept-file-input" accept="image/*" />
+
+    <div class="sec-label">Brand + Type</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+      <div class="field" style="margin-bottom:0;">
         <label>Brand</label>
         <select id="brand-select">
           <option value="">— Select Brand —</option>
@@ -491,9 +450,9 @@
           <option value="nauti-labs">Nauti Labs</option>
         </select>
       </div>
-      <div class="field">
+      <div class="field" style="margin-bottom:0;">
         <label>SKU Type</label>
-        <div class="tag-selector">
+        <div class="tag-row" style="margin-top:4px;">
           <button class="tag-btn active" data-type="core" onclick="selectType(this)">Core</button>
           <button class="tag-btn" data-type="seasonal" onclick="selectType(this)">Seasonal</button>
           <button class="tag-btn" data-type="concept" onclick="selectType(this)">Concept</button>
@@ -501,324 +460,406 @@
       </div>
     </div>
 
-    <button class="btn-generate" id="btn-generate" onclick="generateSKU()">
-      Generate SKU
-    </button>
-
-  </div>
-
-  <!-- RIGHT PANEL: OUTPUT -->
-  <div class="panel-right" id="panel-right">
-
-    <!-- Empty state -->
-    <div class="empty-state" id="empty-state">
-      <div class="empty-icon">📦</div>
-      <div class="empty-text">Fill in a concept description and brand, then hit Generate SKU.</div>
-    </div>
-
-    <!-- Output (hidden until generated) -->
-    <div class="output-panel" id="output-panel">
-
-      <!-- SKU Identity -->
-      <div>
-        <div class="section-label">3 · Generated SKU</div>
-        <div class="sku-preview-header">
-          <div>
-            <div class="sku-preview-name" id="out-name">—</div>
-            <div class="sku-preview-desc" id="out-desc">—</div>
-          </div>
-          <div class="sku-type-badge" id="out-badge">—</div>
-        </div>
-      </div>
-
-      <!-- Prompt Set -->
-      <div>
-        <div class="section-label">Image Prompts</div>
-        <div class="prompt-grid" id="prompt-grid">
-          <!-- injected by JS -->
-        </div>
-      </div>
-
-      <!-- JSON Output -->
-      <div>
-        <div class="section-label">SKU Data</div>
-        <div class="json-block">
-          <button class="json-copy-btn" onclick="copyJSON()">Copy</button>
-          <pre id="json-out">{ }</pre>
-        </div>
-      </div>
-
-      <!-- QA Check -->
-      <div>
-        <div class="section-label">4 · QA Check</div>
-        <div class="qa-panel" id="qa-panel">
-          <div class="qa-row">
-            <span class="qa-label">4 image slots assigned</span>
-            <span class="qa-status" id="qa-slots">—</span>
-          </div>
-          <div class="qa-row">
-            <span class="qa-label">Descriptor present</span>
-            <span class="qa-status" id="qa-desc">—</span>
-          </div>
-          <div class="qa-row">
-            <span class="qa-label">Brand assigned</span>
-            <span class="qa-status" id="qa-brand">—</span>
-          </div>
-          <div class="qa-row">
-            <span class="qa-label">State assigned</span>
-            <span class="qa-status" id="qa-state">—</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Deploy -->
-      <div>
-        <div class="section-label">5 · Push to Site</div>
-        <button class="btn-deploy" id="btn-deploy" onclick="deployAction()">
-          Push to Site
-        </button>
-        <div class="deploy-hint" id="deploy-hint">QA must pass before deploy is enabled</div>
-      </div>
-
+    <div class="btn-row">
+      <button class="btn-primary" onclick="generateConcepts()">Generate 3 Concepts →</button>
     </div>
   </div>
-</div>
 
-<!-- Toast -->
+  <!-- ======= STEP 2: PICK SKU ======= -->
+  <div class="screen" id="screen-2">
+    <div class="screen-title">Pick a concept.</div>
+    <div class="screen-sub">Three directions generated from your brief. Pick the one that fits — you can always go back and regenerate.</div>
+
+    <div class="concept-cards" id="concept-cards">
+      <!-- injected by JS -->
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" id="btn-pick" disabled onclick="confirmConcept()">Use This Concept →</button>
+      <button class="btn-secondary" onclick="goToStep(1)">← Back</button>
+      <button class="btn-secondary" onclick="generateConcepts()">Regenerate</button>
+    </div>
+  </div>
+
+  <!-- ======= STEP 3: IMAGE PROMPTS ======= -->
+  <div class="screen" id="screen-3">
+    <div class="screen-title">Image prompts.</div>
+    <div class="screen-sub">4 image types, ready to copy into your AI image tool. Hero has two backgrounds — black and white.</div>
+
+    <!-- Selection summary -->
+    <div class="selection-bar" id="sel-bar">
+      <div>
+        <div class="sel-label">Selected SKU</div>
+        <div class="sel-name" id="sel-name">—</div>
+        <div class="sel-desc" id="sel-desc">—</div>
+      </div>
+      <span class="sel-change" onclick="goToStep(2)">Change →</span>
+    </div>
+
+    <!-- Prompt cards -->
+    <div class="prompt-section">
+      <div class="sec-label">Image Prompts</div>
+      <div class="img-prompt-cards" id="prompt-cards">
+        <!-- injected by JS -->
+      </div>
+    </div>
+
+    <!-- JSON -->
+    <div class="sec-label">SKU Data</div>
+    <div class="json-block">
+      <button class="json-copy-btn" onclick="copyJSON()">Copy All</button>
+      <pre id="json-out">{ }</pre>
+    </div>
+
+    <!-- QA -->
+    <div class="sec-label">QA Check</div>
+    <div class="qa-grid" id="qa-grid">
+      <div class="qa-item"><span class="qa-item-label">4 image slots</span><span class="qa-item-status" id="qa-slots">—</span></div>
+      <div class="qa-item"><span class="qa-item-label">Descriptor present</span><span class="qa-item-status" id="qa-desc">—</span></div>
+      <div class="qa-item"><span class="qa-item-label">Brand assigned</span><span class="qa-item-status" id="qa-brand">—</span></div>
+      <div class="qa-item"><span class="qa-item-label">Type assigned</span><span class="qa-item-status" id="qa-type">—</span></div>
+    </div>
+
+    <!-- Deploy -->
+    <div class="deploy-section">
+      <button class="btn-deploy" id="btn-deploy" onclick="deployAction()">Push to Site</button>
+      <div class="deploy-hint" id="deploy-hint">Deploy pipeline not yet connected — export JSON to hand off</div>
+    </div>
+
+    <div class="btn-row" style="margin-top:16px;">
+      <button class="btn-secondary" onclick="resetAll()">← Start Over</button>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
 <div class="toast" id="toast">
   <div class="toast-title" id="toast-title"></div>
   <div class="toast-body" id="toast-body"></div>
 </div>
 
 <script>
-  // ---- STATE ----
-  let selectedType = 'core';
-  let currentSKU = null;
+// ---- STATE ----
+let selectedType = 'core';
+let generatedConcepts = [];
+let selectedConcept = null;
+let currentSKU = null;
+let inputData = {};
 
-  // ---- BRAND PROMPT TEMPLATES ----
-  const BRAND_TEMPLATES = {
-    'juice-bomb': {
-      name: 'Juice Bomb',
-      hero: (n, d) => `Juice Bomb wax candy "${n}", bold primary colors, ${d}, shot on white seamless, straight-on product hero angle, clean packaging, no shadows, sharp edges`,
-      lifestyle: (n, d) => `Juice Bomb "${n}" wax candy in scene, Gen Z setting, candid mid-action shot, product integrated into behavior — not posed beside it, natural daylight`,
-      interaction: (n, d) => `Hands unwrapping or eating Juice Bomb "${n}" wax candy, close crop, mid-action, natural irregular hand position, realistic skin, candid feel`,
-      supporting: (n, d) => `Juice Bomb "${n}" wax candy macro close-up, packaging texture and surface detail, studio lighting, gloss variation visible, slight candy irregularity`,
+// ---- BRAND CONFIG ----
+const BRANDS = {
+  'juice-bomb':  { label: 'Juice Bomb',  format: 'wax candy', style: 'bold primary colors, playful, pop culture energy' },
+  'dirty-sips':  { label: 'Dirty Sips',  format: 'wax candy bottle', style: 'dark soda aesthetic, counter-culture, Gen Z energy' },
+  'candu':       { label: 'Candu',       format: 'gummy candy', style: 'playful pastel colors, tactile, squeezable' },
+  'peelpals':    { label: 'PeelPals',    format: 'peelable gummy', style: 'oversized fruit shapes, satisfying peel reveal' },
+  'nauti-labs':  { label: 'Nauti Labs',  format: 'novelty candy', style: 'experimental format, activate/discover mechanic' },
+};
+
+// ---- NAME POOLS (for variety) ----
+const ADJECTIVES = ['Cosmic','Wild','Mega','Ultra','Neon','Phantom','Rogue','Hyper','Void','Solar','Nova','Feral','Drift','Surge','Prism'];
+const NOUNS = ['Drop','Pack','Kit','Crew','Squad','Wave','Run','Series','Box','Set','Burst','Form','Edition','Batch','Line'];
+const FLAVORS = ['Peach','Mango','Berry','Citrus','Grape','Cherry','Lime','Lychee','Passionfruit','Watermelon','Pineapple','Strawberry'];
+const THEMES = ['Space','Ocean','Forest','Desert','City','Retro','Glow','Shadow','Storm','Dawn'];
+
+function randFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function generateNames(text, brand) {
+  // Extract key words from text
+  const words = text.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+  const stopWords = new Set(['with','that','this','from','into','over','their','about','which','have','been','will','when','also','just','then','they','these','would','could','should','because','very','more','than','such','only','both','each','most','some','made']);
+  const useful = words.filter(w => !stopWords.has(w)).map(w => w.replace(/[^a-z]/g,''));
+
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+  // Option 1: derive from text keywords
+  const kw1 = useful[0] ? cap(useful[0]) : randFrom(ADJECTIVES);
+  const kw2 = useful[1] ? cap(useful[1]) : randFrom(NOUNS);
+  const name1 = `${kw1} ${kw2}`;
+
+  // Option 2: theme + format
+  const name2 = `${randFrom(THEMES)} ${randFrom(NOUNS)}`;
+
+  // Option 3: flavor/vibe + descriptor
+  const name3 = `${randFrom(ADJECTIVES)} ${randFrom(FLAVORS)}`;
+
+  return [name1, name2, name3];
+}
+
+function generateDescriptor(name, text, brand) {
+  const b = BRANDS[brand];
+  const words = text.toLowerCase().split(/\s+/);
+  const patterns = [
+    `${b.format} · everyday`,
+    `limited run · collectible`,
+    `seasonal · limited`,
+    `everyday · bestseller`,
+    `concept · experimental`,
+  ];
+  // Pick based on type
+  if (selectedType === 'seasonal') return 'Seasonal · limited run';
+  if (selectedType === 'concept') return 'Concept · experimental';
+  return `${b.format.split(' ')[0]} · everyday`;
+}
+
+// ---- IMAGE PROMPT GENERATORS ----
+function buildPrompts(name, descriptor, brand) {
+  const b = BRANDS[brand];
+  const style = b.style;
+  const fmt = b.format;
+
+  return {
+    hero_white: `${b.label} ${fmt} "${name}", ${style}, shot on pure white seamless background, straight-on product hero angle, no shadows, full packaging visible, crisp edges, commercial product photography`,
+    hero_black: `${b.label} ${fmt} "${name}", ${style}, shot on pure black seamless background, product hero angle, subtle edge glow, full packaging visible, high contrast, premium commercial photography`,
+    lifestyle: `${b.label} "${name}" ${fmt} in a clean lifestyle setting, ${style}, minimalist environment — marble countertop / pastel wall / natural wood surface, product as the hero but placed naturally, soft warm daylight, editorial magazine vibe, not a stock photo`,
+    zoom: `Close-up macro shot of ${b.label} "${name}" ${fmt} being opened or activated, hands mid-action, extreme close crop, shallow depth of field, product texture and material detail fully visible, natural light, candid feel, not posed`,
+    community: `Gen Z lifestyle moment featuring ${b.label} "${name}" — group of 2-3 friends, candid mid-action, product naturally integrated into behavior (not held up to camera), urban or casual setting, real skin tones, no models — real people energy, shot on digital, slightly grainy`,
+  };
+}
+
+// ---- TYPE SELECTOR ----
+function selectType(btn) {
+  document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedType = btn.dataset.type;
+}
+
+// ---- DROP ZONE ----
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('concept-file-input');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) handleImageFile(file);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) handleImageFile(e.target.files[0]); });
+function handleImageFile(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    dropZone.classList.add('has-image');
+    dropZone.innerHTML = `<img src="${ev.target.result}" alt="Concept" />`;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ---- STEP 1: GENERATE CONCEPTS ----
+function generateConcepts() {
+  const text = document.getElementById('concept-text').value.trim();
+  const brand = document.getElementById('brand-select').value;
+  if (!text) { showToast('Missing Input', 'Add a concept description first.'); return; }
+  if (!brand) { showToast('Missing Brand', 'Select a brand before generating.'); return; }
+
+  inputData = { text, brand, type: selectedType };
+  const names = generateNames(text, brand);
+  const b = BRANDS[brand];
+
+  generatedConcepts = names.map((name, i) => ({
+    id: i,
+    name,
+    descriptor: generateDescriptor(name, text, brand),
+    brand, brandLabel: b.label,
+    type: selectedType,
+    concept: text,
+  }));
+
+  // Render cards
+  const cards = document.getElementById('concept-cards');
+  cards.innerHTML = generatedConcepts.map((c, i) => `
+    <div class="concept-card" id="cc-${i}" onclick="selectConcept(${i})">
+      <div class="check">✓</div>
+      <div class="card-num">Option ${i+1}</div>
+      <div class="card-name">${c.name}</div>
+      <div class="card-desc">${c.descriptor}</div>
+      <span class="card-type badge-${c.type}">${c.type.charAt(0).toUpperCase()+c.type.slice(1)}</span>
+    </div>
+  `).join('');
+
+  selectedConcept = null;
+  document.getElementById('btn-pick').disabled = true;
+  goToStep(2);
+}
+
+// ---- STEP 2: SELECT CONCEPT ----
+function selectConcept(idx) {
+  document.querySelectorAll('.concept-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`cc-${idx}`).classList.add('selected');
+  selectedConcept = generatedConcepts[idx];
+  document.getElementById('btn-pick').disabled = false;
+}
+
+function confirmConcept() {
+  if (!selectedConcept) return;
+  buildImagePrompts(selectedConcept);
+  goToStep(3);
+}
+
+// ---- STEP 3: BUILD PROMPTS ----
+function buildImagePrompts(concept) {
+  const prompts = buildPrompts(concept.name, concept.descriptor, concept.brand);
+  const b = BRANDS[concept.brand];
+
+  // Selection bar
+  document.getElementById('sel-name').textContent = concept.name;
+  document.getElementById('sel-desc').textContent = `${concept.brandLabel} · ${concept.descriptor}`;
+
+  // Build prompt cards
+  const slots = [
+    {
+      key: 'hero',
+      label: 'Hero',
+      badge: 'slot-hero',
+      variants: [
+        { label: 'White Background', prompt: prompts.hero_white },
+        { label: 'Black Background', prompt: prompts.hero_black },
+      ]
     },
-    'dirty-sips': {
-      name: 'Dirty Sips',
-      hero: (n, d) => `Dirty Sips wax candy bottle "${n}", dark soda energy aesthetic, ${d}, white seamless backdrop, hero angle, clean packaging shot`,
-      lifestyle: (n, d) => `Dirty Sips "${n}" bottle candy, dark soda counter setting, Gen Z casual, product naturally in scene, dim ambient light, candid`,
-      interaction: (n, d) => `Hands holding Dirty Sips "${n}" candy bottle, fingers wrapped naturally, close crop, editorial feel, slightly moody lighting`,
-      supporting: (n, d) => `Dirty Sips "${n}" macro detail, label texture, wax surface close-up, studio lighting, rich shadows, packaging clarity`,
+    {
+      key: 'lifestyle',
+      label: 'Lifestyle',
+      badge: 'slot-life',
+      variants: [{ label: 'Clean Environment', prompt: prompts.lifestyle }]
     },
-    'candu': {
-      name: 'Candu',
-      hero: (n, d) => `Candu gummy candy "${n}", playful pastel colors, ${d}, white seamless hero shot, clean packaging, product stack or pile angle`,
-      lifestyle: (n, d) => `Candu "${n}" gummies in playful lifestyle setting, bright natural light, Gen Z snack moment, product mid-reach or in hand, candid energy`,
-      interaction: (n, d) => `Hands pulling or stretching Candu "${n}" gummy candy, close crop, natural light, slight gummy transparency visible, mid-action`,
-      supporting: (n, d) => `Candu "${n}" gummy macro, surface texture and color saturation detail, studio lighting, slight sugar crystallization visible`,
+    {
+      key: 'zoom',
+      label: 'Zoom / Activation',
+      badge: 'slot-zoom',
+      variants: [{ label: 'Macro Close-Up', prompt: prompts.zoom }]
     },
-    'peelpals': {
-      name: 'PeelPals',
-      hero: (n, d) => `PeelPals peelable gummy "${n}", oversized fruit shape, ${d}, white seamless hero angle, product full-frame, packaging barely visible, clean`,
-      lifestyle: (n, d) => `PeelPals "${n}" gummy in outdoor setting, natural daylight, Gen Z casual outdoor moment, product in hand mid-peel or about to eat`,
-      interaction: (n, d) => `Hands peeling PeelPals "${n}" gummy, slow peel motion captured, close crop, translucent peel layer visible, natural light, fingers slightly blurred`,
-      supporting: (n, d) => `PeelPals "${n}" macro texture shot, peel layer separated slightly, gummy layers visible in cross-section, studio lighting, ultra-sharp detail`,
+    {
+      key: 'community',
+      label: 'Community',
+      badge: 'slot-community',
+      variants: [{ label: 'With People', prompt: prompts.community }]
     },
-    'nauti-labs': {
-      name: 'Nauti Labs',
-      hero: (n, d) => `Nauti Labs novelty candy "${n}", experimental format, ${d}, white seamless hero angle, full product visible, packaging included`,
-      lifestyle: (n, d) => `Nauti Labs "${n}" candy in use, experimental snack moment, Gen Z setting, product being activated or consumed, candid unposed energy`,
-      interaction: (n, d) => `Hands interacting with Nauti Labs "${n}" novelty candy, mid-activation close crop, product doing its thing — fizzing/growing/crystal forming, natural light`,
-      supporting: (n, d) => `Nauti Labs "${n}" product detail, unique format macro, studio lighting, material and texture clarity, experimental candy anatomy visible`,
+  ];
+
+  const container = document.getElementById('prompt-cards');
+  container.innerHTML = slots.map(slot => `
+    <div class="img-prompt-card">
+      <div class="ipc-header">
+        <span class="ipc-slot">${slot.label}</span>
+        <span class="ipc-slot-badge ${slot.badge}">${slot.label}</span>
+      </div>
+      <div class="ipc-body">
+        ${slot.variants.map(v => `
+          <div class="ipc-variant-label">${v.label}</div>
+          <div class="ipc-prompt-text">${v.prompt}</div>
+        `).join('')}
+      </div>
+      <div class="ipc-actions">
+        ${slot.variants.map((v, vi) => `
+          <button class="ipc-copy" onclick="copyText(${JSON.stringify(v.prompt)}, this)">${slot.variants.length > 1 ? (vi === 0 ? 'Copy White' : 'Copy Black') : 'Copy Prompt'}</button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  // Build SKU object
+  currentSKU = {
+    brand: concept.brandLabel,
+    brand_slug: concept.brand,
+    name: concept.name,
+    descriptor: concept.descriptor,
+    type: concept.type,
+    concept: concept.concept,
+    images: { hero: 'coming-soon', lifestyle: 'coming-soon', zoom: 'coming-soon', community: 'coming-soon' },
+    prompts: {
+      hero_white: prompts.hero_white,
+      hero_black: prompts.hero_black,
+      lifestyle: prompts.lifestyle,
+      zoom: prompts.zoom,
+      community: prompts.community,
     },
+    generated: new Date().toISOString(),
   };
 
-  // ---- UTILITIES ----
-  function slugify(str) {
-    return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  document.getElementById('json-out').textContent = JSON.stringify(currentSKU, null, 2);
+
+  // QA
+  const qa = {
+    slots: Object.keys(currentSKU.images).length === 4,
+    desc: !!currentSKU.descriptor,
+    brand: !!currentSKU.brand_slug,
+    type: !!currentSKU.type,
+  };
+  setQA('qa-slots', qa.slots);
+  setQA('qa-desc', qa.desc);
+  setQA('qa-brand', qa.brand);
+  setQA('qa-type', qa.type);
+
+  const allPass = Object.values(qa).every(Boolean);
+  const deployBtn = document.getElementById('btn-deploy');
+  if (allPass) {
+    deployBtn.classList.add('ready');
+    document.getElementById('deploy-hint').textContent = 'QA passed — deploy pipeline not yet connected';
+  } else {
+    deployBtn.classList.remove('ready');
+    document.getElementById('deploy-hint').textContent = 'QA must pass before deploy is enabled';
   }
+}
 
-  function generateName(text, brand) {
-    // Simple name extraction: take key noun phrases
-    const words = text.split(/\s+/).filter(w => w.length > 3);
-    const stop = new Set(['with','that','this','from','into','over','their','about','which','have','been','will','when','also','just','then']);
-    const useful = words.filter(w => !stop.has(w.toLowerCase())).slice(0, 4);
-    if (useful.length >= 2) {
-      // Capitalize and combine
-      return useful.slice(0, 2).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-    }
-    return 'New SKU';
-  }
+function setQA(id, pass) {
+  const el = document.getElementById(id);
+  el.textContent = pass ? '✓ Pass' : '✗ Fail';
+  el.className = 'qa-item-status ' + (pass ? 'qa-pass' : 'qa-fail');
+}
 
-  function generateDescriptor(text) {
-    const words = text.split(/\s+/).filter(w => w.length > 4);
-    const adj = words.find(w => /ful|ive|ing|ous|ic$/.test(w.toLowerCase())) || words[0] || 'Novelty';
-    const noun = words.find((w, i) => i > 0 && w.length > 4) || 'candy';
-    return `${adj.charAt(0).toUpperCase() + adj.slice(1).toLowerCase()} ${noun.toLowerCase()}`.slice(0, 30);
-  }
+// ---- NAVIGATION ----
+function goToStep(n) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(`screen-${n}`).classList.add('active');
 
-  // ---- TYPE SELECTOR ----
-  function selectType(btn) {
-    document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    selectedType = btn.dataset.type;
-  }
-
-  // ---- DROP ZONE ----
-  const dropZone = document.getElementById('drop-zone');
-  const fileInput = document.getElementById('concept-file-input');
-
-  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-  dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) handleImageFile(file);
+  document.querySelectorAll('.step').forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (i + 1 < n) s.classList.add('done');
+    if (i + 1 === n) s.classList.add('active');
   });
-  fileInput.addEventListener('change', e => {
-    if (e.target.files[0]) handleImageFile(e.target.files[0]);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetAll() {
+  selectedType = 'core';
+  generatedConcepts = [];
+  selectedConcept = null;
+  currentSKU = null;
+  inputData = {};
+  document.getElementById('concept-text').value = '';
+  document.getElementById('brand-select').value = '';
+  document.querySelectorAll('.tag-btn').forEach((b,i) => { b.classList.toggle('active', i===0); });
+  const dz = document.getElementById('drop-zone');
+  dz.classList.remove('has-image');
+  dz.innerHTML = '<div class="dz-icon">🖼</div><div class="dz-text">Drop a reference image</div><div class="dz-sub">or click to browse · optional</div>';
+  goToStep(1);
+}
+
+// ---- UTILITIES ----
+function copyJSON() {
+  if (!currentSKU) return;
+  navigator.clipboard.writeText(JSON.stringify(currentSKU, null, 2))
+    .then(() => showToast('Copied', 'SKU JSON copied to clipboard.'));
+}
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1500);
   });
+}
+function deployAction() {
+  if (!document.getElementById('btn-deploy').classList.contains('ready')) return;
+  showToast('Deploy Pipeline', 'Not yet connected. Copy JSON to hand off to site update workflow.', 4000);
+}
 
-  function handleImageFile(file) {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      dropZone.classList.add('has-image');
-      dropZone.innerHTML = `<img src="${ev.target.result}" alt="Concept" />`;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  // ---- GENERATE ----
-  function generateSKU() {
-    const text = document.getElementById('concept-text').value.trim();
-    const brand = document.getElementById('brand-select').value;
-
-    if (!text) { showToast('Missing Input', 'Add a concept description first.'); return; }
-    if (!brand) { showToast('Missing Brand', 'Select a brand before generating.'); return; }
-
-    const tmpl = BRAND_TEMPLATES[brand];
-    const name = generateName(text, brand);
-    const descriptor = generateDescriptor(text);
-
-    const prompts = {
-      hero: tmpl.hero(name, descriptor),
-      lifestyle: tmpl.lifestyle(name, descriptor),
-      interaction: tmpl.interaction(name, descriptor),
-      supporting: tmpl.supporting(name, descriptor),
-    };
-
-    const skuObj = {
-      brand: tmpl.name,
-      brand_slug: brand,
-      name: name,
-      descriptor: descriptor,
-      type: selectedType,
-      concept: text,
-      images: {
-        hero: 'coming-soon',
-        lifestyle: 'coming-soon',
-        interaction: 'coming-soon',
-        supporting: 'coming-soon',
-      },
-      prompts: prompts,
-      generated: new Date().toISOString(),
-    };
-
-    currentSKU = skuObj;
-    renderOutput(skuObj);
-  }
-
-  function renderOutput(sku) {
-    document.getElementById('empty-state').style.display = 'none';
-    document.getElementById('output-panel').classList.add('visible');
-
-    // Identity
-    document.getElementById('out-name').textContent = sku.name;
-    document.getElementById('out-desc').textContent = sku.descriptor;
-
-    const badge = document.getElementById('out-badge');
-    badge.textContent = sku.type.charAt(0).toUpperCase() + sku.type.slice(1);
-    badge.className = 'sku-type-badge badge-' + sku.type;
-
-    // Prompt grid
-    const grid = document.getElementById('prompt-grid');
-    const slots = ['hero', 'lifestyle', 'interaction', 'supporting'];
-    grid.innerHTML = slots.map(slot => `
-      <div class="prompt-card">
-        <div class="prompt-card-label">${slot}</div>
-        <div class="prompt-card-text">${sku.prompts[slot]}</div>
-        <button class="prompt-card-copy" onclick="copyText(${JSON.stringify(sku.prompts[slot])}, this)">Copy Prompt</button>
-      </div>
-    `).join('');
-
-    // JSON
-    document.getElementById('json-out').textContent = JSON.stringify(sku, null, 2);
-
-    // QA
-    const hasDesc = sku.descriptor && sku.descriptor.length > 0;
-    const hasBrand = !!sku.brand_slug;
-    const hasState = !!sku.type;
-    const hasSlots = Object.keys(sku.images).length === 4;
-
-    const allPass = hasDesc && hasBrand && hasState && hasSlots;
-
-    setQA('qa-slots', hasSlots);
-    setQA('qa-desc', hasDesc);
-    setQA('qa-brand', hasBrand);
-    setQA('qa-state', hasState);
-
-    const deployBtn = document.getElementById('btn-deploy');
-    const deployHint = document.getElementById('deploy-hint');
-    if (allPass) {
-      deployBtn.classList.add('ready');
-      deployHint.textContent = 'QA passed — deploy pipeline not yet connected';
-    } else {
-      deployBtn.classList.remove('ready');
-      deployHint.textContent = 'QA must pass before deploy is enabled';
-    }
-  }
-
-  function setQA(id, pass) {
-    const el = document.getElementById(id);
-    el.textContent = pass ? '✓ Pass' : '✗ Fail';
-    el.className = 'qa-status ' + (pass ? 'qa-pass' : 'qa-fail');
-  }
-
-  // ---- ACTIONS ----
-  function copyJSON() {
-    if (!currentSKU) return;
-    navigator.clipboard.writeText(JSON.stringify(currentSKU, null, 2))
-      .then(() => showToast('Copied', 'SKU JSON copied to clipboard.'));
-  }
-
-  function copyText(text, btn) {
-    navigator.clipboard.writeText(text)
-      .then(() => {
-        const orig = btn.textContent;
-        btn.textContent = 'Copied!';
-        setTimeout(() => btn.textContent = orig, 1500);
-      });
-  }
-
-  function deployAction() {
-    const btn = document.getElementById('btn-deploy');
-    if (!btn.classList.contains('ready')) return;
-    showToast('Deploy Pipeline', 'Not yet connected. Export JSON to hand off to site update workflow.', 4000);
-  }
-
-  // ---- TOAST ----
-  let toastTimer;
-  function showToast(title, body, duration = 3000) {
-    const toast = document.getElementById('toast');
-    document.getElementById('toast-title').textContent = title;
-    document.getElementById('toast-body').textContent = body;
-    toast.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
-  }
+let toastTimer;
+function showToast(title, body, duration = 2800) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-body').textContent = body;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), duration);
+}
 </script>
-
 </body>
 </html>
