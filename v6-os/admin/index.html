@@ -176,6 +176,9 @@
   .toast-t { font-weight: 700; margin-bottom: 2px; }
   .toast-b { font-size: 12px; color: var(--text-dim); }
 
+
+  .pkg-other { display: none; margin-top: 8px; }
+  .pkg-other.show { display: block; }
   @media (max-width: 800px) {
     .content { padding: 24px 16px; }
     .mockup-grid { grid-template-columns: 1fr; }
@@ -240,6 +243,17 @@
           <button class="tag-btn" data-type="seasonal" onclick="selType(this)">Seasonal</button>
           <button class="tag-btn" data-type="concept" onclick="selType(this)">Concept</button>
         </div>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:8px;">
+      <label>Packaging Format</label>
+      <div class="tag-row" style="margin-top:4px">
+        <button class="tag-btn active" data-pkg="stand-up-pouch" onclick="selPkg(this)">Stand Up Pouch</button>
+        <button class="tag-btn" data-pkg="box" onclick="selPkg(this)">Box / Tray</button>
+        <button class="tag-btn" data-pkg="other" onclick="selPkg(this)">Other</button>
+      </div>
+      <div class="pkg-other" id="pkg-other-input">
+        <input type="text" id="pkg-custom" placeholder="e.g. hang bag, tin, blister pack..." style="margin-top:6px;" />
       </div>
     </div>
     <div id="brand-refs-row" style="margin-bottom:20px;display:none;">
@@ -418,6 +432,7 @@ function cap(s) { return s.charAt(0).toUpperCase()+s.slice(1); }
 
 // State
 let skuType = 'core';
+let pkgFormat = 'stand-up-pouch';
 let concepts = [];
 let selectedMockup = null;   // { idx, name, desc, dataUrl }
 let currentSKU = null;
@@ -438,9 +453,24 @@ function updateBrandRefs() {
 }
 
 function selType(btn) {
-  document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+  // Only toggle within the type group
+  btn.closest('.tag-row').querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   skuType = btn.dataset.type;
+}
+function selPkg(btn) {
+  btn.closest('.tag-row').querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  pkgFormat = btn.dataset.pkg;
+  const other = document.getElementById('pkg-other-input');
+  if (pkgFormat === 'other') other.classList.add('show');
+  else other.classList.remove('show');
+}
+function getPkgLabel() {
+  if (pkgFormat === 'stand-up-pouch') return 'stand-up pouch';
+  if (pkgFormat === 'box') return 'box / tray packaging';
+  const custom = document.getElementById('pkg-custom')?.value.trim();
+  return custom || 'custom packaging';
 }
 
 // Drop zone
@@ -496,7 +526,8 @@ function genMockups() {
 
 function buildMockupPrompt(concept) {
   const b = BRANDS[concept.brand];
-  return `${b.label} ${b.format} packaging concept: "${concept.name}" — ${concept.desc}. ${b.style}. Product packaging hero shot, white seamless background, brand logo prominently visible, professional commercial photography. Match the exact visual style and brand identity of the reference images provided.`;
+  const pkg = getPkgLabel();
+  return `${b.label} ${b.format} packaging concept: "${concept.name}" — ${concept.desc}. Packaging format: ${pkg}. ${b.style}. Product packaging hero shot on white seamless background, brand logo prominently visible, professional commercial photography. Match the exact visual style, packaging format, and brand identity of the reference images provided.`;
 }
 
 async function genMockupImage(concept) {
@@ -579,12 +610,13 @@ function confirmMockup() {
 // ---- STEP 3 SETUP ----
 function buildAssetPrompts(concept) {
   const b = BRANDS[concept.brand];
+  const pkg = getPkgLabel();
   return {
-    hero_white:  `${b.label} ${b.format} "${concept.name}" — product hero shot on pure white seamless background, straight-on angle, full packaging visible, no shadows, crisp commercial product photography. Match exact brand identity from references.`,
-    hero_dark:   `${b.label} ${b.format} "${concept.name}" — product hero shot on pure black seamless background, subtle rim lighting, full packaging visible, high contrast. Match exact brand identity from references.`,
-    lifestyle:   `${b.label} "${concept.name}" in a clean lifestyle setting — minimal environment, product as the hero placed naturally, soft warm daylight, editorial magazine vibe. ${b.style}. Not stock photography. Match brand identity.`,
-    activation:  `Extreme close-up macro of ${b.label} "${concept.name}" being opened or activated — hands mid-action, shallow depth of field, product texture fully visible, natural light, candid feel. Match brand identity.`,
-    community:   `Gen Z lifestyle moment featuring ${b.label} "${concept.name}" — 2-3 friends, candid mid-action, product naturally in scene, urban casual setting, real skin tones, slightly grainy digital feel. Match brand identity.`,
+    hero_white:  `${b.label} ${b.format} "${concept.name}" in ${pkg}, product hero shot on pure white seamless background, straight-on angle, full packaging visible, no shadows, crisp commercial product photography. Match exact brand identity and packaging format from references.`,
+    hero_dark:   `${b.label} ${b.format} "${concept.name}" in ${pkg}, product hero shot on pure black seamless background, subtle rim lighting, full packaging visible, high contrast. Match exact brand identity and packaging format from references.`,
+    lifestyle:   `${b.label} "${concept.name}" ${pkg} in a clean lifestyle setting — minimal environment, product as the hero placed naturally, soft warm daylight, editorial magazine vibe. ${b.style}. Not stock photography. Match brand identity.`,
+    activation:  `Extreme close-up macro of ${b.label} "${concept.name}" ${pkg} being opened or activated — hands mid-action, shallow depth of field, product texture and packaging detail fully visible, natural light, candid feel. Match brand identity.`,
+    community:   `Gen Z lifestyle moment featuring ${b.label} "${concept.name}" ${pkg} — 2-3 friends, candid mid-action, product naturally in scene, urban casual setting, real skin tones, slightly grainy digital feel. Match brand identity.`,
   };
 }
 
@@ -622,6 +654,7 @@ function setupStep3(mockup) {
     brand: mockup.brandLabel, brand_slug: mockup.brand,
     name: mockup.name, descriptor: mockup.desc,
     type: mockup.type, concept: mockup.concept,
+    packaging: getPkgLabel(),
     mockup_approved: true,
     images: Object.fromEntries(SLOTS.map(s=>[s.key,'coming-soon'])),
     prompts,
@@ -714,11 +747,15 @@ function goTo(n) {
 }
 
 function resetAll() {
-  skuType='core'; concepts=[]; selectedMockup=null; currentSKU=null; genImages={};
+  skuType='core'; pkgFormat='stand-up-pouch'; concepts=[]; selectedMockup=null; currentSKU=null; genImages={};
   document.getElementById('concept-text').value='';
   document.getElementById('brand-sel').value='';
   document.getElementById('brand-refs-row').style.display='none';
-  document.querySelectorAll('.tag-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
+  // Reset type buttons
+  document.querySelectorAll('#s1 .tag-row').forEach((row,ri) => {
+    row.querySelectorAll('.tag-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  });
+  document.getElementById('pkg-other-input')?.classList.remove('show');
   const d=document.getElementById('dz');
   d.classList.remove('has-img');
   d.innerHTML='<div class="dzi">🖼</div><div class="dzt">Drop a trend / reference image</div><div class="dzs">or click to browse · optional</div>';
