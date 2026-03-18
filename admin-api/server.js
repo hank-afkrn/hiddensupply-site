@@ -99,42 +99,57 @@ const server = http.createServer(async (req, res) => {
     req.on('data', c => body += c);
     req.on('end', async () => {
       try {
-        const { prompt, slot, aspect_ratio } = JSON.parse(body);
+        const { prompt, slot, aspect_ratio, ref_images } = JSON.parse(body);
         if (!prompt) { res.writeHead(400); res.end(JSON.stringify({ error: 'prompt required' })); return; }
 
-        const outFile = path.join(os.tmpdir(), `hs_gen_${Date.now()}_${slot || 'img'}.webp`);
+        const ts = Date.now();
+        const outFile = path.join(os.tmpdir(), `hs_gen_${ts}_${slot || 'img'}.webp`);
         const ratio = aspect_ratio || '1:1';
 
-        // Run gsk img
-        execFile('gsk', ['img', prompt, '-r', ratio, '-o', outFile], { timeout: 120000 }, (err, stdout, stderr) => {
+        // Build gsk img args — add reference images if provided
+        const args = ['img', prompt, '-r', ratio, '-o', outFile];
+        if (ref_images && ref_images.length > 0) {
+          for (const refPath of ref_images) {
+            // Accept absolute paths on this server
+            if (fs.existsSync(refPath)) {
+              args.push('-i', refPath);
+            }
+          }
+        }
+
+        console.log('gsk', args.join(' '));
+
+        execFile('gsk', args, { timeout: 180000 }, (err, stdout, stderr) => {
           if (err) {
             console.error('gsk img error:', err.message, stderr);
             res.writeHead(500); res.end(JSON.stringify({ error: err.message, stderr }));
             return;
           }
 
-          // Read the generated file and return as base64
+          // Find output file (gsk may use a slightly different name/ext)
+          let found = outFile;
           if (!fs.existsSync(outFile)) {
-            // gsk may have saved with different extension — look for similar files
-            const tmpFiles = fs.readdirSync(os.tmpdir()).filter(f => f.startsWith(`hs_gen_`) && (f.endsWith('.webp') || f.endsWith('.png') || f.endsWith('.jpg')));
-            const latest = tmpFiles.map(f => ({ f, t: fs.statSync(path.join(os.tmpdir(), f)).mtimeMs })).sort((a,b) => b.t-a.t)[0];
-            if (latest) {
-              const buf = fs.readFileSync(path.join(os.tmpdir(), latest.f));
-              const ext = path.extname(latest.f).slice(1);
-              const mime = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
-              res.writeHead(200, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ ok: true, slot, dataUrl: `data:${mime};base64,${buf.toString('base64')}` }));
-              fs.unlinkSync(path.join(os.tmpdir(), latest.f));
-              return;
+            const tmpFiles = fs.readdirSync(os.tmpdir())
+              .filter(f => f.startsWith(`hs_gen_${ts}`) && /\.(webp|png|jpg|jpeg)$/.test(f));
+            if (tmpFiles.length > 0) {
+              found = path.join(os.tmpdir(), tmpFiles[0]);
+            } else {
+              // Fallback: most recently modified hs_gen_ file
+              const all = fs.readdirSync(os.tmpdir())
+                .filter(f => f.startsWith('hs_gen_') && /\.(webp|png|jpg|jpeg)$/.test(f))
+                .map(f => ({ f, t: fs.statSync(path.join(os.tmpdir(), f)).mtimeMs }))
+                .sort((a,b) => b.t - a.t);
+              if (all.length > 0) found = path.join(os.tmpdir(), all[0].f);
+              else { res.writeHead(500); res.end(JSON.stringify({ error: 'output file not found', stdout, stderr })); return; }
             }
-            res.writeHead(500); res.end(JSON.stringify({ error: 'output file not found', stdout, stderr }));
-            return;
           }
 
-          const buf = fs.readFileSync(outFile);
+          const buf = fs.readFileSync(found);
+          const ext = path.extname(found).slice(1).toLowerCase();
+          const mime = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : `image/${ext}`;
           res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ ok: true, slot, dataUrl: `data:image/webp;base64,${buf.toString('base64')}` }));
-          fs.unlinkSync(outFile);
+          res.end(JSON.stringify({ ok: true, slot, dataUrl: `data:${mime};base64,${buf.toString('base64')}` }));
+          try { fs.unlinkSync(found); } catch(e) {}
         });
       } catch(e) {
         res.writeHead(500); res.end(JSON.stringify({ error: e.message }));
