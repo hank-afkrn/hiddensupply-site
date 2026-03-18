@@ -1,5 +1,9 @@
 const http = require('http');
 const https = require('https');
+const { execFile } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
 const GITHUB_TOKEN = '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';
 const REPO = 'hank-afkrn/hiddensupply-site';
@@ -82,6 +86,56 @@ const server = http.createServer(async (req, res) => {
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true, commit: result.commit?.sha }));
+      } catch(e) {
+        res.writeHead(500); res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // ---- IMAGE GENERATION ENDPOINT ----
+  if (req.method === 'POST' && url.pathname === '/generate-image') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', async () => {
+      try {
+        const { prompt, slot, aspect_ratio } = JSON.parse(body);
+        if (!prompt) { res.writeHead(400); res.end(JSON.stringify({ error: 'prompt required' })); return; }
+
+        const outFile = path.join(os.tmpdir(), `hs_gen_${Date.now()}_${slot || 'img'}.webp`);
+        const ratio = aspect_ratio || '1:1';
+
+        // Run gsk img
+        execFile('gsk', ['img', prompt, '-r', ratio, '-o', outFile], { timeout: 120000 }, (err, stdout, stderr) => {
+          if (err) {
+            console.error('gsk img error:', err.message, stderr);
+            res.writeHead(500); res.end(JSON.stringify({ error: err.message, stderr }));
+            return;
+          }
+
+          // Read the generated file and return as base64
+          if (!fs.existsSync(outFile)) {
+            // gsk may have saved with different extension — look for similar files
+            const tmpFiles = fs.readdirSync(os.tmpdir()).filter(f => f.startsWith(`hs_gen_`) && (f.endsWith('.webp') || f.endsWith('.png') || f.endsWith('.jpg')));
+            const latest = tmpFiles.map(f => ({ f, t: fs.statSync(path.join(os.tmpdir(), f)).mtimeMs })).sort((a,b) => b.t-a.t)[0];
+            if (latest) {
+              const buf = fs.readFileSync(path.join(os.tmpdir(), latest.f));
+              const ext = path.extname(latest.f).slice(1);
+              const mime = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ ok: true, slot, dataUrl: `data:${mime};base64,${buf.toString('base64')}` }));
+              fs.unlinkSync(path.join(os.tmpdir(), latest.f));
+              return;
+            }
+            res.writeHead(500); res.end(JSON.stringify({ error: 'output file not found', stdout, stderr }));
+            return;
+          }
+
+          const buf = fs.readFileSync(outFile);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ ok: true, slot, dataUrl: `data:image/webp;base64,${buf.toString('base64')}` }));
+          fs.unlinkSync(outFile);
+        });
       } catch(e) {
         res.writeHead(500); res.end(JSON.stringify({ error: e.message }));
       }

@@ -6,180 +6,57 @@
 <title>Hidden Supply — SKU Admin v1</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #0f0f0f;
-    --surface: #1a1a1a;
-    --surface-2: #212121;
-    --surface-3: #2a2a2a;
-    --border: #2e2e2e;
-    --border-active: #484848;
-    --text: #e8e8e8;
-    --text-muted: #666;
-    --text-dim: #999;
-    --accent: #f0e040;
-    --accent-dim: rgba(240,224,64,0.10);
-    --green: #4ade80;
-    --green-dim: rgba(74,222,128,0.08);
+    --bg: #0f0f0f; --surface: #1a1a1a; --surface-2: #212121; --surface-3: #2a2a2a;
+    --border: #2e2e2e; --border-active: #484848;
+    --text: #e8e8e8; --text-muted: #666; --text-dim: #999;
+    --accent: #f0e040; --accent-dim: rgba(240,224,64,0.10);
+    --green: #4ade80; --green-dim: rgba(74,222,128,0.08);
     --red: #f87171;
     --radius: 8px;
     --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --mono: 'SF Mono', 'Monaco', 'Fira Code', monospace;
   }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 14px;
-    line-height: 1.5;
-    min-height: 100vh;
-  }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.5; min-height: 100vh; }
 
   /* HEADER */
-  header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 56px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-brand { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: -0.2px; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
+  .header-brand { font-size: 14px; font-weight: 700; color: var(--text); }
   .header-brand .v { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); background: var(--accent-dim); padding: 2px 8px; border-radius: 3px; margin-left: 10px; }
   .header-right { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; }
 
   /* STEPPER */
-  .stepper {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    padding: 20px 32px 0;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
-  .step {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 0 16px;
-    cursor: default;
-    position: relative;
-  }
-  .step::after {
-    content: '';
-    display: block;
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 2px;
-    background: transparent;
-    transition: background 0.2s;
-  }
+  .stepper { display: flex; align-items: center; padding: 20px 32px 0; border-bottom: 1px solid var(--border); background: var(--surface); overflow-x: auto; }
+  .step { display: flex; align-items: center; gap: 10px; padding: 0 0 16px; position: relative; }
+  .step::after { content: ''; display: block; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: transparent; transition: background 0.2s; }
   .step.active::after { background: var(--accent); }
-  .step-num {
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700;
-    background: var(--surface-3);
-    color: var(--text-muted);
-    border: 1px solid var(--border);
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; background: var(--surface-3); color: var(--text-muted); border: 1px solid var(--border); transition: all 0.2s; flex-shrink: 0; }
   .step.active .step-num { background: var(--accent); color: #111; border-color: var(--accent); }
   .step.done .step-num { background: var(--green-dim); color: var(--green); border-color: var(--green); }
-  .step-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-muted);
-    letter-spacing: 0.04em;
-    transition: color 0.2s;
-    white-space: nowrap;
-  }
+  .step-label { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.04em; transition: color 0.2s; white-space: nowrap; }
   .step.active .step-label { color: var(--text); }
   .step.done .step-label { color: var(--text-dim); }
-  .step-divider {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-    margin: 0 16px 16px;
-    min-width: 24px;
-  }
+  .step-divider { flex: 1; height: 1px; background: var(--border); margin: 0 16px 16px; min-width: 20px; }
 
-  /* MAIN CONTENT AREA */
-  .content {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 36px 32px;
-  }
-
-  /* SCREEN (each step) */
+  /* CONTENT */
+  .content { max-width: 940px; margin: 0 auto; padding: 36px 32px; }
   .screen { display: none; }
   .screen.active { display: block; }
-
-  .screen-title {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.4px;
-    color: var(--text);
-    margin-bottom: 6px;
-  }
-  .screen-sub {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 32px;
-    line-height: 1.6;
-  }
-
-  /* SECTION LABEL */
-  .sec-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .screen-title { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; color: var(--text); margin-bottom: 6px; }
+  .screen-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 32px; line-height: 1.6; }
+  .sec-label { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
   .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
   /* FORM */
   .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
   label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
-  input[type="text"], select, textarea {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 13px;
-    padding: 10px 14px;
-    outline: none;
-    transition: border-color 0.15s;
-    width: 100%;
-  }
+  input[type="text"], select, textarea { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: var(--font); font-size: 13px; padding: 10px 14px; outline: none; transition: border-color 0.15s; width: 100%; }
   input[type="text"]:focus, select:focus, textarea:focus { border-color: var(--border-active); }
   select option { background: var(--surface-2); }
   textarea { resize: vertical; min-height: 80px; }
 
   /* DROP ZONE */
-  .drop-zone {
-    background: var(--surface-2);
-    border: 1px dashed var(--border-active);
-    border-radius: var(--radius);
-    padding: 24px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
-    margin-bottom: 16px;
-  }
+  .drop-zone { background: var(--surface-2); border: 1px dashed var(--border-active); border-radius: var(--radius); padding: 24px; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; margin-bottom: 16px; }
   .drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: var(--accent-dim); }
   .drop-zone .dz-icon { font-size: 22px; margin-bottom: 8px; }
   .drop-zone .dz-text { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
@@ -190,204 +67,129 @@
 
   /* TAG SELECTOR */
   .tag-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .tag-btn {
-    background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px;
-    color: var(--text-dim); cursor: pointer; font-family: var(--font);
-    font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
-    padding: 6px 14px; text-transform: uppercase; transition: all 0.15s;
-  }
+  .tag-btn { background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; color: var(--text-dim); cursor: pointer; font-family: var(--font); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; padding: 6px 14px; text-transform: uppercase; transition: all 0.15s; }
   .tag-btn:hover { border-color: var(--border-active); color: var(--text); }
   .tag-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 
   /* BUTTONS */
-  .btn-primary {
-    background: var(--accent); border: none; border-radius: var(--radius);
-    color: #111; cursor: pointer; font-family: var(--font);
-    font-size: 12px; font-weight: 800; letter-spacing: 0.14em;
-    padding: 14px 28px; text-transform: uppercase;
-    transition: opacity 0.15s, transform 0.1s;
-  }
+  .btn-primary { background: var(--accent); border: none; border-radius: var(--radius); color: #111; cursor: pointer; font-family: var(--font); font-size: 12px; font-weight: 800; letter-spacing: 0.14em; padding: 14px 28px; text-transform: uppercase; transition: opacity 0.15s, transform 0.1s; }
   .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
   .btn-primary:active { transform: translateY(0); }
   .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
-
-  .btn-secondary {
-    background: transparent; border: 1px solid var(--border); border-radius: var(--radius);
-    color: var(--text-dim); cursor: pointer; font-family: var(--font);
-    font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
-    padding: 12px 20px; text-transform: uppercase; transition: all 0.15s;
-  }
+  .btn-secondary { background: transparent; border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-dim); cursor: pointer; font-family: var(--font); font-size: 12px; font-weight: 600; letter-spacing: 0.1em; padding: 12px 20px; text-transform: uppercase; transition: all 0.15s; }
   .btn-secondary:hover { border-color: var(--border-active); color: var(--text); }
-
   .btn-row { display: flex; gap: 10px; align-items: center; margin-top: 24px; }
 
-  /* CONCEPT CARDS (Step 2) */
+  /* CONCEPT CARDS */
   .concept-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
-  .concept-card {
-    background: var(--surface-2);
-    border: 2px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    cursor: pointer;
-    transition: all 0.18s;
-    position: relative;
-  }
+  .concept-card { background: var(--surface-2); border: 2px solid var(--border); border-radius: var(--radius); padding: 20px; cursor: pointer; transition: all 0.18s; position: relative; }
   .concept-card:hover { border-color: var(--border-active); transform: translateY(-2px); }
   .concept-card.selected { border-color: var(--accent); background: var(--accent-dim); }
-  .concept-card .card-num {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--text-muted); margin-bottom: 12px;
-  }
+  .concept-card .card-num { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
   .concept-card.selected .card-num { color: var(--accent); }
-  .concept-card .card-name {
-    font-size: 17px; font-weight: 700; letter-spacing: -0.2px; color: var(--text);
-    margin-bottom: 6px; line-height: 1.2;
-  }
-  .concept-card .card-desc {
-    font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--text-dim); margin-bottom: 12px;
-  }
-  .concept-card .card-type {
-    display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
-    text-transform: uppercase; padding: 3px 9px; border-radius: 3px;
-  }
+  .concept-card .card-name { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; color: var(--text); margin-bottom: 6px; line-height: 1.2; }
+  .concept-card .card-desc { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 12px; }
+  .concept-card .card-type { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 9px; border-radius: 3px; }
   .badge-core { background: rgba(240,224,64,0.12); color: var(--accent); }
   .badge-seasonal { background: rgba(251,146,60,0.12); color: #fb923c; }
   .badge-concept { background: rgba(167,139,250,0.12); color: #a78bfa; }
-  .concept-card .check {
-    position: absolute; top: 14px; right: 14px;
-    width: 20px; height: 20px; border-radius: 50%;
-    background: var(--accent); color: #111;
-    display: none; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 800;
-  }
+  .concept-card .check { position: absolute; top: 14px; right: 14px; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #111; display: none; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
   .concept-card.selected .check { display: flex; }
 
-  /* SELECTED SUMMARY BAR */
-  .selection-bar {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-  .selection-bar .sel-label { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
-  .selection-bar .sel-name { font-size: 16px; font-weight: 700; color: var(--text); }
-  .selection-bar .sel-desc { font-size: 11px; color: var(--text-dim); }
-  .selection-bar .sel-change { margin-left: auto; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); cursor: pointer; text-decoration: underline; }
-  .selection-bar .sel-change:hover { color: var(--text); }
+  /* SELECTION BAR */
+  .selection-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 20px; display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
+  .sel-label { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+  .sel-name { font-size: 16px; font-weight: 700; color: var(--text); }
+  .sel-desc { font-size: 11px; color: var(--text-dim); }
+  .sel-change { margin-left: auto; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); cursor: pointer; text-decoration: underline; white-space: nowrap; }
+  .sel-change:hover { color: var(--text); }
 
-  /* IMAGE PROMPT CARDS (Step 3) */
-  .prompt-section { margin-bottom: 32px; }
-  .img-prompt-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .img-prompt-card {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
+  /* 5-SLOT IMAGE GRID */
+  .slots-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
+  .slot-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
+  .slot-card-header { padding: 10px 12px 8px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
+  .slot-card-name { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+  .slot-hero-w .slot-card-name  { color: #60a5fa; }
+  .slot-hero-d .slot-card-name  { color: #818cf8; }
+  .slot-lifestyle .slot-card-name { color: #34d399; }
+  .slot-activation .slot-card-name { color: #fbbf24; }
+  .slot-community .slot-card-name  { color: #e879f9; }
+  .slot-card-preview {
+    aspect-ratio: 1/1; background: var(--surface-3);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
   }
-  .ipc-header {
-    padding: 14px 16px 10px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .slot-card-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .slot-card-preview .slot-empty { font-size: 24px; opacity: 0.2; }
+  .slot-card-preview .slot-spinner {
+    position: absolute; inset: 0; background: var(--surface-3);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 8px;
   }
-  .ipc-slot { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); }
-  .ipc-slot-badge {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 3px 8px; border-radius: 3px;
-  }
-  .slot-hero    { background: rgba(96,165,250,0.1); color: #60a5fa; }
-  .slot-life    { background: rgba(52,211,153,0.1); color: #34d399; }
-  .slot-zoom    { background: rgba(251,191,36,0.1); color: #fbbf24; }
-  .slot-community { background: rgba(232,121,249,0.1); color: #e879f9; }
-  .ipc-body { padding: 14px 16px; }
-  .ipc-variant-label {
-    font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--text-muted); margin-bottom: 6px; margin-top: 10px;
-  }
-  .ipc-variant-label:first-child { margin-top: 0; }
-  .ipc-prompt-text {
-    font-size: 11px; color: var(--text-dim); line-height: 1.65;
-    background: var(--surface-3); border-radius: 6px; padding: 10px 12px;
-  }
-  .ipc-actions { padding: 10px 16px 14px; display: flex; gap: 8px; }
-  .ipc-copy {
-    background: transparent; border: 1px solid var(--border); border-radius: 4px;
-    color: var(--text-muted); cursor: pointer; font-family: var(--font);
-    font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
-    padding: 5px 12px; text-transform: uppercase; transition: all 0.15s;
-  }
-  .ipc-copy:hover { border-color: var(--accent); color: var(--accent); }
+  .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .slot-spinner-text { font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .slot-card-footer { padding: 8px 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .slot-btn { background: transparent; border: 1px solid var(--border); border-radius: 3px; color: var(--text-muted); cursor: pointer; font-family: var(--font); font-size: 9px; font-weight: 600; letter-spacing: 0.1em; padding: 4px 8px; text-transform: uppercase; transition: all 0.15s; flex: 1; min-width: 0; text-align: center; }
+  .slot-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .slot-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .slot-btn.regen { border-color: var(--border-active); }
 
-  /* JSON OUTPUT */
-  .json-block {
-    background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 16px; position: relative; margin-bottom: 16px;
-  }
-  .json-block pre {
-    font-family: var(--mono); font-size: 11px; color: var(--text-dim);
-    overflow-x: auto; white-space: pre-wrap; word-break: break-all; max-height: 320px;
-  }
-  .json-copy-btn {
-    position: absolute; top: 12px; right: 12px;
-    background: var(--surface-3); border: 1px solid var(--border); border-radius: 4px;
-    color: var(--text-muted); cursor: pointer; font-size: 10px; font-weight: 600;
-    letter-spacing: 0.1em; padding: 4px 10px; text-transform: uppercase; transition: all 0.15s;
-  }
+  /* GENERATE ALL BUTTON */
+  .generate-all-row { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; padding: 16px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+  .generate-all-row .gen-text { font-size: 13px; color: var(--text-dim); flex: 1; line-height: 1.5; }
+  .generate-all-row .gen-text strong { color: var(--text); }
+  .btn-gen-all { background: var(--accent); border: none; border-radius: var(--radius); color: #111; cursor: pointer; font-family: var(--font); font-size: 11px; font-weight: 800; letter-spacing: 0.14em; padding: 12px 22px; text-transform: uppercase; transition: opacity 0.15s; white-space: nowrap; }
+  .btn-gen-all:hover { opacity: 0.88; }
+  .btn-gen-all:disabled { opacity: 0.35; cursor: not-allowed; }
+  .gen-progress { font-size: 11px; color: var(--text-muted); white-space: nowrap; display: none; }
+  .gen-progress.show { display: block; }
+
+  /* PROMPT ACCORDION */
+  .prompt-accordion { margin-bottom: 24px; }
+  .prompt-acc-header { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--text-dim); letter-spacing: 0.04em; }
+  .prompt-acc-header:hover { border-color: var(--border-active); color: var(--text); }
+  .prompt-acc-body { display: none; border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius) var(--radius); padding: 16px; background: var(--surface-2); }
+  .prompt-acc-body.open { display: block; }
+  .prompt-row { margin-bottom: 14px; }
+  .prompt-row:last-child { margin-bottom: 0; }
+  .prompt-row-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .prompt-row-text { font-size: 11px; color: var(--text-dim); line-height: 1.65; background: var(--surface-3); border-radius: 6px; padding: 10px 12px; }
+  .prompt-copy-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .prompt-copy-btn { background: transparent; border: 1px solid var(--border); border-radius: 3px; color: var(--text-muted); cursor: pointer; font-family: var(--font); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; padding: 4px 10px; text-transform: uppercase; transition: all 0.15s; }
+  .prompt-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* JSON / QA / DEPLOY */
+  .json-block { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; position: relative; margin-bottom: 16px; }
+  .json-block pre { font-family: var(--mono); font-size: 11px; color: var(--text-dim); overflow-x: auto; white-space: pre-wrap; word-break: break-all; max-height: 280px; }
+  .json-copy-btn { position: absolute; top: 12px; right: 12px; background: var(--surface-3); border: 1px solid var(--border); border-radius: 4px; color: var(--text-muted); cursor: pointer; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; padding: 4px 10px; text-transform: uppercase; transition: all 0.15s; }
   .json-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* QA */
   .qa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
-  .qa-item {
-    background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px;
-    padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
-  }
+  .qa-item { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; }
   .qa-item-label { font-size: 12px; color: var(--text-dim); }
   .qa-item-status { font-size: 12px; font-weight: 700; }
   .qa-pass { color: var(--green); }
   .qa-fail { color: var(--red); }
-
-  /* DEPLOY */
   .deploy-section { margin-top: 24px; }
-  .btn-deploy {
-    background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius);
-    color: var(--text-muted); cursor: not-allowed; font-family: var(--font);
-    font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
-    padding: 14px 28px; text-transform: uppercase; transition: all 0.2s; width: 100%;
-  }
-  .btn-deploy.ready {
-    background: var(--green-dim); border-color: var(--green); color: var(--green); cursor: pointer;
-  }
+  .btn-deploy { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-muted); cursor: not-allowed; font-family: var(--font); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; padding: 14px 28px; text-transform: uppercase; transition: all 0.2s; width: 100%; }
+  .btn-deploy.ready { background: var(--green-dim); border-color: var(--green); color: var(--green); cursor: pointer; }
   .btn-deploy.ready:hover { opacity: 0.85; }
-  .deploy-hint { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 8px; letter-spacing: 0.04em; }
+  .deploy-hint { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 8px; }
 
   /* TOAST */
-  .toast {
-    position: fixed; bottom: 28px; right: 28px;
-    background: var(--surface); border: 1px solid var(--border-active);
-    border-radius: var(--radius); padding: 14px 20px;
-    font-size: 13px; color: var(--text);
-    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
-    transform: translateY(60px); opacity: 0;
-    transition: all 0.24s cubic-bezier(0.34,1.56,0.64,1);
-    z-index: 999; max-width: 300px;
-  }
+  .toast { position: fixed; bottom: 28px; right: 28px; background: var(--surface); border: 1px solid var(--border-active); border-radius: var(--radius); padding: 14px 20px; font-size: 13px; color: var(--text); box-shadow: 0 8px 40px rgba(0,0,0,0.5); transform: translateY(60px); opacity: 0; transition: all 0.24s cubic-bezier(0.34,1.56,0.64,1); z-index: 999; max-width: 300px; }
   .toast.show { transform: translateY(0); opacity: 1; }
   .toast-title { font-weight: 700; margin-bottom: 2px; }
   .toast-body { font-size: 12px; color: var(--text-dim); }
 
-  @media (max-width: 700px) {
+  @media (max-width: 800px) {
     .content { padding: 24px 16px; }
     .concept-cards { grid-template-columns: 1fr; }
-    .img-prompt-cards { grid-template-columns: 1fr; }
+    .slots-grid { grid-template-columns: repeat(2, 1fr); }
     .qa-grid { grid-template-columns: 1fr; }
-    .stepper { padding: 16px 16px 0; overflow-x: auto; }
+    .stepper { padding: 16px 16px 0; }
     header { padding: 0 16px; }
+    .generate-all-row { flex-direction: column; align-items: flex-start; }
   }
 </style>
 </head>
@@ -398,47 +200,33 @@
   <div class="header-right">Internal Use Only</div>
 </header>
 
-<!-- STEPPER -->
 <div class="stepper">
-  <div class="step active" id="step-tab-1">
-    <div class="step-num">1</div>
-    <div class="step-label">Input Concept</div>
-  </div>
+  <div class="step active" id="step-tab-1"><div class="step-num">1</div><div class="step-label">Input Concept</div></div>
   <div class="step-divider"></div>
-  <div class="step" id="step-tab-2">
-    <div class="step-num">2</div>
-    <div class="step-label">Pick SKU</div>
-  </div>
+  <div class="step" id="step-tab-2"><div class="step-num">2</div><div class="step-label">Pick SKU</div></div>
   <div class="step-divider"></div>
-  <div class="step" id="step-tab-3">
-    <div class="step-num">3</div>
-    <div class="step-label">Generate Images</div>
-  </div>
+  <div class="step" id="step-tab-3"><div class="step-num">3</div><div class="step-label">Generate Images</div></div>
 </div>
 
-<!-- MAIN -->
 <div class="content">
 
-  <!-- ======= STEP 1: INPUT ======= -->
+  <!-- STEP 1 -->
   <div class="screen active" id="screen-1">
     <div class="screen-title">What's the concept?</div>
-    <div class="screen-sub">Describe the candy, vibe, format, or anything you have. The more specific, the better the output.</div>
-
+    <div class="screen-sub">Describe the candy, vibe, format, or anything you have. More detail = better output.</div>
     <div class="sec-label">Concept</div>
     <div class="field">
       <label>Description</label>
-      <textarea id="concept-text" rows="4" placeholder="e.g. Space-themed wax candy with astronaut characters, collectible blind box series, bold primary colors, aimed at Gen Z..."></textarea>
+      <textarea id="concept-text" rows="4" placeholder="e.g. Space-themed wax candy with astronaut characters, collectible blind box, bold primary colors, Gen Z..."></textarea>
     </div>
-
     <div class="drop-zone" id="drop-zone" onclick="document.getElementById('concept-file-input').click()">
       <div class="dz-icon">🖼</div>
       <div class="dz-text">Drop a reference image</div>
       <div class="dz-sub">or click to browse · optional</div>
     </div>
     <input type="file" id="concept-file-input" accept="image/*" />
-
     <div class="sec-label">Brand + Type</div>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
       <div class="field" style="margin-bottom:0;">
         <label>Brand</label>
         <select id="brand-select">
@@ -459,21 +247,16 @@
         </div>
       </div>
     </div>
-
     <div class="btn-row">
       <button class="btn-primary" onclick="generateConcepts()">Generate 3 Concepts →</button>
     </div>
   </div>
 
-  <!-- ======= STEP 2: PICK SKU ======= -->
+  <!-- STEP 2 -->
   <div class="screen" id="screen-2">
     <div class="screen-title">Pick a concept.</div>
-    <div class="screen-sub">Three directions generated from your brief. Pick the one that fits — you can always go back and regenerate.</div>
-
-    <div class="concept-cards" id="concept-cards">
-      <!-- injected by JS -->
-    </div>
-
+    <div class="screen-sub">Three directions from your brief. Pick one — or regenerate for new options.</div>
+    <div class="concept-cards" id="concept-cards"></div>
     <div class="btn-row">
       <button class="btn-primary" id="btn-pick" disabled onclick="confirmConcept()">Use This Concept →</button>
       <button class="btn-secondary" onclick="goToStep(1)">← Back</button>
@@ -481,12 +264,11 @@
     </div>
   </div>
 
-  <!-- ======= STEP 3: IMAGE PROMPTS ======= -->
+  <!-- STEP 3 -->
   <div class="screen" id="screen-3">
-    <div class="screen-title">Image prompts.</div>
-    <div class="screen-sub">4 image types, ready to copy into your AI image tool. Hero has two backgrounds — black and white.</div>
+    <div class="screen-title">Generate images.</div>
+    <div class="screen-sub">5 image slots — preview before anything goes to site.</div>
 
-    <!-- Selection summary -->
     <div class="selection-bar" id="sel-bar">
       <div>
         <div class="sel-label">Selected SKU</div>
@@ -496,10 +278,26 @@
       <span class="sel-change" onclick="goToStep(2)">Change →</span>
     </div>
 
-    <!-- Prompt cards -->
-    <div class="prompt-section">
-      <div class="sec-label">Image Prompts</div>
-      <div class="img-prompt-cards" id="prompt-cards">
+    <!-- Generate all row -->
+    <div class="generate-all-row">
+      <div class="gen-text"><strong>Generate all 5 images</strong> — Hero White, Hero Dark, Lifestyle, Activation, Community. Preview here before anything goes live.</div>
+      <span class="gen-progress" id="gen-progress">0 / 5 complete</span>
+      <button class="btn-gen-all" id="btn-gen-all" onclick="generateAll()">Generate All Images</button>
+    </div>
+
+    <!-- 5-slot grid -->
+    <div class="sec-label">Image Preview</div>
+    <div class="slots-grid" id="slots-grid">
+      <!-- injected by JS -->
+    </div>
+
+    <!-- Prompts accordion -->
+    <div class="prompt-accordion">
+      <div class="prompt-acc-header" onclick="toggleAccordion(this)">
+        <span>View / Edit Prompts</span>
+        <span style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;">Show ▾</span>
+      </div>
+      <div class="prompt-acc-body" id="prompt-acc-body">
         <!-- injected by JS -->
       </div>
     </div>
@@ -513,8 +311,8 @@
 
     <!-- QA -->
     <div class="sec-label">QA Check</div>
-    <div class="qa-grid" id="qa-grid">
-      <div class="qa-item"><span class="qa-item-label">4 image slots</span><span class="qa-item-status" id="qa-slots">—</span></div>
+    <div class="qa-grid">
+      <div class="qa-item"><span class="qa-item-label">5 image slots</span><span class="qa-item-status" id="qa-slots">—</span></div>
       <div class="qa-item"><span class="qa-item-label">Descriptor present</span><span class="qa-item-status" id="qa-desc">—</span></div>
       <div class="qa-item"><span class="qa-item-label">Brand assigned</span><span class="qa-item-status" id="qa-brand">—</span></div>
       <div class="qa-item"><span class="qa-item-label">Type assigned</span><span class="qa-item-status" id="qa-type">—</span></div>
@@ -525,13 +323,12 @@
       <button class="btn-deploy" id="btn-deploy" onclick="deployAction()">Push to Site</button>
       <div class="deploy-hint" id="deploy-hint">Deploy pipeline not yet connected — export JSON to hand off</div>
     </div>
-
     <div class="btn-row" style="margin-top:16px;">
       <button class="btn-secondary" onclick="resetAll()">← Start Over</button>
     </div>
   </div>
 
-</div><!-- /content -->
+</div>
 
 <div class="toast" id="toast">
   <div class="toast-title" id="toast-title"></div>
@@ -539,80 +336,49 @@
 </div>
 
 <script>
+const API = 'http://20.165.197.60:8083';
+
 // ---- STATE ----
 let selectedType = 'core';
 let generatedConcepts = [];
 let selectedConcept = null;
 let currentSKU = null;
-let inputData = {};
+let generatedImages = {}; // slot → dataUrl
+
+// ---- 5 STANDARD SLOTS ----
+const SLOTS = [
+  { key: 'hero_white',   label: 'Hero White',  cls: 'slot-hero-w',    ratio: '1:1' },
+  { key: 'hero_dark',    label: 'Hero Dark',   cls: 'slot-hero-d',    ratio: '1:1' },
+  { key: 'lifestyle',    label: 'Lifestyle',   cls: 'slot-lifestyle', ratio: '1:1' },
+  { key: 'activation',   label: 'Activation',  cls: 'slot-activation',ratio: '1:1' },
+  { key: 'community',    label: 'Community',   cls: 'slot-community', ratio: '1:1' },
+];
 
 // ---- BRAND CONFIG ----
 const BRANDS = {
-  'juice-bomb':  { label: 'Juice Bomb',  format: 'wax candy', style: 'bold primary colors, playful, pop culture energy' },
-  'dirty-sips':  { label: 'Dirty Sips',  format: 'wax candy bottle', style: 'dark soda aesthetic, counter-culture, Gen Z energy' },
-  'candu':       { label: 'Candu',       format: 'gummy candy', style: 'playful pastel colors, tactile, squeezable' },
-  'peelpals':    { label: 'PeelPals',    format: 'peelable gummy', style: 'oversized fruit shapes, satisfying peel reveal' },
-  'nauti-labs':  { label: 'Nauti Labs',  format: 'novelty candy', style: 'experimental format, activate/discover mechanic' },
+  'juice-bomb':  { label: 'Juice Bomb',  format: 'wax candy',        style: 'bold primary colors, playful pop culture energy' },
+  'dirty-sips':  { label: 'Dirty Sips',  format: 'wax candy bottle', style: 'dark soda aesthetic, counter-culture Gen Z energy' },
+  'candu':       { label: 'Candu',       format: 'gummy candy',       style: 'playful pastel colors, tactile, squeezable' },
+  'peelpals':    { label: 'PeelPals',    format: 'peelable gummy',    style: 'oversized fruit shapes, satisfying peel reveal' },
+  'nauti-labs':  { label: 'Nauti Labs',  format: 'novelty candy',     style: 'experimental format, activate-and-discover mechanic' },
 };
 
-// ---- NAME POOLS (for variety) ----
 const ADJECTIVES = ['Cosmic','Wild','Mega','Ultra','Neon','Phantom','Rogue','Hyper','Void','Solar','Nova','Feral','Drift','Surge','Prism'];
-const NOUNS = ['Drop','Pack','Kit','Crew','Squad','Wave','Run','Series','Box','Set','Burst','Form','Edition','Batch','Line'];
-const FLAVORS = ['Peach','Mango','Berry','Citrus','Grape','Cherry','Lime','Lychee','Passionfruit','Watermelon','Pineapple','Strawberry'];
-const THEMES = ['Space','Ocean','Forest','Desert','City','Retro','Glow','Shadow','Storm','Dawn'];
+const NOUNS      = ['Drop','Pack','Kit','Crew','Squad','Wave','Run','Series','Box','Set','Burst','Edition','Batch'];
+const FLAVORS    = ['Peach','Mango','Berry','Citrus','Grape','Cherry','Lime','Lychee','Watermelon','Pineapple','Strawberry'];
+const THEMES     = ['Space','Ocean','Forest','City','Retro','Glow','Shadow','Storm','Dawn','Neon'];
+function rand(a) { return a[Math.floor(Math.random() * a.length)]; }
+function cap(s)  { return s.charAt(0).toUpperCase() + s.slice(1); }
 
-function randFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-function generateNames(text, brand) {
-  // Extract key words from text
-  const words = text.toLowerCase().split(/\s+/).filter(w => w.length > 3);
-  const stopWords = new Set(['with','that','this','from','into','over','their','about','which','have','been','will','when','also','just','then','they','these','would','could','should','because','very','more','than','such','only','both','each','most','some','made']);
-  const useful = words.filter(w => !stopWords.has(w)).map(w => w.replace(/[^a-z]/g,''));
-
-  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-
-  // Option 1: derive from text keywords
-  const kw1 = useful[0] ? cap(useful[0]) : randFrom(ADJECTIVES);
-  const kw2 = useful[1] ? cap(useful[1]) : randFrom(NOUNS);
-  const name1 = `${kw1} ${kw2}`;
-
-  // Option 2: theme + format
-  const name2 = `${randFrom(THEMES)} ${randFrom(NOUNS)}`;
-
-  // Option 3: flavor/vibe + descriptor
-  const name3 = `${randFrom(ADJECTIVES)} ${randFrom(FLAVORS)}`;
-
-  return [name1, name2, name3];
-}
-
-function generateDescriptor(name, text, brand) {
+// ---- PROMPT BUILDER ----
+function buildPrompts(name, brand) {
   const b = BRANDS[brand];
-  const words = text.toLowerCase().split(/\s+/);
-  const patterns = [
-    `${b.format} · everyday`,
-    `limited run · collectible`,
-    `seasonal · limited`,
-    `everyday · bestseller`,
-    `concept · experimental`,
-  ];
-  // Pick based on type
-  if (selectedType === 'seasonal') return 'Seasonal · limited run';
-  if (selectedType === 'concept') return 'Concept · experimental';
-  return `${b.format.split(' ')[0]} · everyday`;
-}
-
-// ---- IMAGE PROMPT GENERATORS ----
-function buildPrompts(name, descriptor, brand) {
-  const b = BRANDS[brand];
-  const style = b.style;
-  const fmt = b.format;
-
   return {
-    hero_white: `${b.label} ${fmt} "${name}", ${style}, shot on pure white seamless background, straight-on product hero angle, no shadows, full packaging visible, crisp edges, commercial product photography`,
-    hero_black: `${b.label} ${fmt} "${name}", ${style}, shot on pure black seamless background, product hero angle, subtle edge glow, full packaging visible, high contrast, premium commercial photography`,
-    lifestyle: `${b.label} "${name}" ${fmt} in a clean lifestyle setting, ${style}, minimalist environment — marble countertop / pastel wall / natural wood surface, product as the hero but placed naturally, soft warm daylight, editorial magazine vibe, not a stock photo`,
-    zoom: `Close-up macro shot of ${b.label} "${name}" ${fmt} being opened or activated, hands mid-action, extreme close crop, shallow depth of field, product texture and material detail fully visible, natural light, candid feel, not posed`,
-    community: `Gen Z lifestyle moment featuring ${b.label} "${name}" — group of 2-3 friends, candid mid-action, product naturally integrated into behavior (not held up to camera), urban or casual setting, real skin tones, no models — real people energy, shot on digital, slightly grainy`,
+    hero_white:  `${b.label} ${b.format} "${name}", ${b.style}, shot on pure white seamless background, straight-on product hero angle, no shadows, full packaging visible, crisp commercial product photography`,
+    hero_dark:   `${b.label} ${b.format} "${name}", ${b.style}, shot on pure black seamless background, product hero angle, subtle rim lighting, full packaging visible, high contrast, premium dark product photography`,
+    lifestyle:   `${b.label} "${name}" ${b.format} in a clean lifestyle setting, ${b.style}, minimal environment — marble counter / pastel wall / natural wood, product as the hero but placed naturally, soft warm daylight, editorial magazine vibe, not stock photography`,
+    activation:  `Extreme close-up macro of ${b.label} "${name}" ${b.format} being opened or activated, hands mid-action, shallow depth of field, product texture fully visible, natural light, candid feel, not posed`,
+    community:   `Gen Z lifestyle moment with ${b.label} "${name}" — 2-3 friends, candid mid-action, product naturally in the scene (not held up to camera), urban casual setting, real skin tones, shot on digital, slightly grainy, feels real not staged`,
   };
 }
 
@@ -630,57 +396,54 @@ dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classL
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
 dropZone.addEventListener('drop', e => {
   e.preventDefault(); dropZone.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) handleImageFile(file);
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) handleImageFile(f);
 });
 fileInput.addEventListener('change', e => { if (e.target.files[0]) handleImageFile(e.target.files[0]); });
-function handleImageFile(file) {
-  const reader = new FileReader();
-  reader.onload = ev => {
-    dropZone.classList.add('has-image');
-    dropZone.innerHTML = `<img src="${ev.target.result}" alt="Concept" />`;
-  };
-  reader.readAsDataURL(file);
+function handleImageFile(f) {
+  const r = new FileReader();
+  r.onload = ev => { dropZone.classList.add('has-image'); dropZone.innerHTML = `<img src="${ev.target.result}" />`; };
+  r.readAsDataURL(f);
 }
 
-// ---- STEP 1: GENERATE CONCEPTS ----
+// ---- STEP 1 → 2 ----
 function generateConcepts() {
   const text = document.getElementById('concept-text').value.trim();
   const brand = document.getElementById('brand-select').value;
-  if (!text) { showToast('Missing Input', 'Add a concept description first.'); return; }
+  if (!text)  { showToast('Missing Input', 'Add a concept description first.'); return; }
   if (!brand) { showToast('Missing Brand', 'Select a brand before generating.'); return; }
 
-  inputData = { text, brand, type: selectedType };
-  const names = generateNames(text, brand);
-  const b = BRANDS[brand];
+  const words = text.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+  const stop  = new Set(['with','that','this','from','into','over','their','about','which','have','been','will','when','also','just','then','they','these','would','could','should','very','more','than','such','only','both']);
+  const kws   = words.filter(w => !stop.has(w)).map(w => w.replace(/[^a-z]/g,'')).filter(Boolean);
 
+  const names = [
+    kws.length >= 2 ? `${cap(kws[0])} ${cap(kws[1])}` : `${rand(ADJECTIVES)} ${rand(NOUNS)}`,
+    `${rand(THEMES)} ${rand(NOUNS)}`,
+    `${rand(ADJECTIVES)} ${rand(FLAVORS)}`,
+  ];
+
+  const b = BRANDS[brand];
   generatedConcepts = names.map((name, i) => ({
-    id: i,
-    name,
-    descriptor: generateDescriptor(name, text, brand),
-    brand, brandLabel: b.label,
-    type: selectedType,
+    id: i, name, brand, brandLabel: b.label, type: selectedType,
+    descriptor: selectedType === 'seasonal' ? 'Seasonal · limited run' : selectedType === 'concept' ? 'Concept · experimental' : `${b.format} · everyday`,
     concept: text,
   }));
 
-  // Render cards
-  const cards = document.getElementById('concept-cards');
-  cards.innerHTML = generatedConcepts.map((c, i) => `
+  document.getElementById('concept-cards').innerHTML = generatedConcepts.map((c, i) => `
     <div class="concept-card" id="cc-${i}" onclick="selectConcept(${i})">
       <div class="check">✓</div>
       <div class="card-num">Option ${i+1}</div>
       <div class="card-name">${c.name}</div>
       <div class="card-desc">${c.descriptor}</div>
-      <span class="card-type badge-${c.type}">${c.type.charAt(0).toUpperCase()+c.type.slice(1)}</span>
-    </div>
-  `).join('');
+      <span class="card-type badge-${c.type}">${cap(c.type)}</span>
+    </div>`).join('');
 
   selectedConcept = null;
   document.getElementById('btn-pick').disabled = true;
   goToStep(2);
 }
 
-// ---- STEP 2: SELECT CONCEPT ----
 function selectConcept(idx) {
   document.querySelectorAll('.concept-card').forEach(c => c.classList.remove('selected'));
   document.getElementById(`cc-${idx}`).classList.add('selected');
@@ -690,143 +453,167 @@ function selectConcept(idx) {
 
 function confirmConcept() {
   if (!selectedConcept) return;
-  buildImagePrompts(selectedConcept);
+  setupStep3(selectedConcept);
   goToStep(3);
 }
 
-// ---- STEP 3: BUILD PROMPTS ----
-function buildImagePrompts(concept) {
-  const prompts = buildPrompts(concept.name, concept.descriptor, concept.brand);
-  const b = BRANDS[concept.brand];
+// ---- STEP 3 SETUP ----
+function setupStep3(concept) {
+  generatedImages = {};
 
-  // Selection bar
   document.getElementById('sel-name').textContent = concept.name;
   document.getElementById('sel-desc').textContent = `${concept.brandLabel} · ${concept.descriptor}`;
 
-  // Build prompt cards
-  const slots = [
-    {
-      key: 'hero',
-      label: 'Hero',
-      badge: 'slot-hero',
-      variants: [
-        { label: 'White Background', prompt: prompts.hero_white },
-        { label: 'Black Background', prompt: prompts.hero_black },
-      ]
-    },
-    {
-      key: 'lifestyle',
-      label: 'Lifestyle',
-      badge: 'slot-life',
-      variants: [{ label: 'Clean Environment', prompt: prompts.lifestyle }]
-    },
-    {
-      key: 'zoom',
-      label: 'Zoom / Activation',
-      badge: 'slot-zoom',
-      variants: [{ label: 'Macro Close-Up', prompt: prompts.zoom }]
-    },
-    {
-      key: 'community',
-      label: 'Community',
-      badge: 'slot-community',
-      variants: [{ label: 'With People', prompt: prompts.community }]
-    },
-  ];
+  const prompts = buildPrompts(concept.name, concept.brand);
 
-  const container = document.getElementById('prompt-cards');
-  container.innerHTML = slots.map(slot => `
-    <div class="img-prompt-card">
-      <div class="ipc-header">
-        <span class="ipc-slot">${slot.label}</span>
-        <span class="ipc-slot-badge ${slot.badge}">${slot.label}</span>
+  // Render slot cards
+  document.getElementById('slots-grid').innerHTML = SLOTS.map(s => `
+    <div class="slot-card ${s.cls}" id="slot-${s.key}">
+      <div class="slot-card-header">
+        <div class="slot-card-name">${s.label}</div>
       </div>
-      <div class="ipc-body">
-        ${slot.variants.map(v => `
-          <div class="ipc-variant-label">${v.label}</div>
-          <div class="ipc-prompt-text">${v.prompt}</div>
-        `).join('')}
+      <div class="slot-card-preview" id="preview-${s.key}">
+        <div class="slot-empty">📷</div>
       </div>
-      <div class="ipc-actions">
-        ${slot.variants.map((v, vi) => `
-          <button class="ipc-copy" onclick="copyText(${JSON.stringify(v.prompt)}, this)">${slot.variants.length > 1 ? (vi === 0 ? 'Copy White' : 'Copy Black') : 'Copy Prompt'}</button>
-        `).join('')}
+      <div class="slot-card-footer">
+        <button class="slot-btn" id="genbtn-${s.key}" onclick="generateOne('${s.key}')">Generate</button>
+        <button class="slot-btn regen" id="regenbtn-${s.key}" onclick="generateOne('${s.key}')" style="display:none">↻</button>
+        <button class="slot-btn" onclick="copyText(currentSKU.prompts['${s.key}'], this)">Copy</button>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 
-  // Build SKU object
+  // Render accordion prompts
+  document.getElementById('prompt-acc-body').innerHTML = SLOTS.map(s => `
+    <div class="prompt-row">
+      <div class="prompt-row-label">${s.label}</div>
+      <div class="prompt-row-text" id="prompt-text-${s.key}" contenteditable="true" spellcheck="false">${prompts[s.key]}</div>
+      <div class="prompt-copy-row">
+        <button class="prompt-copy-btn" onclick="copyPrompt('${s.key}', this)">Copy Prompt</button>
+      </div>
+    </div>`).join('');
+
   currentSKU = {
-    brand: concept.brandLabel,
-    brand_slug: concept.brand,
-    name: concept.name,
-    descriptor: concept.descriptor,
-    type: concept.type,
-    concept: concept.concept,
-    images: { hero: 'coming-soon', lifestyle: 'coming-soon', zoom: 'coming-soon', community: 'coming-soon' },
-    prompts: {
-      hero_white: prompts.hero_white,
-      hero_black: prompts.hero_black,
-      lifestyle: prompts.lifestyle,
-      zoom: prompts.zoom,
-      community: prompts.community,
-    },
+    brand: concept.brandLabel, brand_slug: concept.brand,
+    name: concept.name, descriptor: concept.descriptor,
+    type: concept.type, concept: concept.concept,
+    images: Object.fromEntries(SLOTS.map(s => [s.key, 'coming-soon'])),
+    prompts,
     generated: new Date().toISOString(),
   };
-
   document.getElementById('json-out').textContent = JSON.stringify(currentSKU, null, 2);
-
-  // QA
-  const qa = {
-    slots: Object.keys(currentSKU.images).length === 4,
-    desc: !!currentSKU.descriptor,
-    brand: !!currentSKU.brand_slug,
-    type: !!currentSKU.type,
-  };
-  setQA('qa-slots', qa.slots);
-  setQA('qa-desc', qa.desc);
-  setQA('qa-brand', qa.brand);
-  setQA('qa-type', qa.type);
-
-  const allPass = Object.values(qa).every(Boolean);
-  const deployBtn = document.getElementById('btn-deploy');
-  if (allPass) {
-    deployBtn.classList.add('ready');
-    document.getElementById('deploy-hint').textContent = 'QA passed — deploy pipeline not yet connected';
-  } else {
-    deployBtn.classList.remove('ready');
-    document.getElementById('deploy-hint').textContent = 'QA must pass before deploy is enabled';
-  }
+  updateQA();
 }
 
+// ---- IMAGE GENERATION ----
+async function generateOne(slotKey) {
+  const genbtn   = document.getElementById(`genbtn-${slotKey}`);
+  const regenbtn = document.getElementById(`regenbtn-${slotKey}`);
+  const preview  = document.getElementById(`preview-${slotKey}`);
+  const slot     = SLOTS.find(s => s.key === slotKey);
+
+  // Get prompt (may have been edited in accordion)
+  const promptEl = document.getElementById(`prompt-text-${slotKey}`);
+  const prompt   = promptEl ? promptEl.textContent.trim() : currentSKU.prompts[slotKey];
+
+  // Show spinner
+  genbtn.disabled = true;
+  regenbtn.style.display = 'none';
+  preview.innerHTML = `<div class="slot-spinner"><div class="spinner"></div><div class="slot-spinner-text">Generating…</div></div>`;
+
+  try {
+    const res = await fetch(`${API}/generate-image`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, slot: slotKey, aspect_ratio: slot.ratio }),
+    });
+    const data = await res.json();
+    if (data.ok && data.dataUrl) {
+      preview.innerHTML = `<img src="${data.dataUrl}" alt="${slot.label}" />`;
+      generatedImages[slotKey] = data.dataUrl;
+      currentSKU.images[slotKey] = 'generated';
+      document.getElementById('json-out').textContent = JSON.stringify(currentSKU, null, 2);
+      genbtn.style.display = 'none';
+      regenbtn.style.display = 'block';
+      updateQA();
+    } else {
+      throw new Error(data.error || 'Unknown error');
+    }
+  } catch(e) {
+    preview.innerHTML = `<div class="slot-empty" style="flex-direction:column;gap:6px;font-size:11px;color:var(--red);">✗<span>${e.message.slice(0,40)}</span></div>`;
+    genbtn.disabled = false;
+    showToast('Generation Failed', e.message.slice(0, 80));
+  }
+
+  updateProgress();
+}
+
+async function generateAll() {
+  const btn = document.getElementById('btn-gen-all');
+  btn.disabled = true;
+  btn.textContent = 'Generating…';
+  document.getElementById('gen-progress').classList.add('show');
+  updateProgress();
+
+  // Generate sequentially to avoid hammering the API
+  for (const s of SLOTS) {
+    await generateOne(s.key);
+    updateProgress();
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Regenerate All';
+  showToast('Done', 'All 5 images generated. Review before pushing to site.');
+}
+
+function updateProgress() {
+  const done = Object.values(currentSKU?.images || {}).filter(v => v === 'generated').length;
+  document.getElementById('gen-progress').textContent = `${done} / 5 complete`;
+}
+
+// ---- QA ----
+function updateQA() {
+  if (!currentSKU) return;
+  const generated = Object.values(currentSKU.images).filter(v => v === 'generated').length;
+  setQA('qa-slots', generated === 5);
+  setQA('qa-desc',  !!currentSKU.descriptor);
+  setQA('qa-brand', !!currentSKU.brand_slug);
+  setQA('qa-type',  !!currentSKU.type);
+  const allPass = generated === 5 && !!currentSKU.descriptor && !!currentSKU.brand_slug && !!currentSKU.type;
+  const btn = document.getElementById('btn-deploy');
+  if (allPass) { btn.classList.add('ready'); document.getElementById('deploy-hint').textContent = 'QA passed — deploy pipeline not yet connected'; }
+  else         { btn.classList.remove('ready'); document.getElementById('deploy-hint').textContent = 'All 5 images must be generated before deploy'; }
+}
 function setQA(id, pass) {
   const el = document.getElementById(id);
   el.textContent = pass ? '✓ Pass' : '✗ Fail';
   el.className = 'qa-item-status ' + (pass ? 'qa-pass' : 'qa-fail');
 }
 
+// ---- ACCORDION ----
+function toggleAccordion(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('span:last-child');
+  body.classList.toggle('open');
+  arrow.textContent = body.classList.contains('open') ? 'Hide ▴' : 'Show ▾';
+}
+
 // ---- NAVIGATION ----
 function goToStep(n) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(`screen-${n}`).classList.add('active');
-
   document.querySelectorAll('.step').forEach((s, i) => {
-    s.classList.remove('active', 'done');
-    if (i + 1 < n) s.classList.add('done');
-    if (i + 1 === n) s.classList.add('active');
+    s.classList.remove('active','done');
+    if (i+1 < n) s.classList.add('done');
+    if (i+1 === n) s.classList.add('active');
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function resetAll() {
-  selectedType = 'core';
-  generatedConcepts = [];
-  selectedConcept = null;
-  currentSKU = null;
-  inputData = {};
+  selectedType = 'core'; generatedConcepts = []; selectedConcept = null; currentSKU = null; generatedImages = {};
   document.getElementById('concept-text').value = '';
   document.getElementById('brand-select').value = '';
-  document.querySelectorAll('.tag-btn').forEach((b,i) => { b.classList.toggle('active', i===0); });
+  document.querySelectorAll('.tag-btn').forEach((b,i) => b.classList.toggle('active', i===0));
   const dz = document.getElementById('drop-zone');
   dz.classList.remove('has-image');
   dz.innerHTML = '<div class="dz-icon">🖼</div><div class="dz-text">Drop a reference image</div><div class="dz-sub">or click to browse · optional</div>';
@@ -836,23 +623,22 @@ function resetAll() {
 // ---- UTILITIES ----
 function copyJSON() {
   if (!currentSKU) return;
-  navigator.clipboard.writeText(JSON.stringify(currentSKU, null, 2))
-    .then(() => showToast('Copied', 'SKU JSON copied to clipboard.'));
+  navigator.clipboard.writeText(JSON.stringify(currentSKU, null, 2)).then(() => showToast('Copied', 'SKU JSON copied to clipboard.'));
 }
 function copyText(text, btn) {
-  navigator.clipboard.writeText(text).then(() => {
-    const orig = btn.textContent;
-    btn.textContent = 'Copied!';
-    setTimeout(() => btn.textContent = orig, 1500);
-  });
+  navigator.clipboard.writeText(text).then(() => { const o = btn.textContent; btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = o, 1500); });
+}
+function copyPrompt(key, btn) {
+  const el = document.getElementById(`prompt-text-${key}`);
+  const text = el ? el.textContent.trim() : '';
+  copyText(text, btn);
 }
 function deployAction() {
   if (!document.getElementById('btn-deploy').classList.contains('ready')) return;
-  showToast('Deploy Pipeline', 'Not yet connected. Copy JSON to hand off to site update workflow.', 4000);
+  showToast('Deploy Pipeline', 'Not yet connected. Export JSON to hand off to site update workflow.', 4000);
 }
-
 let toastTimer;
-function showToast(title, body, duration = 2800) {
+function showToast(title, body, duration=2800) {
   const t = document.getElementById('toast');
   document.getElementById('toast-title').textContent = title;
   document.getElementById('toast-body').textContent = body;
