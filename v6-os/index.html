@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hidden Supply — Candy is Culture.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:        #0a0a0f;
+      --black-mid:    #111118;
+      --black-soft:   #1a1a24;
+      --yellow:       #ffe600;
+      --pink:         #ff2d6b;
+      --purple:       #7c3aed;
+      --cyan:         #00d4ff;
+      --green:        #7ed957;
+      --orange:       #ff7b35;
+      --cream:        #faf8f2;
+      --cream-dark:   #f0ede4;
+      --ink:          #1a1714;
+      --ink-mid:      #6b6762;
+      --ink-faint:    #b0aca7;
+      --line-dark:    rgba(255,255,255,0.08);
+      --line-light:   rgba(26,23,20,0.08);
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--black); color: var(--cream); overflow-x: hidden; }
+
+    /* ── STARS ── */
+    .stars { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+    .star {
+      position: absolute; background: #fff; border-radius: 50%;
+      animation: twinkle var(--d,3s) ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%,100% { opacity: var(--op,0.3); }
+      50%      { opacity: 0.04; }
+    }
+
+    /* ── NAV ── */
+    nav#nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      padding: 0 52px; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(10,10,15,0.96); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--line-dark);
+      transition: background 0.3s;
+    }
+    .nav-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem; font-weight: 700; color: #ffe600 !important;
+      letter-spacing: 0.02em; text-decoration: none;
+      opacity: 1 !important; visibility: visible !important;
+      position: relative; z-index: 1001;
+    }
+    .nav-brand span { font-weight: 400; font-style: italic; color: rgba(250,248,242,0.45); font-size: 0.85rem; }
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a {
+      font-size: 0.7rem; font-weight: 500; letter-spacing: 0.12em;
+      text-transform: uppercase; color: rgba(250,248,242,0.5);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--cream); }
+    .nav-cta {
+      background: var(--yellow); color: var(--black);
+      padding: 9px 20px; font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .nav-cta:hover { background: #fff; transform: translateY(-1px); }
+    @media(max-width:768px) {
+      nav#nav { padding: 0 20px; }
+      .nav-links { display: none; }
+    }
+
+    /* ── REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+    .reveal.d1 { transition-delay: 0.1s; }
+    .reveal.d2 { transition-delay: 0.2s; }
+    .reveal.d3 { transition-delay: 0.3s; }
+    .reveal.d4 { transition-delay: 0.4s; }
+    .reveal.d5 { transition-delay: 0.5s; }
+
+    .section-label {
+      font-size: 0.6rem; font-weight: 600; letter-spacing: 0.3em;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .section-label.light  { color: var(--ink-faint); }
+    .section-label.dark   { color: rgba(250,248,242,0.3); }
+    .section-label.yellow { color: var(--yellow); }
+
+    /* ════════════════════════════════════════════════
+       FLOAT ANIMATIONS — Hero products
+    ════════════════════════════════════════════════ */
+    @keyframes floatA {
+      0%   { transform: rotate(0deg) translateY(0px) scale(1); }
+      30%  { transform: rotate(0deg) translateY(-14px) scale(1.02); }
+      60%  { transform: rotate(0deg) translateY(-8px) scale(1.01); }
+      100% { transform: rotate(0deg) translateY(0px) scale(1); }
+    }
+    @keyframes floatB {
+      0%   { transform: rotate(-3deg) translateY(0px) scale(1); }
+      40%  { transform: rotate(-2deg) translateY(-16px) scale(1.02); }
+      70%  { transform: rotate(-3.5deg) translateY(-6px) scale(1.01); }
+      100% { transform: rotate(-3deg) translateY(0px) scale(1); }
+    }
+    @keyframes floatC {
+      0%   { transform: rotate(4deg) translateY(0px) scale(1); }
+      35%  { transform: rotate(3deg) translateY(-12px) scale(1.02); }
+      65%  { transform: rotate(4.5deg) translateY(-5px) scale(1.01); }
+      100% { transform: rotate(4deg) translateY(0px) scale(1); }
+    }
+    @keyframes floatD {
+      0%   { transform: rotate(-5deg) translateY(0px) scale(1); }
+      45%  { transform: rotate(-4deg) translateY(-10px) scale(1.02); }
+      75%  { transform: rotate(-5.5deg) translateY(-4px) scale(1.01); }
+      100% { transform: rotate(-5deg) translateY(0px) scale(1); }
+    }
+
+    /* Mobile — reduced travel so products stay inside box */
+    @keyframes floatA_sm {
+      0%, 100% { transform: rotate(-3deg) translateY(0px); }
+      50%       { transform: rotate(-2deg) translateY(-5px); }
+    }
+    @keyframes floatB_sm {
+      0%, 100% { transform: rotate(3.5deg) translateY(0px); }
+      50%       { transform: rotate(2.5deg) translateY(-5px); }
+    }
+    @keyframes floatC_sm {
+      0%, 100% { transform: rotate(-1.5deg) translateY(0px); }
+      50%       { transform: rotate(-0.5deg) translateY(-5px); }
+    }
+    @keyframes floatD_sm {
+      0%, 100% { transform: rotate(2.2deg) translateY(0px); }
+      50%       { transform: rotate(1deg) translateY(-5px); }
+    }
+
+    /* ════════════════════════════════════════════════
+       SECTION 1 — HERO
+    ════════════════════════════════════════════════ */
+    #hero {
+      position: relative; min-height: 100vh;
+      background: var(--black); overflow: hidden;
+      display: flex; align-items: center;
+      padding: 100px 52px 80px;
+      z-index: 1;
+      background-image: radial-gradient(ellipse 120% 80% at 50% 0%, transparent 40%, rgba(10,10,15,0.55) 100%);
+    }
+    .hero-inner {
+      position: relative; z-index: 2;
+      max-width: 1280px; margin: 0 auto; width: 100%;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+    }
+    .hero-eyebrow {
+      font-size: 0.62rem; font-weight: 600; letter-spacing: 0.32em;
+      text-transform: uppercase; color: var(--yellow); margin-bottom: 28px;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .hero-eyebrow.in { opacity: 1; transform: none; }
+    .hero-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3.2rem, 7vw, 6.2rem); font-weight: 900;
+      line-height: 0.92; letter-spacing: -0.025em; color: var(--cream);
+      margin-bottom: 32px;
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s;
+    }
+    .hero-headline.in { opacity: 1; transform: none; }
+    .hero-headline em { font-style: italic; color: var(--yellow); }
+    .hero-sub {
+      font-size: 1rem; font-weight: 300; line-height: 1.75;
+      color: rgba(250,248,242,0.55); max-width: 420px; margin-bottom: 48px;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.6s ease 0.25s, transform 0.6s ease 0.25s;
+    }
+    .hero-sub.in { opacity: 1; transform: none; }
+    .hero-actions {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.6s ease 0.35s, transform 0.6s ease 0.35s;
+    }
+    .hero-actions.in { opacity: 1; transform: none; }
+    .btn-primary {
+      background: var(--yellow); color: var(--black);
+      padding: 15px 32px; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { background: #fff; transform: translateY(-2px); }
+    .btn-secondary {
+      border: 1px solid rgba(250,248,242,0.2); color: var(--cream);
+      padding: 15px 32px; font-size: 0.72rem; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+    .btn-secondary:hover { border-color: var(--cream); background: rgba(250,248,242,0.05); transform: translateY(-2px); }
+
+    /* Hero floating composition */
+    .hero-right {
+      opacity: 0; transform: scale(0.93) translateY(20px);
+      transition: opacity 1s ease 0.2s, transform 1s ease 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-right.in { opacity: 1; transform: none; }
+    .hero-collage {
+      position: relative; width: 100%; max-width: 560px; aspect-ratio: 1/1;
+    }
+    /* Hero media stage */
+    .hero-media-stage {
+      position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-media-stage::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: radial-gradient(ellipse 110% 90% at 52% 52%, rgba(255,230,0,0.05) 0%, rgba(10,10,15,0.0) 75%);
+      pointer-events: none;
+    }
+    .hero-media-stage::after {
+      content: '';
+      position: absolute;
+      bottom: 2%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70%;
+      height: 60px;
+      background: radial-gradient(ellipse 100% 100% at 50% 100%, rgba(0,0,0,0.32) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-comp-img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      object-position: center;
+    }
+    /* Collage wrapper trick — give it explicit height on mobile */
+    @media(max-width:960px) {
+      .hero-right { height: auto; }
+    }
+    @media(max-width:600px) {
+      /* collage size handled in hero breakpoints below */
+    }
+
+    /* Natural floating products — no cards, no borders, no white frames */
+    .hcp {
+      position: absolute;
+      overflow: visible;
+    }
+    .hcp img {
+      width: 100%; height: auto; display: block;
+    }
+
+    /* FRONT — JB, dominant, center-right, largest, straight */
+    .hcp-1 {
+      width: 52%; left: 22%; top: 3%; z-index: 5;
+      filter: drop-shadow(0 28px 56px rgba(255,230,0,0.28)) drop-shadow(0 8px 20px rgba(0,0,0,0.5));
+      animation: floatA 5.8s ease-in-out infinite;
+    }
+    /* MID-LEFT — DS, overlaps JB left edge */
+    .hcp-2 {
+      width: 36%; left: -2%; top: 6%; z-index: 3;
+      filter: drop-shadow(0 20px 40px rgba(0,212,255,0.25)) drop-shadow(0 6px 16px rgba(0,0,0,0.45)) brightness(0.88);
+      animation: floatB 6.6s ease-in-out infinite;
+      animation-delay: 0.7s;
+    }
+    /* MID-RIGHT — PP, overlaps JB right side */
+    .hcp-3 {
+      width: 38%; right: -4%; top: 14%; z-index: 3;
+      filter: drop-shadow(0 18px 36px rgba(126,217,87,0.25)) drop-shadow(0 6px 14px rgba(0,0,0,0.4));
+      animation: floatC 7.2s ease-in-out infinite;
+      animation-delay: 1.3s;
+    }
+    /* BACK-LEFT — Candu, small, low, partially cropped */
+    .hcp-4 {
+      width: 31%; left: 4%; bottom: 0%; z-index: 2;
+      filter: drop-shadow(0 14px 28px rgba(255,123,53,0.22)) drop-shadow(0 4px 12px rgba(0,0,0,0.38));
+      animation: floatD 6.4s ease-in-out infinite;
+      animation-delay: 2.1s;
+    }
+    /* BACK-RIGHT — NL, small, rotated, bleeds right edge */
+    .hcp-5 {
+      width: 30%; right: -2%; bottom: 4%; z-index: 2;
+      filter: drop-shadow(0 12px 24px rgba(162,89,255,0.22)) drop-shadow(0 4px 10px rgba(0,0,0,0.36));
+      animation: floatA 7.8s ease-in-out infinite;
+      animation-delay: 3s;
+    }
+
+
+
+    /* Candy texture micro-elements */
+    .hero-candy-dust {
+      position: absolute; pointer-events: none; z-index: 1;
+      font-style: normal; line-height: 1;
+    }
+    .hcd-1 { font-size: 10px; top: 18%; left: 8%;   opacity: 0.18; transform: rotate(22deg);  color: var(--yellow); }
+    .hcd-2 { font-size: 8px;  top: 72%; left: 14%;  opacity: 0.15; transform: rotate(-14deg); color: var(--pink); }
+    .hcd-3 { font-size: 12px; top: 28%; right: 12%; opacity: 0.20; transform: rotate(8deg);   color: var(--cyan); }
+    .hcd-4 { font-size: 9px;  top: 62%; right: 18%; opacity: 0.17; transform: rotate(-30deg); color: var(--green); }
+
+    .hero-scroll {
+      position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 2; opacity: 0.35;
+    }
+    .hero-scroll span { font-size: 0.6rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; }
+    .scroll-line { width: 1px; height: 32px; background: var(--cream); animation: scrollpulse 2s ease-in-out infinite; }
+    @keyframes scrollpulse { 0%,100%{opacity:0.3;transform:scaleY(1)} 50%{opacity:1;transform:scaleY(1.3)} }
+
+    @media(max-width:960px) {
+      #hero { padding: 100px 24px 60px; }
+      .hero-inner { grid-template-columns: 1fr; gap: 32px; }
+      .hero-right { order: -1; align-self: start; }
+      .hero-collage { max-width: 420px; width: 100%; height: 380px; margin: 0 auto; }
+      /* JB front-center dominant */
+      .hcp-1 { width: 48%; left: 24%; top: 2%; }
+      /* DS mid-left, bleeds left */
+      .hcp-2 { width: 34%; left: -2%; top: 8%; }
+      /* PP mid-right */
+      .hcp-3 { width: 32%; right: -2%; top: 12%; }
+      /* Candu back-left, small */
+      .hcp-4 { width: 26%; left: 6%; bottom: 2%; }
+      /* NL back-right, small */
+      .hcp-5 { width: 24%; right: 2%; bottom: 4%; }
+    }
+
+    @media(max-width:600px) {
+      #hero { padding: 80px 20px 48px; min-height: auto; }
+      .hero-inner { gap: 20px; }
+      .hero-collage { max-width: 340px; width: 100%; height: 320px; margin: 0 auto; }
+      /* JB dominant, slightly off-center */
+      .hcp-1 { width: 50%; left: 22%; top: 2%; animation-name: floatA_sm; }
+      /* DS mid-left */
+      .hcp-2 { width: 36%; left: -4%; top: 6%; animation-name: floatB_sm; }
+      /* PP mid-right */
+      .hcp-3 { width: 34%; right: -4%; top: 10%; animation-name: floatC_sm; }
+      /* Candu — back-left, tucked low */
+      .hcp-4 { width: 28%; left: 4%; bottom: 0%; animation-name: floatD_sm; }
+      /* NL — back-right, tucked low */
+      .hcp-5 { width: 26%; right: 2%; bottom: 2%; animation-name: floatA_sm; animation-delay: 3s; }
+      .hero-headline { font-size: clamp(2.4rem, 10vw, 3.5rem); }
+      .hero-sub { font-size: 0.88rem; }
+      .hero-actions { flex-direction: column; gap: 12px; }
+      .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+    }
+
+    /* ════════════════════════════════════════════════
+       SECTION 2 — THE BRANDS
+    ════════════════════════════════════════════════ */
+    #brands { background: var(--cream); padding: 120px 52px; }
+    .brands-inner { max-width: 1280px; margin: 0 auto; }
+    .brands-header { margin-bottom: 48px; }
+    .lineup-strip {
+      margin-bottom: 56px;
+      overflow: hidden;
+    }
+    .lineup-strip img {
+      width: 100%; height: auto; display: block;
+      max-height: 180px; object-fit: contain; object-position: left center;
+    }
+    @media(max-width:768px) {
+      .lineup-strip img { max-height: 120px; }
+    }
+    .brands-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 4.5vw, 3.8rem); font-weight: 900;
+      color: var(--ink); letter-spacing: -0.02em; line-height: 1.05;
+    }
+    .brands-header h2 em { font-style: italic; color: var(--pink); }
+    .brands-header p { font-size: 0.9rem; color: var(--ink-mid); font-weight: 300; line-height: 1.7; margin-top: 14px; max-width: 480px; }
+
+    /* Brand grid — 3+2 layout */
+    .brands-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--ink);
+    }
+    /* Bottom row: 2 cards centered */
+    .brand-card-row-bottom {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--ink);
+    }
+    .brand-card-row-bottom .brand-card:first-child {
+      grid-column: 1 / 2;
+      margin-left: calc(50% + 1px);
+    }
+    .brand-card-row-bottom .brand-card:last-child {
+      grid-column: 2 / 3;
+    }
+
+    .brand-card {
+      background: var(--cream); overflow: hidden;
+      text-decoration: none; display: block; position: relative;
+      transition: background 0.25s, transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    /* Hover lift + brand glow */
+    .brand-card:hover { transform: translateY(-6px); }
+    .brand-card[data-color="jb"]:hover   { box-shadow: 0 16px 48px rgba(255,230,0,0.22); }
+    .brand-card[data-color="ds"]:hover   { box-shadow: 0 16px 48px rgba(0,212,255,0.22); }
+    .brand-card[data-color="pp"]:hover   { box-shadow: 0 16px 48px rgba(126,217,87,0.22); }
+    .brand-card[data-color="candu"]:hover{ box-shadow: 0 16px 48px rgba(255,123,53,0.22); }
+    .brand-card[data-color="nl"]:hover   { box-shadow: 0 16px 48px rgba(162,89,255,0.22); }
+
+    /* Accent bar — animate width on hover */
+    .brand-card-bar {
+      height: 3px; width: 0%; transition: width 0.4s ease;
+    }
+    .brand-card:hover .brand-card-bar { width: 100%; }
+
+    .brand-card-img {
+      width: 100%; aspect-ratio: 3/4; overflow: hidden;
+    }
+    .brand-card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .brand-card:hover .brand-card-img img { transform: scale(1.04); }
+    .brand-card-info { padding: 24px 24px 28px; }
+    .brand-card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 900; color: var(--ink);
+      letter-spacing: -0.01em; margin-bottom: 6px;
+    }
+    .brand-card-desc { font-size: 0.82rem; color: var(--ink-mid); font-weight: 300; line-height: 1.55; }
+    .brand-card-arrow {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 16px;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--ink); text-decoration: none; transition: gap 0.2s;
+    }
+    .brand-card:hover .brand-card-arrow { gap: 12px; }
+
+    /* Bottom row centering — 2 cards, centered in a 3-col grid */
+    .brands-bottom-row {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: center;
+      gap: 2px;
+      background: transparent;
+    }
+    .brands-bottom-row .brand-card {
+      flex: 0 0 calc(33.333% - 1px);
+      max-width: calc(33.333% - 1px);
+    }
+
+    @media(max-width:960px) {
+      #brands { padding: 80px 20px; }
+      .brands-grid { grid-template-columns: repeat(2, 1fr); }
+      .brands-bottom-row { justify-content: flex-start; }
+      .brands-bottom-row .brand-card { flex: 0 0 calc(50% - 1px); max-width: calc(50% - 1px); }
+    }
+    @media(max-width:480px) {
+      .brands-grid { grid-template-columns: 1fr; }
+      .brands-bottom-row { flex-direction: column; }
+      .brands-bottom-row .brand-card { flex: none; max-width: 100%; }
+    }
+
+    /* ════════════════════════════════════════════════
+       SECTION 3 — THE SYSTEM
+    ════════════════════════════════════════════════ */
+    #system {
+      background: var(--black-mid); padding: 140px 52px;
+      border-top: 1px solid var(--line-dark); border-bottom: 1px solid var(--line-dark);
+    }
+    .system-inner { max-width: 1100px; margin: 0 auto; position: relative; }
+    .system-header { text-align: center; margin-bottom: 56px; }
+    .system-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4.5vw, 3.5rem); font-weight: 900;
+      color: var(--cream); letter-spacing: -0.02em; line-height: 1.0;
+    }
+    .system-header h2 em { font-style: italic; color: var(--yellow); }
+    .system-header p { font-size: 0.88rem; color: rgba(250,248,242,0.4); margin-top: 14px; font-weight: 300; max-width: 480px; margin-left: auto; margin-right: auto; }
+
+    /* Flow diagram */
+    .system-flow {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; margin-bottom: 64px; flex-wrap: wrap;
+    }
+    .sf-box {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 10px 20px;
+      font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: rgba(250,248,242,0.75);
+      white-space: nowrap;
+    }
+    .sf-arrow {
+      font-size: 1rem; color: var(--yellow); padding: 0 12px;
+      font-weight: 700; line-height: 1;
+    }
+
+    .system-steps {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line-dark);
+    }
+    .system-step { background: var(--black-mid); padding: 52px 44px; position: relative; overflow: hidden; }
+    .system-step::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    }
+    .system-step:nth-child(1)::before { background: var(--yellow); }
+    .system-step:nth-child(2)::before { background: var(--pink); }
+    .system-step:nth-child(3)::before { background: var(--purple); }
+    .system-num {
+      font-family: 'Playfair Display', serif; font-size: 5.5rem; font-weight: 900;
+      line-height: 1; color: rgba(250,248,242,0.04); margin-bottom: 24px; display: block;
+    }
+    .system-title {
+      font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700;
+      font-style: italic; margin-bottom: 12px; display: block;
+    }
+    .system-step:nth-child(1) .system-title { color: var(--yellow); }
+    .system-step:nth-child(2) .system-title { color: var(--pink); }
+    .system-step:nth-child(3) .system-title { color: var(--purple); }
+    .system-desc { font-size: 0.85rem; color: rgba(250,248,242,0.5); font-weight: 300; line-height: 1.75; }
+    @media(max-width:768px) {
+      #system { padding: 80px 20px; }
+      .system-steps { grid-template-columns: 1fr; }
+      .system-flow { gap: 4px; }
+    }
+
+    /* ════════════════════════════════════════════════
+       SECTION 4 — CANDY CULTURE
+    ════════════════════════════════════════════════ */
+    #culture { background: var(--black-soft); padding: 140px 52px; }
+    .culture-inner { max-width: 1200px; margin: 0 auto; }
+    .culture-manifesto { max-width: 900px; margin: 0 auto 80px; text-align: center; }
+    .culture-manifesto blockquote {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.92rem, 4.2vw, 3.36rem);
+      font-weight: 400; font-style: italic;
+      line-height: 1.4; color: var(--cream); letter-spacing: -0.01em;
+    }
+    .culture-manifesto blockquote em { color: var(--yellow); font-style: normal; }
+    .culture-manifesto cite {
+      display: block; margin-top: 24px; font-size: 0.65rem; font-weight: 600;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: rgba(250,248,242,0.28); font-style: normal;
+    }
+    .culture-manifesto p {
+      margin-top: 20px; font-size: 0.88rem; color: rgba(250,248,242,0.4);
+      font-weight: 300; line-height: 1.7; max-width: 560px; margin-left: auto; margin-right: auto;
+    }
+
+    /* Masonry editorial gallery — CSS columns */
+    .culture-masonry {
+      columns: 3; column-gap: 8px; column-fill: balance;
+    }
+    .culture-masonry-item {
+      break-inside: avoid; margin-bottom: 8px; overflow: hidden;
+    }
+    .culture-masonry-item img {
+      width: 100%; height: auto; display: block;
+      transition: transform 0.6s ease;
+    }
+    .culture-masonry-item:hover img { transform: scale(1.03); }
+
+    @media(max-width:900px) {
+      #culture { padding: 80px 20px; }
+      .culture-masonry { columns: 2; }
+    }
+    @media(max-width:600px) {
+      .culture-masonry { columns: 1; }
+    }
+
+    /* ════════════════════════════════════════════════
+       SECTION 5 — RETAIL FOCUS
+    ════════════════════════════════════════════════ */
+    #retail { background: var(--black); padding: 140px 52px; border-top: 1px solid var(--line-dark); }
+    .retail-inner { max-width: 1100px; margin: 0 auto; }
+    .retail-header { text-align: center; margin-bottom: 80px; }
+    .retail-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 900;
+      color: var(--cream); letter-spacing: -0.02em;
+    }
+    .retail-header h2 em { font-style: italic; color: var(--yellow); }
+    .retail-header p { font-size: 0.88rem; color: rgba(250,248,242,0.45); margin-top: 14px; font-weight: 300; max-width: 520px; margin-left: auto; margin-right: auto; }
+    .retail-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+      background: var(--line-dark); margin-bottom: 40px;
+    }
+    .retail-stat { background: var(--black); padding: 40px 32px; text-align: center; }
+    .retail-stat-num {
+      font-family: 'Playfair Display', serif; font-size: 3.2rem; font-weight: 900;
+      line-height: 1; margin-bottom: 10px; display: block;
+    }
+    .retail-stat:nth-child(1) .retail-stat-num { color: var(--yellow); }
+    .retail-stat:nth-child(2) .retail-stat-num { color: var(--pink); }
+    .retail-stat:nth-child(3) .retail-stat-num { color: var(--purple); }
+    .retail-stat:nth-child(4) .retail-stat-num { color: var(--cyan); }
+    .retail-stat-label { font-size: 0.65rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(250,248,242,0.35); }
+
+    /* Retail placement mockup cards */
+    .retail-placements {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+      background: var(--line-dark); margin-bottom: 1px;
+    }
+    .retail-place-card {
+      background: #0e0e16; border: 1px solid rgba(255,255,255,0.07);
+      padding: 28px 24px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+    }
+    .rpc-icon { font-size: 1.4rem; line-height: 1; }
+    .rpc-label {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: rgba(250,248,242,0.75);
+    }
+    .rpc-desc { font-size: 0.75rem; font-weight: 300; color: rgba(250,248,242,0.35); line-height: 1.5; }
+
+    .retail-channels {
+      background: var(--black); padding: 28px 32px;
+      display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+      border: 1px solid var(--line-dark);
+    }
+    .retail-channel {
+      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+      padding: 9px 18px; border: 1px solid rgba(250,248,242,0.1); color: rgba(250,248,242,0.55);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .retail-channel:hover { border-color: var(--yellow); color: var(--yellow); }
+    @media(max-width:768px) {
+      #retail { padding: 80px 20px; }
+      .retail-stats { grid-template-columns: repeat(2, 1fr); }
+      .retail-placements { grid-template-columns: 1fr; }
+    }
+
+    /* ════════════════════════════════════════════════
+       SECTION 5b — DESIGNED TO MOVE
+    ════════════════════════════════════════════════ */
+    #move {
+      background: var(--black-mid); padding: 120px 52px;
+      border-top: 1px solid var(--line-dark);
+    }
+    .move-inner { max-width: 1100px; margin: 0 auto; }
+    .move-header { text-align: center; margin-bottom: 64px; }
+    .move-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 4.5vw, 3.8rem); font-weight: 900;
+      color: var(--cream); letter-spacing: -0.02em; margin-bottom: 14px;
+    }
+    .move-header p {
+      font-size: 0.88rem; color: rgba(250,248,242,0.4);
+      font-weight: 300; max-width: 460px; margin: 0 auto; line-height: 1.7;
+    }
+    .move-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--line-dark); margin-bottom: 48px;
+    }
+    .move-col {
+      background: var(--black-mid); padding: 40px 28px;
+    }
+    .move-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem; font-weight: 900; margin-bottom: 16px; display: block; line-height: 1;
+    }
+    .move-col:nth-child(1) .move-num { color: var(--yellow); }
+    .move-col:nth-child(2) .move-num { color: var(--pink); }
+    .move-col:nth-child(3) .move-num { color: var(--purple); }
+    .move-col:nth-child(4) .move-num { color: var(--cyan); }
+    .move-title {
+      font-size: 0.82rem; font-weight: 700; letter-spacing: 0.06em;
+      color: var(--cream); margin-bottom: 10px; display: block;
+    }
+    .move-desc {
+      font-size: 0.78rem; font-weight: 300;
+      color: rgba(250,248,242,0.45); line-height: 1.65;
+    }
+    .move-flow {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; flex-wrap: wrap;
+    }
+    .mf-tag {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase; padding: 8px 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(250,248,242,0.65);
+    }
+    .mf-tag.t1 { border-color: rgba(255,230,0,0.3);  color: var(--yellow); }
+    .mf-tag.t2 { border-color: rgba(255,45,107,0.3); color: var(--pink); }
+    .mf-tag.t3 { border-color: rgba(124,58,237,0.3); color: #a78bfa; }
+    .mf-tag.t4 { border-color: rgba(0,212,255,0.3);  color: var(--cyan); }
+    .mf-arrow {
+      font-size: 1rem; color: rgba(250,248,242,0.25); padding: 0 10px; line-height: 1;
+    }
+    @media(max-width:768px) {
+      #move { padding: 80px 20px; }
+      .move-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media(max-width:480px) {
+      .move-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ════════════════════════════════════════════════
+       SECTION 6 — BRAND PORTFOLIO PREVIEW
+    ════════════════════════════════════════════════ */
+    #portfolio { background: var(--cream); padding: 120px 52px; }
+    .portfolio-inner { max-width: 1280px; margin: 0 auto; }
+    .portfolio-header { margin-bottom: 64px; }
+    .portfolio-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 4.5vw, 3.8rem); font-weight: 900;
+      color: var(--ink); letter-spacing: -0.02em;
+    }
+    .portfolio-header h2 em { font-style: italic; color: var(--pink); }
+    .portfolio-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      gap: 2px; background: var(--ink);
+    }
+    .portfolio-card {
+      background: var(--cream-dark); overflow: hidden; position: relative;
+      text-decoration: none; display: block;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .portfolio-card:hover { transform: translateY(-4px); }
+    .portfolio-card[data-color="jb"]:hover   { box-shadow: 0 12px 40px rgba(255,230,0,0.25); }
+    .portfolio-card[data-color="ds"]:hover   { box-shadow: 0 12px 40px rgba(0,212,255,0.25); }
+    .portfolio-card[data-color="pp"]:hover   { box-shadow: 0 12px 40px rgba(126,217,87,0.25); }
+    .portfolio-card[data-color="candu"]:hover{ box-shadow: 0 12px 40px rgba(255,123,53,0.25); }
+    .portfolio-card[data-color="nl"]:hover   { box-shadow: 0 12px 40px rgba(162,89,255,0.25); }
+
+    .portfolio-card-img {
+      aspect-ratio: 2/3; overflow: hidden; position: relative;
+    }
+    .portfolio-card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .portfolio-card:hover .portfolio-card-img img { transform: scale(1.06); }
+    .portfolio-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 55%);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 20px 18px;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .portfolio-card:hover .portfolio-overlay { opacity: 1; }
+    .portfolio-overlay-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; font-weight: 900; color: #fff; margin-bottom: 4px;
+    }
+    .portfolio-overlay-arrow {
+      font-size: 0.62rem; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: rgba(255,255,255,0.65);
+    }
+    .portfolio-card-bar { height: 3px; }
+    /* Portfolio depth — scale variation */
+    #portfolio .brand-card:nth-child(1) { transform: scale(0.96) translateY(4px); }
+    #portfolio .brand-card:nth-child(2) { transform: scale(0.98) translateY(2px); }
+    #portfolio .brand-card:nth-child(3) { transform: scale(1.0)  translateY(0px); }
+    #portfolio .brand-card:nth-child(4) { transform: scale(0.98) translateY(2px); }
+    #portfolio .brand-card:nth-child(5) { transform: scale(0.96) translateY(4px); }
+    #portfolio .brand-card { box-shadow: 0 8px 32px rgba(0,0,0,0.35); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    #portfolio .brand-card:hover { transform: scale(1.02) translateY(-4px) !important; box-shadow: 0 16px 48px rgba(0,0,0,0.5); }
+    @media(max-width:900px) {
+      #portfolio { padding: 80px 20px; }
+      .portfolio-grid { grid-template-columns: repeat(2, 1fr); }
+      .portfolio-card:last-child { grid-column: 1/3; }
+    }
+    @media(max-width:480px) {
+      .portfolio-grid { grid-template-columns: 1fr; }
+      .portfolio-card:last-child { grid-column: auto; }
+    }
+
+    /* ════════════════════════════════════════════════
+       SECTION 7 — BUYER CTA
+    ════════════════════════════════════════════════ */
+    #contact { background: var(--cream); padding: 160px 52px; border-top: 2px solid var(--cream-dark); }
+    .contact-inner { max-width: 900px; margin: 0 auto; text-align: center; position: relative; }
+    .contact-inner h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 5vw, 4.5rem); font-weight: 900;
+      color: var(--ink); line-height: 1.0; letter-spacing: -0.02em; margin-bottom: 24px;
+    }
+    .contact-inner h2 em { font-style: italic; color: var(--pink); }
+    .contact-inner p { font-size: 0.9rem; color: var(--ink-mid); font-weight: 300; line-height: 1.7; margin-bottom: 52px; max-width: 520px; margin-left: auto; margin-right: auto; }
+    .contact-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-dark {
+      background: var(--ink); color: var(--cream);
+      padding: 16px 36px; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-dark:hover { background: var(--black); transform: translateY(-2px); }
+    .btn-outline-dark {
+      border: 1px solid rgba(26,23,20,0.2); color: var(--ink);
+      padding: 16px 36px; font-size: 0.72rem; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+    .btn-outline-dark:hover { border-color: var(--ink); background: rgba(26,23,20,0.04); transform: translateY(-2px); }
+    .contact-note { margin-top: 36px; font-size: 0.72rem; color: var(--ink-faint); font-weight: 300; }
+    .contact-divider { width: 40px; height: 2px; background: var(--pink); margin: 0 auto 40px; }
+    @media(max-width:768px) { #contact { padding: 80px 20px; } }
+
+    /* ════════════════════════════════════════════════
+       SECTION 8 — FOOTER
+    ════════════════════════════════════════════════ */
+    footer {
+      background: var(--black); padding: 48px 52px;
+      border-top: 1px solid var(--line-dark);
+    }
+    .footer-inner {
+      max-width: 1280px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: start; gap: 40px;
+    }
+    .foot-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 700; color: var(--yellow);
+      letter-spacing: 0.02em; margin-bottom: 8px; display: block;
+    }
+    .foot-tagline { font-size: 0.75rem; color: rgba(250,248,242,0.3); font-weight: 300; font-style: italic; }
+    .foot-nav {
+      display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center;
+    }
+    .foot-nav a {
+      font-size: 0.65rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(250,248,242,0.35); text-decoration: none; transition: color 0.2s;
+    }
+    .foot-nav a:hover { color: rgba(250,248,242,0.7); }
+    .foot-right { text-align: right; }
+    .foot-copy { font-size: 0.65rem; color: rgba(250,248,242,0.18); margin-bottom: 8px; }
+    .foot-contact { font-size: 0.7rem; color: rgba(250,248,242,0.3); font-weight: 300; }
+    @media(max-width:768px) {
+      footer { padding: 36px 20px; }
+      .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+      .foot-nav { align-items: flex-start; }
+      .foot-right { text-align: left; }
+    }
+  
+    /* ============================================
+       HIDDEN SUPPLY OS — ASSET RUNTIME LAYER
+       Phase 2A: Dark Hero Compatibility
+       Phase 2B: Mobile Compression System
+       DO NOT EDIT — generated by Hidden Supply OS
+       ============================================ */
+
+    /* --- 2A: Dark hero filter layer --- */
+    [data-theme="dark"] .product-float img,
+    [data-theme="dark"] .hero-product img {
+      filter: drop-shadow(0 8px 32px rgba(0,0,0,0.6)) brightness(0.95) contrast(1.05);
+    }
+
+    /* --- 2B: Mobile Compression System --- */
+    @media (max-width: 768px) {
+      /* Hero: reduce height ~30% */
+      .hero { min-height: 55vh !important; }
+      .hero-inner, .hero-content { padding: 60px 20px 40px !important; }
+      .hero h1 { font-size: clamp(2rem, 9vw, 3.2rem) !important; }
+
+      /* Product float: size down */
+      .product-float img, .hero-product img { max-width: 240px !important; }
+
+      /* SKU grid: 2-column max */
+      .sku-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+      .sku-info { padding: 14px 16px !important; }
+      .sku-name { font-size: 0.85rem !important; }
+
+      /* Section spacing: tighter */
+      section, .section { padding: 40px 20px !important; }
+      .section-header { margin-bottom: 24px !important; }
+
+      /* Proof strip: show only 2 images on mobile */
+      .proof-strip .proof-img:nth-child(n+3) { display: none !important; }
+
+      /* Culture masonry: max 4 items */
+      .culture-masonry .culture-masonry-item:nth-child(n+5),
+      .masonry .masonry-item:nth-child(n+5) { display: none !important; }
+
+      /* Gallery grid: max 4 items */
+      .gallery-grid .gallery-item:nth-child(n+5) { display: none !important; }
+
+      /* Hide cinematic spacers */
+      .section-gap, .spacer, .hero-spacer { display: none !important; }
+
+      /* Nav: compact */
+      nav, .nav { padding: 12px 20px !important; }
+
+      /* Brand cards grid: 2-col */
+      .brands-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+
+      /* Stats strip: 2-col wrap */
+      .stats-strip, .metrics-row { flex-wrap: wrap !important; gap: 12px !important; }
+      .stat-item, .metric-item { flex: 0 0 calc(50% - 6px) !important; }
+    }
+
+    /* Coming Soon slot system */
+    .proof-coming {
+      background: #f8f8f6 !important;
+      border: 1px dashed #d0d0cc !important;
+    }
+    .coming-soon-slot {
+      width: 100%; height: 100%; min-height: 120px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: transparent;
+      font-size: 0.6rem; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: #aaa; gap: 6px;
+    }
+    .coming-soon-slot small { font-size: 0.55rem; color: #ccc; letter-spacing: 0.1em; }
+</style>
+</head>
+<body>
+
+<!-- ═══════ NAV ═══════ -->
+<nav id="nav">
+  <a href="#hero" class="nav-brand">Hidden Supply</a>
+  <div class="nav-links">
+    <a href="#brands">Brands</a>
+    <a href="#system">The System</a>
+    <a href="#retail">Retail</a>
+    <a href="#portfolio">Portfolio</a>
+  </div>
+  <a href="#contact" class="nav-cta">Buyer Inquiries</a>
+</nav>
+
+<!-- ═══════ SECTION 1 — HERO ═══════ -->
+<section id="hero">
+  <div class="stars" id="stars"></div>
+
+  <!-- Candy texture dust -->
+  <span class="hero-candy-dust hcd-1" aria-hidden="true">✦</span>
+  <span class="hero-candy-dust hcd-2" aria-hidden="true">★</span>
+  <span class="hero-candy-dust hcd-3" aria-hidden="true">·</span>
+  <span class="hero-candy-dust hcd-4" aria-hidden="true">✦</span>
+
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Brand House · Los Angeles</div>
+      <h1 class="hero-headline">
+        Candy is<br /><em>culture.</em>
+      </h1>
+      <p class="hero-sub">Five brands built for modern retail — proven formats, shelf-ready packaging, and products designed to move.</p>
+      <div class="hero-actions">
+        <a href="#brands" class="btn-primary">Explore the Brands →</a>
+        <a href="#contact" class="btn-secondary">Buyer Inquiries</a>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-collage">
+        <div class="hero-media-stage" id="heroMediaStage">
+          <!-- Back layer -->
+          <div class="hcp hcp-5"><img src="../img/nl_hero_v5_web.webp" alt="Nauti Labs" /></div>
+          <div class="hcp hcp-4"><img src="../img/candu_hero_v5_web.webp" alt="Candü" /></div>
+          <!-- Mid layer -->
+          <div class="hcp hcp-2"><img loading="lazy" src="../img/ds_hero_v5_web.webp" alt="Dirty Sips" /></div>
+          <div class="hcp hcp-3"><img loading="lazy" src="../img/pp_hero_v5_web.webp" alt="PeelPals" /></div>
+          <!-- Front — JB dominant -->
+          <div class="hcp hcp-1"><img loading="lazy" src="../img/jb_hero_v5_web.webp" alt="Juice Bomb" /></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 2 — THE BRANDS ═══════ -->
+<section id="brands">
+  <div class="brands-inner">
+    <div class="brands-header">
+      <div class="section-label light reveal">The Portfolio</div>
+      <h2 class="reveal d1">Five brands — each one<br /><em>its own world.</em></h2>
+      <p class="reveal d2">Distinct candy brands built for different consumer moments — all designed to stand out and sell on shelf.</p>
+    </div>
+
+    <div class="brands-grid">
+
+      <!-- Row 1: Juice Bomb, Dirty Sips, PeelPals -->
+      <a href="./brands/juice-bomb.html" class="brand-card reveal" data-color="jb">
+        <div class="brand-card-bar" style="background:#ffe600;"></div>
+        <div class="brand-card-img">
+          <img loading="lazy" src="../img/webp/juice-bomb/lifestyle/jb_lifestyle_new_hero2.webp" alt="Juice Bomb" />
+        </div>
+        <div class="brand-card-info">
+          <div class="brand-card-name">Juice Bomb</div>
+          <div class="brand-card-desc">Bold juice-filled wax candy.</div>
+          <span class="brand-card-arrow">Explore →</span>
+        </div>
+      </a>
+
+      <a href="./brands/dirty-sips.html" class="brand-card reveal d1" data-color="ds">
+        <div class="brand-card-bar" style="background:#00d4ff;"></div>
+        <div class="brand-card-img">
+          <img loading="lazy" src="../img/webp/dirty-sips/lifestyle/ds_lifestyle_new_main.webp" alt="Dirty Sips" />
+        </div>
+        <div class="brand-card-info">
+          <div class="brand-card-name">Dirty Sips</div>
+          <div class="brand-card-desc">Dirty soda culture meets wax candy.</div>
+          <span class="brand-card-arrow">Explore →</span>
+        </div>
+      </a>
+
+      <a href="./brands/peelpals.html" class="brand-card reveal d2" data-color="pp">
+        <div class="brand-card-bar" style="background:#7ed957;"></div>
+        <div class="brand-card-img">
+          <img loading="lazy" src="../img/pp_portfolio.png" alt="PeelPals" />
+        </div>
+        <div class="brand-card-info">
+          <div class="brand-card-name">PeelPals</div>
+          <div class="brand-card-desc">Peelable fruit gummies built for impulse.</div>
+          <span class="brand-card-arrow">Explore →</span>
+        </div>
+      </a>
+
+      <!-- Row 2: Candü + Nauti Labs — centered via brands-bottom-row wrapper -->
+      <div class="brands-bottom-row">
+        <a href="./brands/candu.html" class="brand-card reveal d1" data-color="candu">
+          <div class="brand-card-bar" style="background:#ff7b35;"></div>
+          <div class="brand-card-img">
+            <img loading="lazy" src="../img/candu_portfolio.png" alt="Candü" />
+          </div>
+          <div class="brand-card-info">
+            <div class="brand-card-name">Candu</div>
+            <div class="brand-card-desc">Playful seasonal gummy formats.</div>
+            <span class="brand-card-arrow">Explore →</span>
+          </div>
+        </a>
+
+        <a href="./brands/nauti-labs.html" class="brand-card reveal d2" data-color="nl">
+          <div class="brand-card-bar" style="background:#a259ff;"></div>
+          <div class="brand-card-img">
+            <img loading="lazy" src="../img/nl_portfolio.jpg" alt="Nauti Labs" />
+          </div>
+          <div class="brand-card-info">
+            <div class="brand-card-name">Nauti Labs</div>
+            <div class="brand-card-desc">Experimental novelty candy.</div>
+            <span class="brand-card-arrow">Explore →</span>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 3 — THE SYSTEM ═══════ -->
+<section id="system">
+  <div class="system-inner">
+    <div class="system-header">
+      <div class="section-label dark reveal">How We Build</div>
+      <h2 class="reveal d1">One engine.<br /><em>Infinite brand worlds.</em></h2>
+      <p class="reveal d2">The same product engine powers every Hidden Supply brand — paired with distinct packaging and storytelling built for retail.</p>
+    </div>
+
+    <!-- Visual flow diagram -->
+    <div class="system-flow reveal d2">
+      <div class="sf-box">Product Engine</div>
+      <div class="sf-arrow">→</div>
+      <div class="sf-box">Brand Skin</div>
+      <div class="sf-arrow">→</div>
+      <div class="sf-box">Retail Shelf</div>
+    </div>
+
+
+    <div class="system-steps">
+      <div class="system-step reveal">
+        <span class="system-num">01</span>
+        <span class="system-title">Product Engine</span>
+        <p class="system-desc">Core SKUs, proven formats, manufactured at scale. Reliable, margin-healthy, and designed to turn.</p>
+      </div>
+      <div class="system-step reveal d1">
+        <span class="system-num">02</span>
+        <span class="system-title">Brand Skins</span>
+        <p class="system-desc">Distinct packaging and storytelling for every retailer. Same product — completely different world.</p>
+      </div>
+      <div class="system-step reveal d2">
+        <span class="system-num">03</span>
+        <span class="system-title">Retail Pull</span>
+        <p class="system-desc">Brands engineered for shelf velocity and impulse conversion.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 4 — CANDY CULTURE ═══════ -->
+<section id="culture">
+  <div class="culture-inner">
+
+    <div class="culture-manifesto reveal">
+      <div class="section-label dark" style="text-align:center;margin-bottom:32px;">Our Philosophy</div>
+      <blockquote>
+        "We build brands that earn their place on the shelf — not through promotions or price cuts, but because they <em>mean something</em> to the person standing in front of them."
+      </blockquote>
+      <cite>— Hidden Supply · Los Angeles</cite>
+      <p>Candy isn't just a category — it's a cultural moment.</p>
+    </div>
+
+    <!-- Editorial masonry gallery -->
+    <div class="culture-masonry reveal d1">
+      <div class="culture-masonry-item">
+        <img loading="lazy" src="../img/jb_lifestyle_new_hero2.png" alt="Juice Bomb lifestyle" />
+      </div>
+      <div class="culture-masonry-item">
+        <img loading="lazy" src="../img/pp_gallery_1.png" alt="PeelPals interaction" />
+      </div>
+      <div class="culture-masonry-item">
+        <img loading="lazy" src="../img/ds_lifestyle_new_main.png" alt="Dirty Sips environment" />
+      </div>
+      <div class="culture-masonry-item">
+        <img loading="lazy" src="../img/pp_gallery_2.png" alt="PeelPals tropical" />
+      </div>
+      <div class="culture-masonry-item">
+        <img loading="lazy" src="../img/candu_gallery_1.png" alt="Candu neon street" />
+      </div>
+      <div class="culture-masonry-item">
+        <img loading="lazy" src="../img/nl_gallery_1.png" alt="Nauti Labs tabletop" />
+      </div>
+      <div class="culture-masonry-item">
+        <img loading="lazy" src="../img/candu_gallery_2.png" alt="Candu hot cocoa" />
+      </div>
+      <div class="culture-masonry-item">
+        <img loading="lazy" src="../img/nl_gallery_2.png" alt="Nauti Labs spooky alt" />
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════ SECTION 5 — RETAIL FOCUS ═══════ -->
+<section id="retail">
+  <div class="retail-inner">
+    <div class="retail-header">
+      <div class="section-label dark reveal">Distribution</div>
+      <h2 class="reveal d1">Built for the <em>shelf.</em></h2>
+      <p class="reveal d2">From specialty gifting to off-price, our brands and SKUs are built for every retail environment.</p>
+    </div>
+
+    <div class="retail-stats reveal d1">
+      <div class="retail-stat">
+        <span class="retail-stat-num">5</span>
+        <div class="retail-stat-label">Active Brands</div>
+      </div>
+      <div class="retail-stat">
+        <span class="retail-stat-num">76+</span>
+        <div class="retail-stat-label">SKUs</div>
+      </div>
+      <div class="retail-stat">
+        <span class="retail-stat-num">3,000+</span>
+        <div class="retail-stat-label">Retail Doors</div>
+      </div>
+      <div class="retail-stat">
+        <span class="retail-stat-num">2B+</span>
+        <div class="retail-stat-label">Social Views</div>
+      </div>
+    </div>
+
+    <!-- Retail placement mockup cards -->
+    <div class="retail-placements reveal d2">
+      <div class="retail-place-card">
+        <div class="rpc-icon">🪝</div>
+        <div class="rpc-label">Peg Hook Display</div>
+        <div class="rpc-desc">Individual hang-sell units for checkout lanes and endcap pegs.</div>
+      </div>
+      <div class="retail-place-card">
+        <div class="rpc-icon">🗂️</div>
+        <div class="rpc-label">PDQ Countertop</div>
+        <div class="rpc-desc">Consistent Case Packs — standardized 12-unit cases for simple ordering, clean shelf stocking, and predictable replenishment.</div>
+      </div>
+      <div class="retail-place-card">
+        <div class="rpc-icon">📦</div>
+        <div class="rpc-label">Shelf Ready</div>
+        <div class="rpc-desc">Shelf-ready packaging built for planogram placement across impulse and candy aisles.</div>
+      </div>
+    </div>
+
+    <div class="retail-channels reveal d3">
+      <span class="retail-channel">Specialty Gifting</span>
+      <span class="retail-channel">Off-Price</span>
+      <span class="retail-channel">Entertainment</span>
+      <span class="retail-channel">Impulse</span>
+      <span class="retail-channel">Value</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════ SECTION 5b — DESIGNED TO MOVE ═══════ -->
+<section id="move">
+  <div class="move-inner">
+    <div class="move-header">
+      <div class="section-label dark reveal" style="text-align:center;">Brand Performance</div>
+      <h2 class="reveal d1">Designed to move.</h2>
+      <p class="reveal d2">Hidden Supply brands are engineered for impulse discovery and strong retail turnover.</p>
+    </div>
+
+    <div class="move-grid reveal d2">
+      <div class="move-col">
+        <span class="move-num">01</span>
+        <span class="move-title">Impulse Format</span>
+        <p class="move-desc">Grab-and-go formats built for checkout and high-traffic displays.</p>
+      </div>
+      <div class="move-col">
+        <span class="move-num">02</span>
+        <span class="move-title">Shelf Visibility</span>
+        <p class="move-desc">Packaging engineered to stand out instantly in crowded candy aisles.</p>
+      </div>
+      <div class="move-col">
+        <span class="move-num">03</span>
+        <span class="move-title">Discovery</span>
+        <p class="move-desc">Products designed to spark conversation and sharing.</p>
+      </div>
+      <div class="move-col">
+        <span class="move-num">04</span>
+        <span class="move-title">Repeat Purchase</span>
+        <p class="move-desc">Flavor variety and collectability that bring buyers back.</p>
+      </div>
+    </div>
+
+    <div class="move-flow reveal d3">
+      <span class="mf-tag t1">Social</span>
+      <span class="mf-arrow">→</span>
+      <span class="mf-tag t2">Discovery</span>
+      <span class="mf-arrow">→</span>
+      <span class="mf-tag t3">Purchase</span>
+      <span class="mf-arrow">→</span>
+      <span class="mf-tag t4">Repeat</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 6 — BRAND PORTFOLIO PREVIEW ═══════ -->
+<section id="portfolio">
+  <div class="portfolio-inner">
+    <div class="portfolio-header">
+      <div class="section-label light reveal">All Brands</div>
+      <h2 class="reveal d1">The <em>Portfolio</em></h2>
+    </div>
+
+    <div class="portfolio-grid">
+
+      <a href="./brands/juice-bomb.html" class="portfolio-card reveal" data-color="jb">
+        <div class="portfolio-card-bar" style="background:#ffe600;"></div>
+        <div class="portfolio-card-img">
+          <img loading="lazy" src="../img/webp/juice-bomb/hero/jb_hero_new.webp" alt="Juice Bomb" />
+          <div class="portfolio-overlay">
+            <div class="portfolio-overlay-name">Juice Bomb</div>
+            <div class="portfolio-overlay-arrow">View Brand →</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="./brands/dirty-sips.html" class="portfolio-card reveal d1" data-color="ds">
+        <div class="portfolio-card-bar" style="background:#00d4ff;"></div>
+        <div class="portfolio-card-img">
+          <img loading="lazy" src="../img/ds_lifestyle_hero_new.png" alt="Dirty Sips" />
+          <div class="portfolio-overlay">
+            <div class="portfolio-overlay-name">Dirty Sips</div>
+            <div class="portfolio-overlay-arrow">View Brand →</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="./brands/peelpals.html" class="portfolio-card reveal d2" data-color="pp">
+        <div class="portfolio-card-bar" style="background:#7ed957;"></div>
+        <div class="portfolio-card-img">
+          <img loading="lazy" src="../img/webp/peelpals/lifestyle/pp_lifestyle_hero_new.webp" alt="PeelPals" />
+          <div class="portfolio-overlay">
+            <div class="portfolio-overlay-name">PeelPals</div>
+            <div class="portfolio-overlay-arrow">View Brand →</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="./brands/candu.html" class="portfolio-card reveal d3" data-color="candu">
+        <div class="portfolio-card-bar" style="background:#ff7b35;"></div>
+        <div class="portfolio-card-img">
+          <img loading="lazy" src="../img/webp/candu/lifestyle/candu_lifestyle_hero_new.webp" alt="Candü" />
+          <div class="portfolio-overlay">
+            <div class="portfolio-overlay-name">Candü</div>
+            <div class="portfolio-overlay-arrow">View Brand →</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="./brands/nauti-labs.html" class="portfolio-card reveal d4" data-color="nl">
+        <div class="portfolio-card-bar" style="background:#a259ff;"></div>
+        <div class="portfolio-card-img">
+          <img loading="lazy" src="../img/webp/nauti-labs/lifestyle/nl_lifestyle_hero_new.webp" alt="Nauti Labs" />
+          <div class="portfolio-overlay">
+            <div class="portfolio-overlay-name">Nauti Labs</div>
+            <div class="portfolio-overlay-arrow">View Brand →</div>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 7 — BUYER CTA ═══════ -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="section-label light reveal" style="margin-bottom:32px;">Work With Us</div>
+    <div class="contact-divider reveal"></div>
+    <h2 class="reveal d1">Let's build the<br /><em>candy aisle.</em></h2>
+    <p class="reveal d2">Catalog, pricing, and seasonal programs available on request. Every inquiry reviewed personally.</p>
+    <div class="contact-actions reveal d3">
+      <a href="mailto:buyers@hiddensupply.co" class="btn-dark">Request Line Sheet →</a>
+      <a href="mailto:buyers@hiddensupply.co" class="btn-outline-dark">Buyer Inquiry</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 8 — FOOTER ═══════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="foot-brand-block">
+      <span class="foot-logo">Hidden Supply</span>
+      <div class="foot-tagline">Candy is culture.</div>
+    </div>
+    <nav class="foot-nav">
+      <a href="#brands">Brands</a>
+      <a href="#system">The System</a>
+      <a href="#retail">Retail</a>
+      <a href="#contact">Buyer Inquiries</a>
+    </nav>
+    <div class="foot-right">
+      <div class="foot-copy">© 2026 Hidden Supply</div>
+      <div class="foot-contact">buyers@hiddensupply.co · Los Angeles, CA</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── Stars (120 dots) ──
+  (function() {
+    var stars = document.getElementById('stars');
+    for (var i = 0; i < 120; i++) {
+      var s = document.createElement('div');
+      s.className = 'star';
+      var size = Math.random() * 2 + 0.5;
+      s.style.cssText =
+        'width:' + size + 'px;' +
+        'height:' + size + 'px;' +
+        'top:' + Math.random() * 100 + '%;' +
+        'left:' + Math.random() * 100 + '%;' +
+        '--op:' + (0.1 + Math.random() * 0.5) + ';' +
+        '--d:' + (2 + Math.random() * 4) + 's;' +
+        'animation-delay:' + (Math.random() * 4) + 's';
+      stars.appendChild(s);
+    }
+  })();
+
+  // ── Hero animated load-in ──
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      document.querySelector('.hero-eyebrow').classList.add('in');
+      document.querySelector('.hero-headline').classList.add('in');
+      document.querySelector('.hero-sub').classList.add('in');
+      document.querySelector('.hero-actions').classList.add('in');
+      document.querySelector('.hero-right').classList.add('in');
+    }, 100);
+  });
+
+  // ── Scroll reveals via IntersectionObserver ──
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+
+  // ── Nav scroll effect ──
+  window.addEventListener('scroll', function() {
+    document.getElementById('nav').style.background = window.scrollY > 60
+      ? 'rgba(10,10,15,0.98)'
+      : 'rgba(10,10,15,0.92)';
+  });
+</script>
+
+</body>
+</html>
