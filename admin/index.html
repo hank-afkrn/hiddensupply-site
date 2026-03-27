@@ -1,383 +1,857 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hidden Supply — Admin</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hidden Supply — Control Tower</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  /* ── HIDE BODY UNTIL AUTHED ───────────────── */
+  #page-content { display: none; }
+  #page-content.visible { display: block; }
 
-    :root {
-      --ink: #1a1714;
-      --cream: #faf8f5;
-      --cream-dark: #f3f1ed;
-      --line: rgba(26,23,20,0.08);
-      --ink-mid: #6b6762;
-      --ink-faint: #b0aca7;
-      --candy-pink: #ff4e91;
-      --candy-orange: #ff7b35;
-      --candy-yellow: #ffc933;
-      --candy-lime: #7ed957;
-      --candy-blue: #3fbdff;
-      --candy-purple: #a259ff;
-      --green: #22c55e;
-      --red: #ef4444;
-    }
+  /* ── AUTH GATE ────────────────────────────── */
+  #auth-gate {
+    position: fixed;
+    inset: 0;
+    background: #080808;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+  }
+  #auth-gate.hidden { display: none; }
+  .auth-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    width: 320px;
+  }
+  .auth-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #E8E6E0;
+  }
+  .auth-logo-mark {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #F0E040;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #F0E040;
+    position: relative;
+  }
+  .auth-logo-mark::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1px solid rgba(240,224,64,0.3);
+  }
+  .auth-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #555550;
+    text-align: center;
+  }
+  .auth-input-wrap {
+    width: 100%;
+    position: relative;
+  }
+  #auth-input {
+    width: 100%;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+    color: #E8E6E0;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    padding: 12px 16px;
+    outline: none;
+    text-align: center;
+    letter-spacing: 0.15em;
+    transition: border-color 0.15s;
+  }
+  #auth-input:focus { border-color: #444; }
+  #auth-input.shake {
+    animation: shake 0.35s ease;
+    border-color: #F87171 !important;
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-8px); }
+    40%     { transform: translateX(8px); }
+    60%     { transform: translateX(-6px); }
+    80%     { transform: translateX(6px); }
+  }
+  .auth-hint {
+    font-size: 10px;
+    color: #333;
+    letter-spacing: 0.08em;
+    text-align: center;
+    transition: color 0.2s;
+  }
+  .auth-hint.error { color: #F87171; }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--cream);
-      color: var(--ink);
-      min-height: 100vh;
-    }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── GATE ── */
-    #gate {
-      position: fixed; inset: 0; z-index: 9999;
-      background: var(--ink);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 40px 24px;
-      transition: opacity 0.7s ease;
-    }
-    #gate.unlocking { opacity: 0; pointer-events: none; }
-    #gate.gone { display: none; }
+  :root {
+    --bg: #080808;
+    --surface: #111111;
+    --surface2: #161616;
+    --border: #222222;
+    --border2: #2a2a2a;
+    --text: #E8E6E0;
+    --muted: #555550;
+    --dim: #888880;
+    --accent: #F0E040;
+    --accent2: #C8BC28;
+    --green: #4ADE80;
+    --red: #F87171;
+    --blue: #60A5FA;
+    --purple: #A78BFA;
+    --orange: #FB923C;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Space Grotesk', sans-serif;
+  }
 
-    .gate-logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.1rem; color: rgba(250,248,245,0.4);
-      margin-bottom: 48px; letter-spacing: 0.04em;
-    }
-    .gate-title {
-      font-size: 0.62rem; font-weight: 600;
-      letter-spacing: 0.3em; text-transform: uppercase;
-      color: rgba(250,248,245,0.25); margin-bottom: 32px;
-    }
-    .gate-form {
-      display: flex; gap: 0;
-      border: 1px solid rgba(250,248,245,0.12);
-    }
-    .gate-input {
-      background: rgba(250,248,245,0.05); border: none; outline: none;
-      padding: 14px 18px; width: 220px;
-      font-family: 'Inter', sans-serif; font-size: 0.88rem;
-      color: var(--cream); -webkit-appearance: none;
-    }
-    .gate-input::placeholder { color: rgba(250,248,245,0.2); }
-    .gate-btn {
-      background: var(--candy-pink); color: #fff;
-      border: none; padding: 14px 20px; cursor: pointer;
-      font-family: 'Inter', sans-serif; font-size: 0.65rem;
-      font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
-    }
-    .gate-error {
-      margin-top: 12px; font-size: 0.72rem; color: var(--candy-pink);
-      font-family: 'Inter', sans-serif; opacity: 0; transition: opacity 0.2s;
-      min-height: 18px; text-align: center;
-    }
-    .gate-error.show { opacity: 1; }
+  html { background: var(--bg); }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-    /* ── LAYOUT ── */
-    header {
-      padding: 20px 40px;
-      border-bottom: 1px solid var(--line);
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .header-brand {
-      font-family: 'Playfair Display', serif;
-      font-size: 1rem; color: var(--ink);
-    }
-    .header-badge {
-      font-size: 0.6rem; font-weight: 600; letter-spacing: 0.2em;
-      text-transform: uppercase; color: var(--ink-faint);
-      background: var(--cream-dark); padding: 4px 10px;
-      border: 1px solid var(--line);
-    }
+  /* ── SCANLINE OVERLAY ─────────────────────── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
 
-    main { max-width: 900px; margin: 0 auto; padding: 60px 40px; }
+  /* ── HEADER ───────────────────────────────── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: rgba(8,8,8,0.95);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+  }
 
-    .page-title {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(1.6rem, 3vw, 2.2rem);
-      font-weight: 400; margin-bottom: 8px;
-    }
-    .page-sub {
-      font-size: 0.82rem; color: var(--ink-faint);
-      font-weight: 300; margin-bottom: 52px;
-    }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
 
-    /* ── CARDS ── */
-    .section-label {
-      font-size: 0.6rem; font-weight: 600; letter-spacing: 0.28em;
-      text-transform: uppercase; color: var(--ink-faint);
-      margin-bottom: 20px;
-    }
-    .card {
-      background: #fff; border: 1px solid var(--line);
-      padding: 28px 32px; margin-bottom: 12px;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 24px;
-    }
-    .card-left { flex: 1; }
-    .card-name {
-      font-size: 0.95rem; font-weight: 500; margin-bottom: 4px;
-    }
-    .card-desc { font-size: 0.78rem; color: var(--ink-mid); font-weight: 300; }
+  .logo-mark {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--accent);
+    position: relative;
+  }
+  .logo-mark::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border: 1px solid var(--accent);
+    opacity: 0.3;
+  }
 
-    /* ── TOGGLE ── */
-    .toggle-wrap { display: flex; align-items: center; gap: 12px; }
-    .toggle-label { font-size: 0.72rem; font-weight: 500; color: var(--ink-mid); min-width: 52px; text-align: right; }
-    .toggle {
-      position: relative; width: 48px; height: 26px; cursor: pointer;
-    }
-    .toggle input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider {
-      position: absolute; inset: 0;
-      background: #d1cdc9; border-radius: 26px;
-      transition: background 0.25s;
-    }
-    .toggle-slider::before {
-      content: ''; position: absolute;
-      width: 20px; height: 20px; left: 3px; top: 3px;
-      background: #fff; border-radius: 50%;
-      transition: transform 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-    }
-    .toggle input:checked + .toggle-slider { background: var(--candy-pink); }
-    .toggle input:checked + .toggle-slider::before { transform: translateX(22px); }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
 
-    /* ── STATUS PILL ── */
-    .status-pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em;
-      text-transform: uppercase; padding: 4px 10px;
-    }
-    .status-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
-    .status-pill.on { color: var(--green); }
-    .status-pill.on .dot { background: var(--green); }
-    .status-pill.off { color: var(--ink-faint); }
-    .status-pill.off .dot { background: var(--ink-faint); }
+  .status-dot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--green);
+  }
+  .status-dot::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse-green 2s infinite;
+  }
 
-    /* ── TOAST ── */
-    #toast {
-      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
-      background: var(--ink); color: var(--cream);
-      padding: 12px 24px; font-size: 0.78rem; font-weight: 400;
-      letter-spacing: 0.04em; opacity: 0;
-      transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
-    }
-    #toast.show { opacity: 1; }
+  @keyframes pulse-green {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
+    50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(74,222,128,0); }
+  }
 
-    /* ── DEPLOY STATUS ── */
-    .deploy-row {
-      display: flex; align-items: center; gap: 12px;
-      padding: 16px 32px; background: var(--cream-dark);
-      border: 1px solid var(--line); border-top: none;
-      font-size: 0.75rem; color: var(--ink-mid);
-    }
-    .deploy-row .spin {
-      width: 12px; height: 12px; border: 2px solid var(--line);
-      border-top-color: var(--candy-pink); border-radius: 50%;
-      animation: spin 0.8s linear infinite; display: none;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+  /* ── HERO BAND ────────────────────────────── */
+  .hero {
+    padding: 60px 40px 48px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
 
-    /* candy bar */
-    .candy-bar {
-      display: grid; grid-template-columns: repeat(6,1fr); height: 3px;
-      margin-bottom: 52px;
-    }
-    .candy-bar span:nth-child(1) { background: var(--candy-pink); }
-    .candy-bar span:nth-child(2) { background: var(--candy-orange); }
-    .candy-bar span:nth-child(3) { background: var(--candy-yellow); }
-    .candy-bar span:nth-child(4) { background: var(--candy-lime); }
-    .candy-bar span:nth-child(5) { background: var(--candy-blue); }
-    .candy-bar span:nth-child(6) { background: var(--candy-purple); }
+  .hero::before {
+    content: 'CONTROL TOWER';
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--mono);
+    font-size: clamp(60px, 10vw, 120px);
+    font-weight: 700;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(240,224,64,0.06);
+    letter-spacing: -0.02em;
+    pointer-events: none;
+    white-space: nowrap;
+  }
 
-    footer {
-      margin-top: 80px; padding: 24px 0;
-      border-top: 1px solid var(--line);
-      font-size: 0.7rem; color: var(--ink-faint); font-weight: 300;
-    }
-  </style>
-  <script src="/admin/token.js"></script>
-  <script>var HS_API = 'https://hengli-rao-263c75ba-1316-vm.westcentralus.cloudapp.azure.com:8443/hs-api';</script>
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    width: 20px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .hero h1 {
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  .hero-sub {
+    font-size: 14px;
+    color: var(--dim);
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  /* ── MAIN GRID ────────────────────────────── */
+  .main {
+    padding: 48px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+    margin-bottom: 56px;
+  }
+
+  /* ── TOOL CARD ────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 24px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.15s, transform 0.15s;
+    cursor: pointer;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--card-color, var(--accent)), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .card:hover {
+    border-color: var(--border2);
+    transform: translateY(-1px);
+  }
+  .card:hover::before { opacity: 1; }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 2px;
+    border: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    background: var(--surface2);
+  }
+
+  .card-status {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 1px;
+  }
+  .card-status.online {
+    background: rgba(74,222,128,0.08);
+    color: var(--green);
+    border: 1px solid rgba(74,222,128,0.2);
+  }
+  .card-status.beta {
+    background: rgba(240,224,64,0.08);
+    color: var(--accent);
+    border: 1px solid rgba(240,224,64,0.2);
+  }
+  .card-status.internal {
+    background: rgba(167,139,250,0.08);
+    color: var(--purple);
+    border: 1px solid rgba(167,139,250,0.2);
+  }
+
+  .card-name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+
+  .card-desc {
+    font-size: 12px;
+    color: var(--dim);
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .card-url {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  .card-cta {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--card-color, var(--accent));
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: gap 0.15s;
+  }
+  .card:hover .card-cta { gap: 10px; }
+
+  /* ── CARD COLOR VARIANTS ──────────────────── */
+  .card.yellow { --card-color: var(--accent); }
+  .card.green  { --card-color: var(--green); }
+  .card.blue   { --card-color: var(--blue); }
+  .card.purple { --card-color: var(--purple); }
+  .card.orange { --card-color: var(--orange); }
+  .card.red    { --card-color: var(--red); }
+
+  /* ── FEATURED CARD (FULL WIDTH) ───────────── */
+  .card.featured {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    gap: 32px;
+    padding: 32px;
+  }
+  .card.featured .card-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  .card.featured .card-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .card.featured .card-name {
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+  .card.featured .card-footer {
+    border-top: none;
+    padding-top: 0;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  /* ── SYSTEM STATUS BAR ────────────────────── */
+  .status-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 16px 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-bottom: 56px;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .stat-val {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .stat-divider {
+    width: 1px;
+    background: var(--border);
+    align-self: stretch;
+  }
+
+  /* ── CLOCK ────────────────────────────────── */
+  #clock {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  /* ── FOOTER ───────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  /* ── ANIMATIONS ───────────────────────────── */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .card {
+    animation: fadeIn 0.4s ease both;
+  }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.10s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.20s; }
+  .card:nth-child(5) { animation-delay: 0.25s; }
+  .card:nth-child(6) { animation-delay: 0.30s; }
+
+  /* ── TERMINAL BLINK ───────────────────────── */
+  .blink {
+    animation: blink 1.2s step-end infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* ── RESPONSIVE ───────────────────────────── */
+  @media (max-width: 700px) {
+    header, .hero, .main, footer { padding-left: 20px; padding-right: 20px; }
+    .card.featured { flex-direction: column; }
+    .card.featured .card-footer { flex-direction: row; align-items: center; border-top: 1px solid var(--border); padding-top: 14px; width: 100%; }
+  }
+</style>
 </head>
 <body>
 
-<!-- GATE -->
-<div id="gate">
-  <div class="gate-logo">Hidden Supply</div>
-  <div class="gate-title">Admin Access</div>
-  <div class="gate-form">
-    <input class="gate-input" type="password" id="gateInput" placeholder="Password" autocomplete="off" />
-    <button class="gate-btn" onclick="adminUnlock()">Enter</button>
+<!-- AUTH GATE -->
+<div id="auth-gate">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="auth-logo-mark">HS</div>
+      HIDDEN SUPPLY
+    </div>
+    <div class="auth-label">Control Tower · Internal Access Only</div>
+    <div class="auth-input-wrap">
+      <input id="auth-input" type="password" placeholder="enter password" autocomplete="off" spellcheck="false" />
+    </div>
+    <div class="auth-hint" id="auth-hint">press enter to authenticate</div>
   </div>
-  <div class="gate-error" id="gateError">Incorrect password</div>
 </div>
 
-<script>
-  (function() {
-    if (sessionStorage.getItem('hs_admin') === '1') {
-      var g = document.getElementById('gate');
-      if (g) g.classList.add('gone');
-    }
-  })();
-
-  function adminUnlock() {
-    var val = document.getElementById('gateInput').value.trim().toLowerCase();
-    if (val === 'chungus') {
-      sessionStorage.setItem('hs_admin', '1');
-      var gate = document.getElementById('gate');
-      gate.classList.add('unlocking');
-      setTimeout(function() { gate.classList.add('gone'); }, 750);
-    } else {
-      var err = document.getElementById('gateError');
-      err.classList.add('show');
-      document.getElementById('gateInput').value = '';
-      setTimeout(function() { err.classList.remove('show'); }, 2200);
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    var input = document.getElementById('gateInput');
-    if (input) input.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') adminUnlock();
-    });
-  });
-</script>
-
+<div id="page-content">
 <!-- HEADER -->
 <header>
-  <div class="header-brand">Hidden Supply</div>
-  <div class="header-badge">Admin</div>
+  <div class="logo">
+    <div class="logo-mark">HS</div>
+    HIDDEN SUPPLY
+  </div>
+  <div class="header-right">
+    <div class="status-dot">ALL SYSTEMS ONLINE</div>
+    <span id="clock">--:--:--</span>
+  </div>
 </header>
 
-<main>
-  <div class="candy-bar"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Internal access only</div>
+  <h1>Control Tower<span class="blink" style="color:var(--accent)">_</span></h1>
+  <p class="hero-sub">Central ops hub for Hidden Supply. All internal tools, asset systems, and brand machinery in one place.</p>
+</div>
 
-  <h1 class="page-title">Site Controls</h1>
-  <p class="page-sub">Manage hiddensupply.co — changes deploy automatically via GitHub.</p>
+<!-- MAIN -->
+<div class="main">
 
-  <div class="section-label">Password Gate</div>
-
-  <div class="card">
-    <div class="card-left">
-      <div class="card-name">Password Protection</div>
-      <div class="card-desc">When ON — visitors see the "Built from Culture." gate before the site. Turn OFF to go fully public.</div>
+  <!-- System stats -->
+  <div class="status-bar">
+    <div class="stat">
+      <span class="stat-val" style="color:var(--green)">7</span>
+      <span class="stat-label">Tools online</span>
     </div>
-    <div style="display:flex;align-items:center;gap:20px;">
-      <span class="status-pill on" id="gatePill"><span class="dot"></span><span id="gateStatus">On</span></span>
-      <div class="toggle-wrap">
-        <label class="toggle">
-          <input type="checkbox" id="gateToggle" checked onchange="toggleGate(this)" />
-          <span class="toggle-slider"></span>
-        </label>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-val">5</span>
+      <span class="stat-label">Core brands</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-val">76</span>
+      <span class="stat-label">SKUs tracked</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-val">7</span>
+      <span class="stat-label">Retail partners</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-val" style="color:var(--accent)">3K+</span>
+      <span class="stat-label">Doors in pipeline</span>
+    </div>
+  </div>
+
+  <!-- Primary tools -->
+  <div class="section-label">Primary Tools</div>
+  <div class="tools-grid">
+
+    <!-- SKU Wizard — featured -->
+    <a href="/v6-os/admin/index.html" target="_blank" class="card featured yellow">
+      <div class="card-icon">⚗️</div>
+      <div class="card-body">
+        <div class="card-header" style="margin-bottom:8px;">
+          <div>
+            <div class="card-name">SKU Wizard</div>
+          </div>
+          <div class="card-status online">Online</div>
+        </div>
+        <div class="card-desc">3-step SKU generation pipeline. Drop a concept, pick your brand, generate packaging mockups, then auto-produce all 5 asset types: Hero White · Hero Dark · Lifestyle · Activation · Community.</div>
+      </div>
+      <div class="card-footer">
+        <div class="card-url">:8000/v6-os/admin</div>
+        <div class="card-cta">Launch →</div>
+      </div>
+    </a>
+
+    <!-- Hidden Supply Site -->
+    <a href="/v6/index.html" target="_blank" class="card blue">
+      <div class="card-header">
+        <div class="card-icon">🌐</div>
+        <div class="card-status online">Live</div>
+      </div>
+      <div class="card-name">hiddensupply.co</div>
+      <div class="card-desc">Production website v6. Brand house homepage, all 5 brand pages, buyer pages. The face we show the world.</div>
+      <div class="card-footer">
+        <div class="card-url">:8000/v6</div>
+        <div class="card-cta">Open →</div>
+      </div>
+    </a>
+
+    <!-- Pokémon Brand Classifier -->
+    <a href="http://20.165.197.60:8088" target="_blank" class="card green">
+      <div class="card-header">
+        <div class="card-icon">🎮</div>
+        <div class="card-status internal">Internal</div>
+      </div>
+      <div class="card-name">Brand Classifier</div>
+      <div class="card-desc">GameBoy-style asset identifier. Drag in any image and the system classifies it by brand, type, and category. Pokédex energy for the asset library.</div>
+      <div class="card-footer">
+        <div class="card-url">:8088</div>
+        <div class="card-cta">Identify →</div>
+      </div>
+    </a>
+
+    <!-- Asset Manager -->
+    <a href="http://20.165.197.60:8086" target="_blank" class="card purple">
+      <div class="card-header">
+        <div class="card-icon">🗂️</div>
+        <div class="card-status online">Online</div>
+      </div>
+      <div class="card-name">Asset Manager</div>
+      <div class="card-desc">Browse, rename, move, approve, and archive brand assets across all 5 brands. Source of truth for the 00_APPROVED library. Drag-drop upload, search, export.</div>
+      <div class="card-footer">
+        <div class="card-url">:8086</div>
+        <div class="card-cta">Manage →</div>
+      </div>
+    </a>
+
+    <!-- Design Ops -->
+    <a href="http://20.165.197.60:8082" target="_blank" class="card orange">
+      <div class="card-header">
+        <div class="card-icon">📋</div>
+        <div class="card-status online">Online</div>
+      </div>
+      <div class="card-name">Design Ops Dashboard</div>
+      <div class="card-desc">Packaging status tracker for all active SKUs. Freelancer progress by front/back/print. Ali, Saba, Minhaj. Live status: approved → revisions → blocked.</div>
+      <div class="card-footer">
+        <div class="card-url">:8082</div>
+        <div class="card-cta">Track →</div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- Quick reference -->
+  <div class="section-label">Quick Reference</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:56px;">
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:20px;">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">🏷️ 5 Core Brands</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;">
+          <span>💣 Juice Bomb</span><span style="font-family:var(--mono);font-size:10px;color:var(--muted)">Wax candy</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;">
+          <span>🥤 Dirty Sips</span><span style="font-family:var(--mono);font-size:10px;color:var(--muted)">Wax / dirty soda</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;">
+          <span>🍑 PeelPals</span><span style="font-family:var(--mono);font-size:10px;color:var(--muted)">Peelable gummies</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;">
+          <span>🍬 Candu</span><span style="font-family:var(--mono);font-size:10px;color:var(--muted)">Seasonal + everyday</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;">
+          <span>🧪 Nauti Labs</span><span style="font-family:var(--mono);font-size:10px;color:var(--muted)">Novelty / experimental</span>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="deploy-row" id="deployRow" style="display:none;">
-    <div class="spin" id="deploySpin"></div>
-    <span id="deployMsg">Deploying change...</span>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:20px;">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">🏪 Account Pipeline</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;">
+          <span>Cost Plus World Market</span><span style="font-family:var(--mono);font-size:10px;color:var(--green)">$600K</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;">
+          <span>Five Below</span><span style="font-family:var(--mono);font-size:10px;color:var(--accent)">$750K 🎯</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;">
+          <span>It's Sugar</span><span style="font-family:var(--mono);font-size:10px;color:var(--green)">$300K</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;">
+          <span>FYE</span><span style="font-family:var(--mono);font-size:10px;color:var(--green)">$250K</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;">
+          <span>Hot Topic</span><span style="font-family:var(--mono);font-size:10px;color:var(--dim)">$150K Q3</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:20px;">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">📌 Active Tasks</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
+        <div style="display:flex;align-items:center;gap:8px;color:var(--accent)">
+          <span>◻</span> PO financing — tomorrow
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;color:var(--accent)">
+          <span>◻</span> Amazon listings — this weekend
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;color:var(--dim)">
+          <span>◻</span> Burlington sample bag — China
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;color:var(--dim)">
+          <span>◻</span> Brand system — Joe working on it
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;color:var(--green)">
+          <span>✓</span> <span style="text-decoration:line-through;opacity:0.5">DBA Delaware</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;color:var(--green)">
+          <span>✓</span> <span style="text-decoration:line-through;opacity:0.5">Buyer rekindle → Al</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <div class="section-label" style="margin-top:48px;">Coming Soon</div>
-  <div class="card" style="opacity:0.45;pointer-events:none;">
-    <div class="card-left">
-      <div class="card-name">Edit Hero Copy</div>
-      <div class="card-desc">Change the main headline and subheading on the homepage.</div>
-    </div>
-    <div class="header-badge">Soon</div>
-  </div>
-  <div class="card" style="opacity:0.45;pointer-events:none;">
-    <div class="card-left">
-      <div class="card-name">Form Submissions</div>
-      <div class="card-desc">View buyer inquiry submissions from the contact form.</div>
-    </div>
-    <div class="header-badge">Soon</div>
-  </div>
-  <div class="card" style="opacity:0.45;pointer-events:none;">
-    <div class="card-left">
-      <div class="card-name">Maintenance Mode</div>
-      <div class="card-desc">Show a maintenance page across the entire site.</div>
-    </div>
-    <div class="header-badge">Soon</div>
-  </div>
+</div>
 
-  <footer>Hidden Supply Admin · hiddensupply.co/admin · Session only — re-enter password each visit</footer>
-</main>
-
-<div id="toast"></div>
+<!-- FOOTER -->
+<footer>
+  <span>HIDDEN SUPPLY OPS · INTERNAL USE ONLY</span>
+  <span id="footer-date">—</span>
+</footer>
 
 <script>
-  var API = 'https://hengli-rao-263c75ba-1316-vm.westcentralus.cloudapp.azure.com:8443/hs-api';
+  // Auth gate
+  (function() {
+    const KEY = 'hs_ops_auth';
+    const PASS = 'chungus';
+    const gate = document.getElementById('auth-gate');
+    const input = document.getElementById('auth-input');
+    const hint = document.getElementById('auth-hint');
+    const page = document.getElementById('page-content');
 
-  function setGateUI(active) {
-    var toggle = document.getElementById('gateToggle');
-    var pill = document.getElementById('gatePill');
-    var status = document.getElementById('gateStatus');
-    if (!toggle) return;
-    toggle.checked = active;
-    pill.className = active ? 'status-pill on' : 'status-pill off';
-    status.textContent = active ? 'On' : 'Off';
-  }
+    if (sessionStorage.getItem(KEY) === '1') {
+      gate.classList.add('hidden');
+      page.classList.add('visible');
+      return;
+    }
 
-  function showToast(msg) {
-    var t = document.getElementById('toast');
-    t.textContent = msg; t.classList.add('show');
-    setTimeout(function() { t.classList.remove('show'); }, 3000);
-  }
+    // Focus input after fonts load
+    setTimeout(() => input.focus(), 100);
 
-  function showDeploy(msg) {
-    var row = document.getElementById('deployRow');
-    var spin = document.getElementById('deploySpin');
-    row.style.display = 'flex'; spin.style.display = 'block';
-    document.getElementById('deployMsg').textContent = msg;
-  }
-
-  function hideDeploy(msg) {
-    document.getElementById('deploySpin').style.display = 'none';
-    document.getElementById('deployMsg').textContent = msg;
-    setTimeout(function() { document.getElementById('deployRow').style.display = 'none'; }, 4000);
-  }
-
-  function detectGateState() {
-    fetch(API + '/gate/status')
-      .then(function(r) { return r.json(); })
-      .then(function(d) { setGateUI(d.enabled); })
-      .catch(function() { setGateUI(true); });
-  }
-
-  function toggleGate(el) {
-    var enabling = el.checked;
-    setGateUI(enabling);
-    showDeploy(enabling ? 'Enabling password gate...' : 'Disabling password gate...');
-    fetch(API + '/gate/toggle', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ enable: enabling })
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if (d.ok) {
-        hideDeploy('✓ Deployed — live in ~30 seconds.');
-        showToast(enabling ? 'Gate enabled ✓' : 'Gate disabled ✓ — site is now public');
-        if (enabling) localStorage.removeItem('hs_unlocked');
-      } else {
-        hideDeploy('⚠ ' + (d.error || 'Something went wrong.'));
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        if (input.value === PASS) {
+          sessionStorage.setItem(KEY, '1');
+          page.classList.add('visible');
+          gate.style.opacity = '0';
+          gate.style.transition = 'opacity 0.3s ease';
+          setTimeout(() => gate.classList.add('hidden'), 300);
+        } else {
+          input.value = '';
+          input.classList.remove('shake');
+          void input.offsetWidth; // reflow to restart animation
+          input.classList.add('shake');
+          hint.textContent = 'access denied';
+          hint.classList.add('error');
+          setTimeout(() => {
+            hint.textContent = 'press enter to authenticate';
+            hint.classList.remove('error');
+            input.classList.remove('shake');
+          }, 1500);
+        }
       }
-    })
-    .catch(function(err) {
-      hideDeploy('⚠ Deploy failed. Check connection.');
-      console.error(err);
     });
-  }
+  })();
 
-  document.addEventListener('DOMContentLoaded', function() { detectGateState(); });
+  // Clock
+  function tick() {
+    const now = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    document.getElementById('clock').textContent =
+      `${pad(now.getUTCHours())}:${pad(now.getUTCMinutes())}:${pad(now.getUTCSeconds())} UTC`;
+    document.getElementById('footer-date').textContent =
+      now.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' }).toUpperCase();
+  }
+  tick();
+  setInterval(tick, 1000);
 </script>
+
+</div><!-- end #page-content -->
 
 </body>
 </html>
