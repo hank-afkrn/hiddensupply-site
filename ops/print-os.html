@@ -328,6 +328,87 @@ select option { background: #1a1a1a; }
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── FDA NUTRITION FACTS LABEL ── */
+.nf-label {
+  width: 300px;
+  border: 1.5pt solid #000;
+  background: #fff;
+  color: #000;
+  font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  padding: 4px 6px 6px 6px;
+  box-sizing: border-box;
+  line-height: 1.2;
+}
+.nf-label * { box-sizing: border-box; color: #000; background: #fff; font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; }
+.nf-title { font-size: 36px; font-weight: 900; line-height: 1; display: block; letter-spacing: -.02em; margin-bottom: 0; }
+.nf-title-simple { font-size: 24px; font-weight: 900; line-height: 1; display: block; letter-spacing: -.02em; }
+.nf-servings-per { font-size: 10.5px; margin: 1px 0 0; }
+.nf-serving-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 2px 0 2px; margin-top: 2px;
+}
+.nf-serving-label { font-size: 10.5px; font-weight: 700; }
+.nf-serving-amount { font-size: 10.5px; font-weight: 700; text-align: right; }
+.nf-rule-thick  { border: none; border-top: 8px solid #000; margin: 3px 0; }
+.nf-rule-medium { border: none; border-top: 3px solid #000; margin: 2px 0; }
+.nf-rule-thin   { border: none; border-top: 1px solid #000; margin: 1px 0; }
+.nf-calorie-row {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding: 1px 0 2px;
+}
+.nf-calorie-label { font-size: 14px; font-weight: 700; }
+.nf-calorie-num   { font-size: 40px; font-weight: 900; line-height: 1; }
+.nf-dv-header { text-align: right; font-size: 9px; font-weight: 700; padding: 1px 0; }
+.nf-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 1px 0; border-top: 1px solid #000;
+}
+.nf-row-name { font-size: 10px; }
+.nf-row-name b { font-weight: 700; }
+.nf-row-dv   { font-size: 10px; font-weight: 700; text-align: right; white-space: nowrap; }
+.nf-indent   { padding-left: 14px; }
+.nf-indent2  { padding-left: 22px; }
+.nf-microrow {
+  border-top: 3px solid #000; padding: 2px 0;
+  font-size: 9px; display: flex; justify-content: space-between;
+  flex-wrap: wrap; gap: 2px;
+}
+.nf-micro-item { display: inline-flex; align-items: baseline; gap: 2px; }
+.nf-footnote { font-size: 8px; line-height: 1.35; padding-top: 4px; border-top: 1px solid #000; margin-top: 2px; }
+
+/* FDA label wrapper in modal */
+.fda-label-wrap {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 2px;
+  padding: 24px; display: flex; flex-direction: column; align-items: flex-start; gap: 16px;
+}
+.fda-toggle-row { display: flex; gap: 8px; margin-bottom: 4px; }
+.fda-toggle-btn {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+  padding: 6px 14px; border-radius: 2px; cursor: pointer; border: 1px solid var(--border2);
+  background: var(--surface); color: var(--muted); transition: all .15s;
+}
+.fda-toggle-btn.active { background: var(--accent); color: #111; border-color: var(--accent); }
+.fda-export-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.fda-backblock {
+  width: 300px; background: #fff; color: #000; border: 1px solid #ccc;
+  font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-size: 8px; line-height: 1.55; padding: 8px 10px;
+  margin-top: 8px; white-space: pre-wrap; word-break: break-word;
+}
+.fda-notice {
+  background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.25); border-radius: 2px;
+  padding: 16px 20px; font-size: 13px; color: var(--red); line-height: 1.6;
+}
+
+/* ── PRINT FDA LABEL ONLY ── */
+@media print {
+  body.printing-fda-label * { display: none !important; }
+  body.printing-fda-label .fda-print-target { display: block !important; }
+  body.printing-fda-label .fda-print-target * { display: revert !important; }
+  @page { margin: 0.25in; }
+}
 </style>
 </head>
 <body>
@@ -471,6 +552,7 @@ select option { background: #1a1a1a; }
         <div class="tab active" onclick="showTab(event,'detail','overview')">Overview</div>
         <div class="tab" onclick="showTab(event,'detail','front')">Front Panel</div>
         <div class="tab" onclick="showTab(event,'detail','back')">Back Panel</div>
+        <div class="tab" onclick="showTab(event,'detail','fda')" id="detail-tab-fda-btn">🏷 FDA Label</div>
         <div class="tab" onclick="showTab(event,'detail','proof')">Proof</div>
         <div class="tab" onclick="showTab(event,'detail','order')">Print Order</div>
         <div class="tab" onclick="showTab(event,'detail','files')">Files</div>
@@ -651,6 +733,11 @@ select option { background: #1a1a1a; }
           <div class="back-preview" id="back-preview-content"></div>
           <div style="margin-top:10px;font-size:11px;color:var(--muted);">Copy the text above and hand it to your designer to place on the back panel.</div>
         </div>
+      </div>
+
+      <!-- ── FDA LABEL TAB ── -->
+      <div class="tab-panel" id="detail-tab-fda">
+        <div id="fda-label-container"></div>
       </div>
 
       <!-- ── PROOF TAB ── -->
@@ -2056,6 +2143,350 @@ function buildBackPanelTextBlock(s) {
 }
 
 // ══════════════════════════════════════════════════════
+//  FDA NUTRITION FACTS LABEL GENERATOR
+// ══════════════════════════════════════════════════════
+let fdaLabelVariant = 'standard'; // 'standard' | 'simplified'
+
+function renderFDALabelTab() {
+  const s = skus.find(x => x.id === editingId);
+  const container = document.getElementById('fda-label-container');
+  if (!s || !container) return;
+
+  // Read current form values into a temp object so label is live
+  const tempS = JSON.parse(JSON.stringify(s));
+  collectSKUFromForm(tempS);
+
+  const complete = backPanelComplete(tempS);
+
+  if (!complete) {
+    container.innerHTML = `
+      <div class="fda-notice">
+        <strong>Back panel data is incomplete.</strong><br>
+        Fill in all required fields in the Back Panel tab to generate the FDA Nutrition Facts label.
+        Required: Serving Size, Servings per Container, Calories, Total Fat, Sodium,
+        Total Carbohydrate, Total Sugars, Protein, Ingredients, Allergen Statement,
+        Net Weight (US + Metric), Manufacturer, Country of Origin, and UPC.
+      </div>`;
+    return;
+  }
+
+  const labelHTML = fdaLabelVariant === 'simplified'
+    ? buildFDALabelSimplified(tempS)
+    : buildFDALabelStandard(tempS);
+
+  const backBlockText = buildFDABackBlock(tempS);
+
+  container.innerHTML = `
+    <div style="margin-bottom:12px;">
+      <div style="font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">
+        FDA Nutrition Facts Label &nbsp;·&nbsp; 21 CFR 101.9 (Post-2020 Format)
+      </div>
+      <div class="fda-toggle-row">
+        <button class="fda-toggle-btn ${fdaLabelVariant==='standard'?'active':''}" onclick="setFDAVariant('standard')">Standard</button>
+        <button class="fda-toggle-btn ${fdaLabelVariant==='simplified'?'active':''}" onclick="setFDAVariant('simplified')">Simplified (Small Pack)</button>
+      </div>
+    </div>
+
+    <div class="fda-label-wrap">
+      <div id="fda-label-preview" class="fda-print-target">
+        ${labelHTML}
+      </div>
+
+      <div class="fda-export-row">
+        <button class="btn btn-secondary" onclick="fdaCopyHTML()" title="Copy label HTML to clipboard">📋 Copy HTML</button>
+        <button class="btn btn-secondary" onclick="fdaDownload()" title="Download as self-contained HTML file">⬇ Download HTML</button>
+        <button class="btn btn-green" onclick="fdaPrint()" title="Print label at exact size">🖨 Print Label</button>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;">
+      <div class="slabel">Full Back Panel Copy Block</div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:2px;padding:14px;font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.8;white-space:pre-wrap;word-break:break-word;" id="fda-backblock-text">${escapeHTML(backBlockText)}</div>
+      <div style="margin-top:8px;display:flex;gap:8px;">
+        <button class="btn btn-secondary" onclick="fdaCopyBackBlock()">📋 Copy Back Panel Block</button>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted);">Hand this entire block to your designer as the complete back panel text layer.</div>
+    </div>
+  `;
+}
+
+function setFDAVariant(v) {
+  fdaLabelVariant = v;
+  renderFDALabelTab();
+}
+
+function escapeHTML(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function nv(val, unit) {
+  // Format nutrient value: show '0' if empty/falsy but '0', show val otherwise
+  const s = val !== undefined && val !== null && val !== '' ? String(val) : '0';
+  return unit ? s + unit : s;
+}
+
+function dvStr(val) {
+  if (val === undefined || val === null || val === '') return '';
+  return String(val) + '%';
+}
+
+function buildFDALabelStandard(s) {
+  const bp = s.bp || {};
+  const v  = k => bp[k] !== undefined && bp[k] !== '' ? String(bp[k]) : '0';
+  const vs = k => bp[k] || '';
+
+  // Micronutrient bullets
+  const microItems = [
+    { name: 'Vitamin D', val: v('vitd'), unit: 'mcg', dv: v('vitdDv') },
+    { name: 'Calcium',   val: v('calcium'), unit: 'mg', dv: v('calciumDv') },
+    { name: 'Iron',      val: v('iron'),    unit: 'mg', dv: v('ironDv') },
+    { name: 'Potassium', val: v('potassium'), unit: 'mg', dv: v('potassiumDv') },
+  ].filter(m => m.val && m.val !== '0');
+
+  const microHTML = microItems.length
+    ? microItems.map((m,i) =>
+        `<span class="nf-micro-item">${i>0?'<span style="margin:0 3px;">•</span>':''}${m.name} ${m.val}${m.unit} <strong>${m.dv}%</strong></span>`
+      ).join('')
+    : `<span>Vitamin D 0mcg <strong>0%</strong> • Calcium 0mg <strong>0%</strong> • Iron 0mg <strong>0%</strong> • Potassium 0mg <strong>0%</strong></span>`;
+
+  return `<div class="nf-label">
+  <span class="nf-title">Nutrition Facts</span>
+  <div class="nf-servings-per">${vs('servings')||'0'} servings per container</div>
+  <div class="nf-serving-row">
+    <span class="nf-serving-label">Serving size</span>
+    <span class="nf-serving-amount">${vs('servingSize')||'—'}</span>
+  </div>
+  <hr class="nf-rule-thick">
+  <div style="font-size:8px;font-weight:700;margin-bottom:0;line-height:1;">Amount per serving</div>
+  <div class="nf-calorie-row">
+    <span class="nf-calorie-label">Calories</span>
+    <span class="nf-calorie-num">${vs('calories')||'0'}</span>
+  </div>
+  <hr class="nf-rule-medium">
+  <div class="nf-dv-header">% Daily Value*</div>
+  <div class="nf-row">
+    <span class="nf-row-name"><b>Total Fat</b> ${v('fat')}g</span>
+    <span class="nf-row-dv"><b>${dvStr(bp.fatDv)||'0%'}</b></span>
+  </div>
+  <div class="nf-row nf-indent">
+    <span class="nf-row-name">Saturated Fat ${v('satFat')}g</span>
+    <span class="nf-row-dv"><b>${dvStr(bp.satFatDv)||'0%'}</b></span>
+  </div>
+  <div class="nf-row nf-indent">
+    <span class="nf-row-name"><i>Trans</i> Fat ${v('transFat')}g</span>
+    <span class="nf-row-dv"></span>
+  </div>
+  <div class="nf-row">
+    <span class="nf-row-name"><b>Cholesterol</b> ${v('chol')}mg</span>
+    <span class="nf-row-dv"><b>${dvStr(bp.cholDv)||'0%'}</b></span>
+  </div>
+  <div class="nf-row">
+    <span class="nf-row-name"><b>Sodium</b> ${v('sodium')}mg</span>
+    <span class="nf-row-dv"><b>${dvStr(bp.sodiumDv)||'0%'}</b></span>
+  </div>
+  <div class="nf-row">
+    <span class="nf-row-name"><b>Total Carbohydrate</b> ${v('carbs')}g</span>
+    <span class="nf-row-dv"><b>${dvStr(bp.carbsDv)||'0%'}</b></span>
+  </div>
+  <div class="nf-row nf-indent">
+    <span class="nf-row-name">Dietary Fiber ${v('fiber')}g</span>
+    <span class="nf-row-dv"><b>${dvStr(bp.fiberDv)||'0%'}</b></span>
+  </div>
+  <div class="nf-row nf-indent">
+    <span class="nf-row-name">Total Sugars ${v('sugars')}g</span>
+    <span class="nf-row-dv"></span>
+  </div>
+  <div class="nf-row nf-indent2">
+    <span class="nf-row-name">Includes ${v('addedSugars')}g Added Sugars</span>
+    <span class="nf-row-dv"><b>${dvStr(bp.addedSugarsDv)||'0%'}</b></span>
+  </div>
+  <div class="nf-row" style="border-top:3px solid #000;">
+    <span class="nf-row-name"><b>Protein</b> ${v('protein')}g</span>
+    <span class="nf-row-dv"></span>
+  </div>
+  <div class="nf-microrow">
+    ${microHTML}
+  </div>
+  <div class="nf-footnote">* The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.</div>
+</div>`;
+}
+
+function buildFDALabelSimplified(s) {
+  const bp = s.bp || {};
+  const v  = k => bp[k] !== undefined && bp[k] !== '' ? String(bp[k]) : '0';
+  const vs = k => bp[k] || '';
+
+  // Simplified: condensed single-column list per FDA small package rules
+  const nutrients = [
+    { name: 'Total Fat', val: v('fat'), unit: 'g',  dv: bp.fatDv,        bold: true },
+    { name: 'Sat. Fat',  val: v('satFat'), unit: 'g', dv: bp.satFatDv,    bold: false, indent: true },
+    { name: '<i>Trans</i> Fat', val: v('transFat'), unit: 'g', dv: null,  bold: false, indent: true },
+    { name: 'Cholesterol', val: v('chol'), unit: 'mg', dv: bp.cholDv,     bold: true },
+    { name: 'Sodium',    val: v('sodium'), unit: 'mg', dv: bp.sodiumDv,   bold: true },
+    { name: 'Total Carb.', val: v('carbs'), unit: 'g', dv: bp.carbsDv,    bold: true },
+    { name: 'Dietary Fiber', val: v('fiber'), unit: 'g', dv: bp.fiberDv,  bold: false, indent: true },
+    { name: 'Total Sugars', val: v('sugars'), unit: 'g', dv: null,        bold: false, indent: true },
+    { name: 'Incl. Added Sugars', val: v('addedSugars'), unit: 'g', dv: bp.addedSugarsDv, bold: false, indent: true },
+    { name: 'Protein',   val: v('protein'), unit: 'g', dv: null,          bold: true },
+    { name: 'Vitamin D', val: v('vitd'), unit: 'mcg', dv: bp.vitdDv,     bold: false },
+    { name: 'Calcium',   val: v('calcium'), unit: 'mg', dv: bp.calciumDv, bold: false },
+    { name: 'Iron',      val: v('iron'), unit: 'mg', dv: bp.ironDv,       bold: false },
+    { name: 'Potassium', val: v('potassium'), unit: 'mg', dv: bp.potassiumDv, bold: false },
+  ];
+
+  const nutrientRows = nutrients.map(n => `
+    <div class="nf-row${n.indent?' nf-indent':''}">
+      <span class="nf-row-name">${n.bold?`<b>${n.name}</b>`:n.name} ${n.val}${n.unit}</span>
+      <span class="nf-row-dv">${n.dv !== null && n.dv !== undefined && n.dv !== '' ? `<b>${n.dv}%</b>` : ''}</span>
+    </div>`).join('');
+
+  return `<div class="nf-label">
+  <span class="nf-title-simple">Nutrition Facts</span>
+  <div style="border-top:3px solid #000;margin:3px 0 2px;padding-top:2px;display:flex;justify-content:space-between;align-items:baseline;">
+    <span style="font-size:9.5px;font-weight:700;">Serving size ${vs('servingSize')||'—'}</span>
+    <span style="font-size:9px;">${vs('servings')||'0'} servings</span>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;border-top:6px solid #000;padding:2px 0;">
+    <span style="font-size:11px;font-weight:700;">Calories</span>
+    <span style="font-size:28px;font-weight:900;line-height:1;">${vs('calories')||'0'}</span>
+  </div>
+  <hr class="nf-rule-medium" style="margin:2px 0;">
+  <div class="nf-dv-header">% Daily Value*</div>
+  ${nutrientRows}
+  <div class="nf-footnote" style="margin-top:3px;">*Daily values based on 2,000 cal/day diet.</div>
+</div>`;
+}
+
+function buildFDABackBlock(s) {
+  const bp = s.bp || {};
+  const v  = k => bp[k] ? String(bp[k]) : '';
+  const lines = [];
+  lines.push(`INGREDIENTS: ${v('ingredients') || '—'}.`);
+  lines.push('');
+  if (bp.allergens) lines.push(v('allergens'));
+  lines.push('');
+  lines.push(`NET WT ${v('weightUs')||'—'} / ${v('weightMetric')||'—'}`);
+  lines.push('');
+  lines.push(v('manufacturer') || '');
+  lines.push(v('origin') || '');
+  if (bp.storage) { lines.push(''); lines.push(v('storage')); }
+  if (bp.bestby)  { lines.push(v('bestby')); }
+  return lines.join('\n');
+}
+
+function getFDALabelHTMLForExport() {
+  const s = skus.find(x => x.id === editingId);
+  if (!s) return '';
+  const tempS = JSON.parse(JSON.stringify(s));
+  collectSKUFromForm(tempS);
+  const labelHTML = fdaLabelVariant === 'simplified'
+    ? buildFDALabelSimplified(tempS)
+    : buildFDALabelStandard(tempS);
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>FDA Nutrition Facts — ${escapeHTML(tempS.name)}</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #fff; padding: 20px; }
+.nf-label {
+  width: 300px; border: 1.5pt solid #000; background: #fff; color: #000;
+  font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; font-size: 10px;
+  padding: 4px 6px 6px 6px; line-height: 1.2;
+}
+.nf-label * { box-sizing: border-box; color: #000; background: #fff; font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; }
+.nf-title { font-size: 36px; font-weight: 900; line-height: 1; display: block; letter-spacing: -.02em; }
+.nf-title-simple { font-size: 24px; font-weight: 900; line-height: 1; display: block; letter-spacing: -.02em; }
+.nf-servings-per { font-size: 10.5px; margin: 1px 0 0; }
+.nf-serving-row { display: flex; justify-content: space-between; align-items: baseline; padding: 2px 0 2px; margin-top: 2px; }
+.nf-serving-label { font-size: 10.5px; font-weight: 700; }
+.nf-serving-amount { font-size: 10.5px; font-weight: 700; text-align: right; }
+.nf-rule-thick  { border: none; border-top: 8px solid #000; margin: 3px 0; }
+.nf-rule-medium { border: none; border-top: 3px solid #000; margin: 2px 0; }
+.nf-rule-thin   { border: none; border-top: 1px solid #000; margin: 1px 0; }
+.nf-calorie-row { display: flex; justify-content: space-between; align-items: flex-end; padding: 1px 0 2px; }
+.nf-calorie-label { font-size: 14px; font-weight: 700; }
+.nf-calorie-num   { font-size: 40px; font-weight: 900; line-height: 1; }
+.nf-dv-header { text-align: right; font-size: 9px; font-weight: 700; padding: 1px 0; }
+.nf-row { display: flex; justify-content: space-between; align-items: baseline; padding: 1px 0; border-top: 1px solid #000; }
+.nf-row-name { font-size: 10px; }
+.nf-row-name b { font-weight: 700; }
+.nf-row-dv   { font-size: 10px; font-weight: 700; text-align: right; white-space: nowrap; }
+.nf-indent   { padding-left: 14px; }
+.nf-indent2  { padding-left: 22px; }
+.nf-microrow { border-top: 3px solid #000; padding: 2px 0; font-size: 9px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2px; }
+.nf-micro-item { display: inline-flex; align-items: baseline; gap: 2px; }
+.nf-footnote { font-size: 8px; line-height: 1.35; padding-top: 4px; border-top: 1px solid #000; margin-top: 2px; }
+@media print { @page { margin: 0.25in; size: auto; } }
+</style>
+</head>
+<body>
+${labelHTML}
+</body>
+</html>`;
+}
+
+function fdaCopyHTML() {
+  const html = getFDALabelHTMLForExport();
+  navigator.clipboard.writeText(html).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = html;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+
+function fdaDownload() {
+  const s = skus.find(x => x.id === editingId);
+  const html = getFDALabelHTMLForExport();
+  const filename = (s ? s.name.replace(/[^a-z0-9]/gi,'_') : 'fda_label') + '_nutrition_facts.html';
+  const a = document.createElement('a');
+  a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
+  a.download = filename;
+  a.click();
+}
+
+function fdaPrint() {
+  const printWin = window.open('', '_blank', 'width=500,height=700');
+  if (!printWin) { alert('Pop-up blocked — please allow pop-ups for this page.'); return; }
+  printWin.document.write(getFDALabelHTMLForExport());
+  printWin.document.close();
+  printWin.focus();
+  setTimeout(() => { printWin.print(); }, 400);
+}
+
+function fdaCopyBackBlock() {
+  const s = skus.find(x => x.id === editingId);
+  if (!s) return;
+  const tempS = JSON.parse(JSON.stringify(s));
+  collectSKUFromForm(tempS);
+  const text = buildFDABackBlock(tempS);
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+
+// ══════════════════════════════════════════════════════
 //  EXPORT CSV
 // ══════════════════════════════════════════════════════
 function exportCSV() {
@@ -2093,6 +2524,7 @@ function showTab(ev, group, tab) {
   document.querySelectorAll(`[id^="${group}-tab-"]`).forEach(p => p.classList.remove('active'));
   const panel = document.getElementById(`${group}-tab-${tab}`);
   if (panel) panel.classList.add('active');
+  if (tab === 'fda') renderFDALabelTab();
 }
 
 function showTabById(group, tab) {
@@ -2101,9 +2533,10 @@ function showTabById(group, tab) {
   if (panel) panel.classList.add('active');
   // Reset tab highlights
   document.querySelectorAll('#detail-tabs .tab').forEach((t,i) => {
-    const tabs = ['overview','front','back','proof','order','files','notes'];
+    const tabs = ['overview','front','back','fda','proof','order','files','notes'];
     t.classList.toggle('active', tabs[i] === tab);
   });
+  if (tab === 'fda') renderFDALabelTab();
 }
 
 // Close modal on backdrop click
