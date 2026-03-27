@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hidden Supply — Print OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #080808; --surface: #111; --surface2: #161616; --surface3: #1c1c1c;
+  --border: #222; --border2: #2e2e2e;
+  --text: #E8E6E0; --muted: #555; --dim: #888;
+  --accent: #F0E040; --green: #4ADE80; --red: #F87171; --blue: #60A5FA;
+  --orange: #FB923C; --purple: #A78BFA; --yellow: #FCD34D;
+  --mono: 'Space Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+}
+html, body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+
+/* ── NAV ── */
+nav {
+  height: 52px; background: var(--surface); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px; position: sticky; top: 0; z-index: 200;
+}
+.nav-left { display: flex; align-items: center; gap: 10px; }
+.nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.nav-badge { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; background: rgba(240,224,64,.1); color: var(--accent); border: 1px solid rgba(240,224,64,.2); padding: 2px 8px; border-radius: 2px; }
+.nav-back { font-family: var(--mono); font-size: 10px; color: var(--muted); text-decoration: none; letter-spacing: .08em; transition: color .15s; }
+.nav-back:hover { color: var(--text); }
+
+/* ── LAYOUT ── */
+.shell { display: flex; height: calc(100vh - 52px); }
+.sidebar { width: 220px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; }
+.main { flex: 1; overflow-y: auto; padding: 28px 32px; }
+
+/* ── SIDEBAR ── */
+.sb-section { padding: 16px 14px 8px; font-family: var(--mono); font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); }
+.sb-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px; font-size: 13px; cursor: pointer;
+  border-left: 2px solid transparent; transition: all .15s;
+  color: var(--dim);
+}
+.sb-item:hover { color: var(--text); background: rgba(255,255,255,.03); }
+.sb-item.active { color: var(--text); border-left-color: var(--accent); background: rgba(240,224,64,.04); }
+.sb-item .icon { font-size: 14px; width: 18px; text-align: center; }
+.sb-count { margin-left: auto; font-family: var(--mono); font-size: 10px; background: var(--surface2); border: 1px solid var(--border2); padding: 1px 6px; border-radius: 2px; color: var(--muted); }
+
+/* ── SCREENS ── */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── PAGE HEADER ── */
+.page-header { margin-bottom: 24px; }
+.page-title { font-size: 22px; font-weight: 700; letter-spacing: -.03em; margin-bottom: 4px; }
+.page-sub { font-size: 13px; color: var(--dim); }
+
+/* ── SECTION LABEL ── */
+.slabel {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 12px;
+}
+.slabel::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── STAT ROW ── */
+.stat-row { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+.stat-pill {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 2px;
+  padding: 14px 20px; display: flex; flex-direction: column; gap: 3px; min-width: 100px;
+}
+.stat-val { font-family: var(--mono); font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+.stat-lbl { font-family: var(--mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+/* ── SKU TABLE ── */
+.sku-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.sku-table th {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.sku-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.sku-table tr:hover td { background: rgba(255,255,255,.02); }
+.sku-table tr.selected td { background: rgba(240,224,64,.04); }
+
+.brand-pill {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 2px; white-space: nowrap; display: inline-block;
+}
+.brand-jb  { background: rgba(251,146,60,.12); color: var(--orange); border: 1px solid rgba(251,146,60,.25); }
+.brand-ds  { background: rgba(96,165,250,.12); color: var(--blue);   border: 1px solid rgba(96,165,250,.25); }
+.brand-pp  { background: rgba(74,222,128,.12); color: var(--green);  border: 1px solid rgba(74,222,128,.25); }
+.brand-can { background: rgba(240,224,64,.12);  color: var(--accent); border: 1px solid rgba(240,224,64,.25); }
+.brand-nl  { background: rgba(167,139,250,.12); color: var(--purple); border: 1px solid rgba(167,139,250,.25); }
+
+/* ── STATUS BADGE ── */
+.badge {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 2px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;
+}
+.badge-not-started { background: rgba(255,255,255,.04); color: var(--muted); border: 1px solid var(--border); }
+.badge-in-progress { background: rgba(240,224,64,.08); color: var(--accent); border: 1px solid rgba(240,224,64,.2); }
+.badge-review      { background: rgba(96,165,250,.08); color: var(--blue); border: 1px solid rgba(96,165,250,.2); }
+.badge-approved    { background: rgba(74,222,128,.08); color: var(--green); border: 1px solid rgba(74,222,128,.2); }
+.badge-blocked     { background: rgba(248,113,113,.08); color: var(--red); border: 1px solid rgba(248,113,113,.2); }
+.badge-print-ready { background: rgba(74,222,128,.15); color: var(--green); border: 1px solid rgba(74,222,128,.4); font-weight: 700; }
+
+/* ── PRIORITY ── */
+.priority { font-family: var(--mono); font-size: 10px; }
+.priority-high   { color: var(--red); }
+.priority-medium { color: var(--accent); }
+.priority-low    { color: var(--muted); }
+
+/* ── ROW ACTIONS ── */
+.row-btn {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase;
+  background: var(--surface2); border: 1px solid var(--border2); color: var(--dim);
+  padding: 4px 10px; border-radius: 2px; cursor: pointer; transition: all .15s;
+}
+.row-btn:hover { color: var(--text); border-color: var(--border2); background: var(--surface3); }
+.row-btn.primary { color: var(--accent); border-color: rgba(240,224,64,.3); background: rgba(240,224,64,.06); }
+.row-btn.primary:hover { background: rgba(240,224,64,.12); }
+
+/* ── MODAL ── */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 500;
+  display: none; align-items: flex-start; justify-content: center; padding: 40px 20px; overflow-y: auto;
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border2); border-radius: 3px;
+  width: 100%; max-width: 760px; flex-shrink: 0;
+}
+.modal-header {
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+}
+.modal-title { font-size: 16px; font-weight: 700; letter-spacing: -.02em; }
+.modal-sub { font-size: 12px; color: var(--dim); margin-top: 3px; }
+.modal-close { font-size: 18px; color: var(--muted); cursor: pointer; background: none; border: none; line-height: 1; padding: 2px; transition: color .15s; }
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 24px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+
+/* ── FORM ELEMENTS ── */
+.field { margin-bottom: 18px; }
+.field label { display: block; font-family: var(--mono); font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.field input, .field select, .field textarea {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: 2px;
+  color: var(--text); font-family: var(--sans); font-size: 13px; padding: 9px 12px; outline: none;
+  transition: border-color .15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: #444; }
+.field textarea { resize: vertical; min-height: 80px; }
+select option { background: #1a1a1a; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+/* ── COMPLIANCE CHECKLIST ── */
+.checklist { display: flex; flex-direction: column; gap: 8px; }
+.check-item {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 2px; padding: 10px 14px;
+  cursor: pointer; transition: border-color .15s;
+}
+.check-item:hover { border-color: var(--border2); }
+.check-item.checked { border-color: rgba(74,222,128,.3); background: rgba(74,222,128,.04); }
+.check-item.failed  { border-color: rgba(248,113,113,.3); background: rgba(248,113,113,.04); }
+.check-box {
+  width: 18px; height: 18px; border: 1px solid var(--border2); border-radius: 2px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px;
+  transition: all .15s;
+}
+.check-item.checked .check-box { background: var(--green); border-color: var(--green); color: #000; }
+.check-item.failed  .check-box { background: var(--red);   border-color: var(--red);   color: #000; }
+.check-text { font-size: 12px; flex: 1; }
+.check-req { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.check-tag { font-family: var(--mono); font-size: 9px; letter-spacing: .06em; text-transform: uppercase; padding: 1px 6px; border-radius: 2px; margin-left: auto; }
+.check-tag.fda  { background: rgba(248,113,113,.1); color: var(--red); border: 1px solid rgba(248,113,113,.2); }
+.check-tag.brand { background: rgba(240,224,64,.08); color: var(--accent); border: 1px solid rgba(240,224,64,.2); }
+.check-tag.print { background: rgba(96,165,250,.08); color: var(--blue); border: 1px solid rgba(96,165,250,.2); }
+
+/* ── PROGRESS BAR ── */
+.progress-bar { background: var(--surface2); border-radius: 2px; height: 4px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 2px; transition: width .3s ease; }
+.progress-fill.green  { background: var(--green); }
+.progress-fill.yellow { background: var(--accent); }
+.progress-fill.red    { background: var(--red); }
+
+/* ── STAGE STEPPER ── */
+.stepper { display: flex; align-items: center; gap: 0; margin-bottom: 28px; overflow-x: auto; }
+.step-item { display: flex; align-items: center; }
+.step-dot {
+  width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 10px; flex-shrink: 0;
+  background: var(--surface2); color: var(--muted); transition: all .2s;
+}
+.step-dot.done    { background: var(--green); border-color: var(--green); color: #000; }
+.step-dot.active  { background: var(--accent); border-color: var(--accent); color: #000; }
+.step-label { font-size: 10px; color: var(--muted); white-space: nowrap; margin: 0 6px; }
+.step-label.active { color: var(--text); }
+.step-line { width: 20px; height: 1px; background: var(--border); flex-shrink: 0; }
+
+/* ── FILE DROP ── */
+.file-drop {
+  border: 1px dashed var(--border2); border-radius: 2px; padding: 24px;
+  text-align: center; color: var(--muted); font-size: 12px; cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.file-drop:hover { border-color: #444; background: rgba(255,255,255,.02); color: var(--dim); }
+.file-drop input { display: none; }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.tab {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  padding: 10px 16px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent;
+  transition: all .15s; margin-bottom: -1px;
+}
+.tab:hover { color: var(--dim); }
+.tab.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── NOTES ── */
+.note-item {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 2px;
+  padding: 12px 14px; margin-bottom: 8px;
+}
+.note-meta { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-bottom: 6px; }
+.note-text { font-size: 12px; line-height: 1.6; color: var(--dim); }
+
+/* ── BUTTONS ── */
+.btn {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  padding: 9px 18px; border-radius: 2px; cursor: pointer; border: 1px solid; transition: all .15s;
+}
+.btn-primary { background: var(--accent); color: #111; border-color: var(--accent); }
+.btn-primary:hover { background: #d4c430; }
+.btn-secondary { background: transparent; color: var(--dim); border-color: var(--border2); }
+.btn-secondary:hover { color: var(--text); border-color: #444; }
+.btn-danger { background: transparent; color: var(--red); border-color: rgba(248,113,113,.3); }
+.btn-danger:hover { background: rgba(248,113,113,.08); }
+
+/* ── EMPTY STATE ── */
+.empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+.empty-icon { font-size: 32px; margin-bottom: 12px; }
+.empty-text { font-size: 13px; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <span class="nav-brand">Hidden Supply</span>
+    <span class="nav-badge">Print OS</span>
+  </div>
+  <a href="/admin" class="nav-back">← Control Tower</a>
+</nav>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-section">Views</div>
+    <div class="sb-item active" onclick="showScreen('board')" id="sb-board">
+      <span class="icon">📋</span> SKU Board
+      <span class="sb-count" id="sb-count-board">16</span>
+    </div>
+    <div class="sb-item" onclick="showScreen('compliance')" id="sb-compliance">
+      <span class="icon">✅</span> Compliance
+      <span class="sb-count" id="sb-count-compliance">0</span>
+    </div>
+    <div class="sb-item" onclick="showScreen('print-queue')" id="sb-print-queue">
+      <span class="icon">🖨️</span> Print Queue
+      <span class="sb-count" id="sb-count-print">0</span>
+    </div>
+
+    <div class="sb-section" style="margin-top:8px;">Brands</div>
+    <div class="sb-item" onclick="filterBrand('all')" id="sb-all"><span class="icon">🏠</span> All Brands</div>
+    <div class="sb-item" onclick="filterBrand('Juice Bomb')" id="sb-jb"><span class="icon">💣</span> Juice Bomb</div>
+    <div class="sb-item" onclick="filterBrand('Dirty Sips')" id="sb-ds"><span class="icon">🥤</span> Dirty Sips</div>
+    <div class="sb-item" onclick="filterBrand('PeelPals')" id="sb-pp"><span class="icon">🍑</span> PeelPals</div>
+    <div class="sb-item" onclick="filterBrand('CANDÜ')" id="sb-can"><span class="icon">🍬</span> CANDÜ</div>
+    <div class="sb-item" onclick="filterBrand('Nauti Labs')" id="sb-nl"><span class="icon">🧪</span> Nauti Labs</div>
+
+    <div class="sb-section" style="margin-top:8px;">Actions</div>
+    <div class="sb-item" onclick="openNewSKU()"><span class="icon">＋</span> Add SKU</div>
+    <div class="sb-item" onclick="exportCSV()"><span class="icon">↓</span> Export CSV</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- ── BOARD SCREEN ── -->
+    <div class="screen active" id="screen-board">
+      <div class="page-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div class="page-title">SKU Project Board</div>
+            <div class="page-sub">Front · Back · Compliance · Print Ready — track every SKU from design to printer</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input id="search-input" type="text" placeholder="Search SKUs…" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:12px;padding:7px 12px;border-radius:2px;outline:none;width:180px;" oninput="renderTable()" />
+            <button class="btn btn-primary" onclick="openNewSKU()">+ Add SKU</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-row" id="stat-row"></div>
+
+      <!-- Table -->
+      <div class="slabel">All SKUs</div>
+      <div style="overflow-x:auto;">
+        <table class="sku-table" id="sku-table">
+          <thead>
+            <tr>
+              <th>SKU Name</th>
+              <th>Brand</th>
+              <th>Size</th>
+              <th>Front</th>
+              <th>Back</th>
+              <th>Compliance</th>
+              <th>Print Ready</th>
+              <th>Owner</th>
+              <th>Priority</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="sku-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── COMPLIANCE SCREEN ── -->
+    <div class="screen" id="screen-compliance">
+      <div class="page-header">
+        <div class="page-title">Compliance Check</div>
+        <div class="page-sub">Run FDA + brand + print QA on any SKU before submitting to printer</div>
+      </div>
+      <div class="slabel">Select a SKU to check</div>
+      <select id="compliance-sku-select" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:13px;padding:9px 12px;border-radius:2px;outline:none;margin-bottom:24px;width:320px;" onchange="loadComplianceChecks()">
+        <option value="">— choose SKU —</option>
+      </select>
+      <div id="compliance-body"></div>
+    </div>
+
+    <!-- ── PRINT QUEUE SCREEN ── -->
+    <div class="screen" id="screen-print-queue">
+      <div class="page-header">
+        <div class="page-title">Print Queue</div>
+        <div class="page-sub">SKUs that have passed all checks and are ready to send to printer</div>
+      </div>
+      <div id="print-queue-body"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── SKU DETAIL MODAL ── -->
+<div class="modal-bg" id="sku-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-sku-title">SKU Detail</div>
+        <div class="modal-sub" id="modal-sku-sub"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('sku-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Stage stepper -->
+      <div class="stepper" id="modal-stepper"></div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="showTab('detail','overview')">Overview</div>
+        <div class="tab" onclick="showTab('detail','design')">Design Status</div>
+        <div class="tab" onclick="showTab('detail','files')">Files</div>
+        <div class="tab" onclick="showTab('detail','notes')">Notes</div>
+      </div>
+
+      <!-- OVERVIEW TAB -->
+      <div class="tab-panel active" id="detail-tab-overview">
+        <div class="field-row">
+          <div class="field">
+            <label>SKU Name</label>
+            <input type="text" id="d-name" />
+          </div>
+          <div class="field">
+            <label>Brand</label>
+            <select id="d-brand">
+              <option>Juice Bomb</option><option>Dirty Sips</option>
+              <option>PeelPals</option><option>CANDÜ</option><option>Nauti Labs</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Size / Weight</label><input type="text" id="d-size" /></div>
+          <div class="field"><label>Packaging Format</label>
+            <select id="d-format">
+              <option>Stand-up pouch + resealable zipper + peg hook</option>
+              <option>Single pack + peg hook</option>
+              <option>Box</option><option>Bag</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Owner / Designer</label>
+            <select id="d-owner">
+              <option value="">Unassigned</option>
+              <option>Ali</option><option>Saba</option><option>Minhaj</option>
+              <option>Hank</option><option>Joe</option><option>External</option>
+            </select>
+          </div>
+          <div class="field"><label>Priority</label>
+            <select id="d-priority">
+              <option value="high">🔴 High</option>
+              <option value="medium" selected>🟡 Medium</option>
+              <option value="low">⚪ Low</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>Deadline</label><input type="date" id="d-deadline" /></div>
+        <div class="field"><label>Notes</label><textarea id="d-notes" placeholder="Concept notes, special requirements…"></textarea></div>
+      </div>
+
+      <!-- DESIGN STATUS TAB -->
+      <div class="tab-panel" id="detail-tab-design">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+
+          <!-- FRONT PANEL -->
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:2px;padding:16px;">
+            <div style="font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Front Panel</div>
+            <select id="d-front-status" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:12px;padding:7px 10px;border-radius:2px;outline:none;margin-bottom:10px;" onchange="updateStatusColor('front')">
+              <option value="not-started">Not Started</option>
+              <option value="in-progress">In Progress</option>
+              <option value="review">In Review</option>
+              <option value="approved">Approved ✓</option>
+              <option value="blocked">Blocked</option>
+            </select>
+            <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:10px;">
+              Must include:<br>
+              • Brand logo (top-left locked zone)<br>
+              • Hero product image<br>
+              • Product name + variant<br>
+              • Net weight declaration<br>
+              • Brand colorway
+            </div>
+            <div class="field">
+              <label>Designer note</label>
+              <textarea id="d-front-note" rows="2" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:11px;padding:7px 10px;border-radius:2px;outline:none;resize:none;"></textarea>
+            </div>
+          </div>
+
+          <!-- BACK PANEL -->
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:2px;padding:16px;">
+            <div style="font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Back Panel</div>
+            <select id="d-back-status" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:12px;padding:7px 10px;border-radius:2px;outline:none;margin-bottom:10px;" onchange="updateStatusColor('back')">
+              <option value="not-started">Not Started</option>
+              <option value="in-progress">In Progress</option>
+              <option value="review">In Review</option>
+              <option value="approved">Approved ✓</option>
+              <option value="blocked">Blocked</option>
+            </select>
+            <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:10px;">
+              Must include:<br>
+              • Nutrition Facts panel (FDA format)<br>
+              • Ingredient list (descending weight)<br>
+              • Allergen statement<br>
+              • Net weight (US + metric)<br>
+              • Manufacturer name + address<br>
+              • UPC barcode<br>
+              • "Distributed by Hidden Supply"
+            </div>
+            <div class="field">
+              <label>Designer note</label>
+              <textarea id="d-back-note" rows="2" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:11px;padding:7px 10px;border-radius:2px;outline:none;resize:none;"></textarea>
+            </div>
+          </div>
+
+          <!-- PRINT SPEC -->
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:2px;padding:16px;">
+            <div style="font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Print Spec</div>
+            <select id="d-print-status" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:12px;padding:7px 10px;border-radius:2px;outline:none;margin-bottom:10px;">
+              <option value="not-started">Not Started</option>
+              <option value="in-progress">In Progress</option>
+              <option value="review">In Review</option>
+              <option value="approved">Print Ready ✓</option>
+              <option value="blocked">Blocked</option>
+            </select>
+            <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:10px;">
+              File requirements:<br>
+              • 300 DPI minimum<br>
+              • CMYK color mode (no RGB)<br>
+              • 3mm bleed on all sides<br>
+              • Crop marks included<br>
+              • Fonts embedded / outlined<br>
+              • PDF/X-1a or PDF/X-4<br>
+              • Dieline on separate layer
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILES TAB -->
+      <div class="tab-panel" id="detail-tab-files">
+        <div style="margin-bottom:16px;">
+          <div class="slabel">Uploaded Files</div>
+          <div id="modal-files-list" style="margin-bottom:16px;"></div>
+          <label class="file-drop" id="file-drop-zone">
+            <input type="file" multiple accept=".pdf,.ai,.psd,.png,.jpg,.zip" onchange="handleFiles(event)" />
+            <div style="font-size:20px;margin-bottom:8px;">📎</div>
+            <div>Drop files here or click to upload</div>
+            <div style="font-size:10px;margin-top:4px;color:var(--muted)">PDF · AI · PSD · PNG · JPG · ZIP</div>
+          </label>
+        </div>
+      </div>
+
+      <!-- NOTES TAB -->
+      <div class="tab-panel" id="detail-tab-notes">
+        <div id="modal-notes-list" style="margin-bottom:16px;"></div>
+        <div class="field"><label>Add Note</label>
+          <textarea id="new-note-text" rows="3" placeholder="Add a note, revision request, or status update…"></textarea>
+        </div>
+        <button class="btn btn-secondary" onclick="addNote()">Add Note</button>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="deleteSKU()">Delete</button>
+      <button class="btn btn-secondary" onclick="closeModal('sku-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSKU()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── NEW SKU MODAL ── -->
+<div class="modal-bg" id="new-sku-modal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Add SKU to Board</div>
+        <div class="modal-sub">Create a new print production project</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('new-sku-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field"><label>SKU Name *</label><input type="text" id="n-name" placeholder="e.g. Animal Crew" /></div>
+        <div class="field"><label>Brand *</label>
+          <select id="n-brand">
+            <option>Juice Bomb</option><option>Dirty Sips</option>
+            <option>PeelPals</option><option>CANDÜ</option><option>Nauti Labs</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Size / Weight</label><input type="text" id="n-size" placeholder="e.g. 5 oz" /></div>
+        <div class="field"><label>Format</label>
+          <select id="n-format">
+            <option>Stand-up pouch + resealable zipper + peg hook</option>
+            <option>Single pack + peg hook</option>
+            <option>Box</option><option>Bag</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Owner</label>
+          <select id="n-owner">
+            <option value="">Unassigned</option>
+            <option>Ali</option><option>Saba</option><option>Minhaj</option>
+            <option>Hank</option><option>Joe</option><option>External</option>
+          </select>
+        </div>
+        <div class="field"><label>Priority</label>
+          <select id="n-priority">
+            <option value="high">🔴 High</option>
+            <option value="medium" selected>🟡 Medium</option>
+            <option value="low">⚪ Low</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('new-sku-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="createSKU()">Create SKU</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────
+const BRAND_CLASS = {
+  'Juice Bomb': 'brand-jb', 'Dirty Sips': 'brand-ds',
+  'PeelPals': 'brand-pp', 'CANDÜ': 'brand-can', 'Nauti Labs': 'brand-nl'
+};
+
+const DEFAULT_SKUS = [
+  // Juice Bomb
+  { id:'jb-1', brand:'Juice Bomb', name:'Space Astronaut', size:'5 oz', format:'Stand-up pouch + resealable zipper + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'', priority:'high', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+  { id:'jb-2', brand:'Juice Bomb', name:'World Tour Blind Box', size:'5 oz', format:'Stand-up pouch + resealable zipper + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'', priority:'high', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+  { id:'jb-3', brand:'Juice Bomb', name:'Animal Crew', size:'5 oz', format:'Stand-up pouch + resealable zipper + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'', priority:'high', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+  // Dirty Sips
+  { id:'ds-1', brand:'Dirty Sips', name:'Soda Flavors', size:'5 oz', format:'Stand-up pouch + resealable zipper + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'', priority:'high', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+  { id:'ds-2', brand:'Dirty Sips', name:'Tropical Flavors', size:'5 oz', format:'Stand-up pouch + resealable zipper + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'', priority:'medium', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+  // PeelPals
+  { id:'pp-1', brand:'PeelPals', name:'Giant Peelable Peach', size:'8 oz', format:'Stand-up pouch + resealable zipper + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'Minhaj', priority:'high', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+  { id:'pp-2', brand:'PeelPals', name:'Giant Peelable Grape', size:'8 oz', format:'Stand-up pouch + resealable zipper + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'Minhaj', priority:'medium', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+  { id:'pp-3', brand:'PeelPals', name:'Giant Peelable Mango', size:'8 oz', format:'Stand-up pouch + resealable zipper + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'Minhaj', priority:'medium', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+  { id:'pp-4', brand:'PeelPals', name:'Peelable Gummy Mixed Assortment', size:'8 oz', format:'Stand-up pouch + resealable zipper + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'', priority:'low', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+  // CANDÜ
+  { id:'can-1', brand:'CANDÜ', name:'Spring Kitty', size:'8 oz', format:'Single pack + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'Saba', priority:'high', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+  { id:'can-2', brand:'CANDÜ', name:'Sea Worms', size:'8 oz', format:'Single pack + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'Saba', priority:'medium', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+  { id:'can-3', brand:'CANDÜ', name:'Dino Gummies', size:'8 oz', format:'Single pack + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'', priority:'medium', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+  // Nauti Labs
+  { id:'nl-1', brand:'Nauti Labs', name:'Fast Food Gummy Kit', size:'8 oz', format:'Single pack + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'Ali', priority:'high', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+  { id:'nl-2', brand:'Nauti Labs', name:'Egg Tart Candy (Crème Brûlée)', size:'8 oz', format:'Single pack + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'Ali', priority:'medium', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+  { id:'nl-3', brand:'Nauti Labs', name:'Diggable Drops (Crystal Candy)', size:'8 oz', format:'Single pack + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'Ali', priority:'medium', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+  { id:'nl-4', brand:'Nauti Labs', name:'Swedish Style Foam Candy', size:'8 oz', format:'Single pack + peg hook', front:'not-started', back:'not-started', print:'not-started', owner:'', priority:'low', deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[] },
+];
+
+const COMPLIANCE_CHECKS = [
+  { id:'fda-1',   tag:'fda',   text:'Nutrition Facts panel present',        req:'FDA 21 CFR 101.9 — mandatory for all packaged food' },
+  { id:'fda-2',   tag:'fda',   text:'Ingredient list (descending by weight)',req:'FDA 21 CFR 101.4 — must list all ingredients' },
+  { id:'fda-3',   tag:'fda',   text:'Allergen statement (Big 9)',            req:'FASTER Act 2021 — sesame now included' },
+  { id:'fda-4',   tag:'fda',   text:'Net quantity of contents declared',     req:'FDA 21 CFR 101.105 — US oz + metric g/ml' },
+  { id:'fda-5',   tag:'fda',   text:'Manufacturer / distributor name + address', req:'FDA 21 CFR 101.5' },
+  { id:'fda-6',   tag:'fda',   text:'"Distributed by Hidden Supply" present', req:'Required if not manufactured by HS' },
+  { id:'fda-7',   tag:'fda',   text:'Country of origin statement',           req:'Required for imported goods' },
+  { id:'brand-1', tag:'brand', text:'Brand logo in locked top-left zone',    req:'Brand guardrail — logo must not be moved or scaled below minimum' },
+  { id:'brand-2', tag:'brand', text:'Brand colorway matches spec',            req:'Each brand has defined primary/secondary palette' },
+  { id:'brand-3', tag:'brand', text:'Typography matches brand font stack',    req:'No off-brand typefaces' },
+  { id:'brand-4', tag:'brand', text:'Product name format correct',            req:'Name + variant on front, consistent capitalization' },
+  { id:'brand-5', tag:'brand', text:'"Hidden Supply" lockup on back',         req:'Brand house identifier on all SKUs' },
+  { id:'print-1', tag:'print', text:'File is 300 DPI minimum',               req:'Print standard — lower res will print blurry' },
+  { id:'print-2', tag:'print', text:'Color mode is CMYK (not RGB)',           req:'RGB will shift significantly when printed' },
+  { id:'print-3', tag:'print', text:'3mm bleed on all sides',                 req:'Without bleed, white edges appear after cutting' },
+  { id:'print-4', tag:'print', text:'Crop marks included',                    req:'Printer requirement' },
+  { id:'print-5', tag:'print', text:'Fonts embedded or outlined',             req:'Missing fonts will substitute and break layout' },
+  { id:'print-6', tag:'print', text:'File saved as PDF/X-1a or PDF/X-4',     req:'Print-safe PDF format' },
+  { id:'print-7', tag:'print', text:'Dieline on separate layer',              req:'Dieline must be clearly labeled and on its own layer' },
+  { id:'print-8', tag:'print', text:'UPC barcode present and scannable',      req:'Minimum size 1.02" wide, 100% black, clear zone around it' },
+];
+
+// ── STATE ────────────────────────────────────────────
+let skus = [];
+let complianceState = {}; // { skuId: { checkId: 'pass'|'fail'|null } }
+let activeBrand = 'all';
+let editingId = null;
+
+function loadData() {
+  const saved = localStorage.getItem('hs_print_skus');
+  skus = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULT_SKUS));
+  const savedComp = localStorage.getItem('hs_print_compliance');
+  complianceState = savedComp ? JSON.parse(savedComp) : {};
+}
+function saveData() {
+  localStorage.setItem('hs_print_skus', JSON.stringify(skus));
+  localStorage.setItem('hs_print_compliance', JSON.stringify(complianceState));
+}
+
+// ── NAVIGATION ───────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  document.getElementById('sb-' + id)?.classList.add('active');
+  if (id === 'compliance') populateComplianceSelect();
+  if (id === 'print-queue') renderPrintQueue();
+}
+function filterBrand(b) {
+  activeBrand = b;
+  document.querySelectorAll('[id^="sb-"]').forEach(e => e.classList.remove('active'));
+  const map = {'all':'sb-all','Juice Bomb':'sb-jb','Dirty Sips':'sb-ds','PeelPals':'sb-pp','CANDÜ':'sb-can','Nauti Labs':'sb-nl'};
+  document.getElementById(map[b] || 'sb-all')?.classList.add('active');
+  showScreen('board');
+  renderTable();
+}
+
+// ── STATUS HELPERS ───────────────────────────────────
+function statusBadge(s) {
+  const map = {
+    'not-started': ['badge-not-started','—'],
+    'in-progress':  ['badge-in-progress','In Progress'],
+    'review':       ['badge-review','In Review'],
+    'approved':     ['badge-approved','Approved'],
+    'blocked':      ['badge-blocked','Blocked'],
+    'print-ready':  ['badge-print-ready','Print Ready'],
+  };
+  const [cls, label] = map[s] || ['badge-not-started','—'];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+function isPrintReady(sku) {
+  return sku.front === 'approved' && sku.back === 'approved' && sku.print === 'approved';
+}
+function complianceScore(skuId) {
+  const state = complianceState[skuId] || {};
+  const total = COMPLIANCE_CHECKS.length;
+  const passed = Object.values(state).filter(v => v === 'pass').length;
+  return { passed, total };
+}
+
+// ── STATS ────────────────────────────────────────────
+function renderStats() {
+  const total = skus.length;
+  const printReady = skus.filter(isPrintReady).length;
+  const frontDone = skus.filter(s => s.front === 'approved').length;
+  const backDone = skus.filter(s => s.back === 'approved').length;
+  const blocked = skus.filter(s => s.front === 'blocked' || s.back === 'blocked').length;
+  document.getElementById('stat-row').innerHTML = `
+    <div class="stat-pill"><span class="stat-val">${total}</span><span class="stat-lbl">Total SKUs</span></div>
+    <div class="stat-pill"><span class="stat-val" style="color:var(--green)">${printReady}</span><span class="stat-lbl">Print Ready</span></div>
+    <div class="stat-pill"><span class="stat-val" style="color:var(--accent)">${frontDone}</span><span class="stat-lbl">Front ✓</span></div>
+    <div class="stat-pill"><span class="stat-val" style="color:var(--accent)">${backDone}</span><span class="stat-lbl">Back ✓</span></div>
+    <div class="stat-pill"><span class="stat-val" style="color:var(--red)">${blocked}</span><span class="stat-lbl">Blocked</span></div>
+  `;
+  document.getElementById('sb-count-board').textContent = total;
+  document.getElementById('sb-count-print').textContent = printReady;
+  const compDone = skus.filter(s => {
+    const { passed, total } = complianceScore(s.id);
+    return total > 0 && passed === total;
+  }).length;
+  document.getElementById('sb-count-compliance').textContent = compDone;
+}
+
+// ── TABLE ────────────────────────────────────────────
+function renderTable() {
+  const q = (document.getElementById('search-input')?.value || '').toLowerCase();
+  let list = skus;
+  if (activeBrand !== 'all') list = list.filter(s => s.brand === activeBrand);
+  if (q) list = list.filter(s => s.name.toLowerCase().includes(q) || s.brand.toLowerCase().includes(q));
+
+  const tbody = document.getElementById('sku-tbody');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No SKUs found</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(s => {
+    const pr = isPrintReady(s);
+    const { passed, total } = complianceScore(s.id);
+    const pct = total ? Math.round(passed/total*100) : 0;
+    return `<tr class="${editingId===s.id?'selected':''}" onclick="openSKU('${s.id}')">
+      <td style="font-weight:600;font-size:13px;">${s.name}</td>
+      <td><span class="brand-pill ${BRAND_CLASS[s.brand]||''}">${s.brand}</span></td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${s.size}</td>
+      <td>${statusBadge(s.front)}</td>
+      <td>${statusBadge(s.back)}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="progress-bar" style="width:60px;"><div class="progress-fill ${pct===100?'green':pct>50?'yellow':'red'}" style="width:${pct}%"></div></div>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">${passed}/${total}</span>
+        </div>
+      </td>
+      <td>${pr ? statusBadge('print-ready') : statusBadge('not-started')}</td>
+      <td style="font-size:12px;color:var(--dim)">${s.owner||'—'}</td>
+      <td><span class="priority priority-${s.priority}">${s.priority==='high'?'🔴 High':s.priority==='medium'?'🟡 Med':'⚪ Low'}</span></td>
+      <td><button class="row-btn primary" onclick="event.stopPropagation();openSKU('${s.id}')">Open →</button></td>
+    </tr>`;
+  }).join('');
+  renderStats();
+}
+
+// ── SKU MODAL ────────────────────────────────────────
+function openSKU(id) {
+  const s = skus.find(x => x.id === id);
+  if (!s) return;
+  editingId = id;
+  document.getElementById('modal-sku-title').textContent = s.name;
+  document.getElementById('modal-sku-sub').textContent = s.brand + ' · ' + s.size + ' · ' + s.format;
+  document.getElementById('d-name').value = s.name;
+  document.getElementById('d-brand').value = s.brand;
+  document.getElementById('d-size').value = s.size;
+  document.getElementById('d-format').value = s.format;
+  document.getElementById('d-owner').value = s.owner || '';
+  document.getElementById('d-priority').value = s.priority;
+  document.getElementById('d-deadline').value = s.deadline || '';
+  document.getElementById('d-notes').value = s.notes || '';
+  document.getElementById('d-front-status').value = s.front;
+  document.getElementById('d-back-status').value = s.back;
+  document.getElementById('d-print-status').value = s.print;
+  document.getElementById('d-front-note').value = s.frontNote || '';
+  document.getElementById('d-back-note').value = s.backNote || '';
+  renderStepper(s);
+  renderModalFiles(s);
+  renderModalNotes(s);
+  showTab('detail','overview');
+  document.getElementById('sku-modal').classList.add('open');
+}
+function renderStepper(s) {
+  const stages = [
+    { label:'Brief', done: true },
+    { label:'Front', done: s.front==='approved' },
+    { label:'Back',  done: s.back==='approved' },
+    { label:'Compliance', done: complianceScore(s.id).passed === COMPLIANCE_CHECKS.length },
+    { label:'Print Ready', done: isPrintReady(s) },
+    { label:'At Printer', done: false },
+  ];
+  const active = stages.findIndex(st => !st.done);
+  document.getElementById('modal-stepper').innerHTML = stages.map((st, i) => `
+    <div class="step-item">
+      <div class="step-dot ${st.done?'done':i===active?'active':''}">${st.done?'✓':(i+1)}</div>
+      <span class="step-label ${i===active?'active':''}">${st.label}</span>
+      ${i < stages.length-1 ? '<div class="step-line"></div>' : ''}
+    </div>
+  `).join('');
+}
+function renderModalFiles(s) {
+  const el = document.getElementById('modal-files-list');
+  if (!s.files || !s.files.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">No files uploaded yet</div>';
+    return;
+  }
+  el.innerHTML = s.files.map((f,i) => `
+    <div style="display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:2px;padding:8px 12px;margin-bottom:6px;">
+      <span style="font-size:16px;">📄</span>
+      <span style="font-size:12px;flex:1;">${f.name}</span>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">${f.size}</span>
+      <button class="row-btn" onclick="removeFile(${i})">✕</button>
+    </div>
+  `).join('');
+}
+function renderModalNotes(s) {
+  const el = document.getElementById('modal-notes-list');
+  if (!s.activityNotes || !s.activityNotes.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">No notes yet</div>';
+    return;
+  }
+  el.innerHTML = s.activityNotes.map(n => `
+    <div class="note-item">
+      <div class="note-meta">${n.date} · ${n.author||'You'}</div>
+      <div class="note-text">${n.text}</div>
+    </div>
+  `).join('');
+}
+function handleFiles(e) {
+  const s = skus.find(x => x.id === editingId);
+  if (!s) return;
+  Array.from(e.target.files).forEach(f => {
+    const kb = (f.size/1024).toFixed(0);
+    const size = kb > 1024 ? (kb/1024).toFixed(1)+'MB' : kb+'KB';
+    s.files.push({ name: f.name, size });
+  });
+  saveData();
+  renderModalFiles(s);
+}
+function removeFile(i) {
+  const s = skus.find(x => x.id === editingId);
+  if (!s) return;
+  s.files.splice(i,1);
+  saveData();
+  renderModalFiles(s);
+}
+function addNote() {
+  const s = skus.find(x => x.id === editingId);
+  const text = document.getElementById('new-note-text').value.trim();
+  if (!s || !text) return;
+  s.activityNotes.push({ text, date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), author:'You' });
+  document.getElementById('new-note-text').value = '';
+  saveData();
+  renderModalNotes(s);
+}
+function saveSKU() {
+  const s = skus.find(x => x.id === editingId);
+  if (!s) return;
+  s.name = document.getElementById('d-name').value;
+  s.brand = document.getElementById('d-brand').value;
+  s.size = document.getElementById('d-size').value;
+  s.format = document.getElementById('d-format').value;
+  s.owner = document.getElementById('d-owner').value;
+  s.priority = document.getElementById('d-priority').value;
+  s.deadline = document.getElementById('d-deadline').value;
+  s.notes = document.getElementById('d-notes').value;
+  s.front = document.getElementById('d-front-status').value;
+  s.back = document.getElementById('d-back-status').value;
+  s.print = document.getElementById('d-print-status').value;
+  s.frontNote = document.getElementById('d-front-note').value;
+  s.backNote = document.getElementById('d-back-note').value;
+  saveData();
+  renderTable();
+  closeModal('sku-modal');
+}
+function deleteSKU() {
+  if (!confirm('Delete this SKU?')) return;
+  skus = skus.filter(x => x.id !== editingId);
+  saveData();
+  renderTable();
+  closeModal('sku-modal');
+}
+
+// ── NEW SKU ──────────────────────────────────────────
+function openNewSKU() { document.getElementById('new-sku-modal').classList.add('open'); }
+function createSKU() {
+  const name = document.getElementById('n-name').value.trim();
+  if (!name) { alert('SKU name required'); return; }
+  const id = 'custom-' + Date.now();
+  skus.push({
+    id, brand: document.getElementById('n-brand').value,
+    name, size: document.getElementById('n-size').value,
+    format: document.getElementById('n-format').value,
+    owner: document.getElementById('n-owner').value,
+    priority: document.getElementById('n-priority').value,
+    front:'not-started', back:'not-started', print:'not-started',
+    deadline:'', notes:'', frontNote:'', backNote:'', files:[], activityNotes:[]
+  });
+  saveData(); renderTable(); closeModal('new-sku-modal');
+  document.getElementById('n-name').value = '';
+}
+
+// ── COMPLIANCE ───────────────────────────────────────
+function populateComplianceSelect() {
+  const sel = document.getElementById('compliance-sku-select');
+  sel.innerHTML = '<option value="">— choose SKU —</option>' +
+    skus.map(s => `<option value="${s.id}">${s.brand} — ${s.name}</option>`).join('');
+}
+function loadComplianceChecks() {
+  const skuId = document.getElementById('compliance-sku-select').value;
+  const body = document.getElementById('compliance-body');
+  if (!skuId) { body.innerHTML = ''; return; }
+  const s = skus.find(x => x.id === skuId);
+  const state = complianceState[skuId] || {};
+  const tags = ['fda','brand','print'];
+  const tagLabels = { fda:'🇺🇸 FDA & Regulatory', brand:'🎨 Brand Guardrails', print:'🖨️ Print Specs' };
+  body.innerHTML = tags.map(tag => `
+    <div class="slabel" style="margin-top:${tag==='fda'?0:24}px;">${tagLabels[tag]}</div>
+    <div class="checklist">
+      ${COMPLIANCE_CHECKS.filter(c => c.tag === tag).map(c => {
+        const val = state[c.id];
+        return `<div class="check-item ${val==='pass'?'checked':val==='fail'?'failed':''}" id="ci-${c.id}" onclick="toggleCheck('${skuId}','${c.id}')">
+          <div class="check-box">${val==='pass'?'✓':val==='fail'?'✗':''}</div>
+          <div style="flex:1;">
+            <div class="check-text">${c.text}</div>
+            <div class="check-req">${c.req}</div>
+          </div>
+          <span class="check-tag ${c.tag}">${c.tag.toUpperCase()}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+
+  const { passed, total } = complianceScore(skuId);
+  const pct = Math.round(passed/total*100);
+  body.innerHTML += `
+    <div style="margin-top:24px;background:var(--surface2);border:1px solid var(--border);border-radius:2px;padding:16px;display:flex;align-items:center;gap:16px;">
+      <div style="flex:1;">
+        <div style="font-size:12px;margin-bottom:8px;color:var(--dim)">Compliance progress: <strong style="color:var(--text)">${passed} / ${total} checks</strong></div>
+        <div class="progress-bar" style="height:6px;"><div class="progress-fill ${pct===100?'green':pct>60?'yellow':'red'}" style="width:${pct}%"></div></div>
+      </div>
+      ${pct===100 ? `<span class="badge badge-approved" style="font-size:11px;">✓ Compliance Passed</span>` : `<span class="badge badge-not-started">${pct}% complete</span>`}
+    </div>`;
+}
+function toggleCheck(skuId, checkId) {
+  if (!complianceState[skuId]) complianceState[skuId] = {};
+  const cur = complianceState[skuId][checkId];
+  complianceState[skuId][checkId] = cur === 'pass' ? 'fail' : cur === 'fail' ? null : 'pass';
+  saveData();
+  loadComplianceChecks();
+  renderStats();
+}
+
+// ── PRINT QUEUE ──────────────────────────────────────
+function renderPrintQueue() {
+  const ready = skus.filter(isPrintReady);
+  const body = document.getElementById('print-queue-body');
+  if (!ready.length) {
+    body.innerHTML = `<div class="empty"><div class="empty-icon">🖨️</div><div class="empty-text">No SKUs are print ready yet.<br>Front + Back must be approved and Print spec confirmed.</div></div>`;
+    return;
+  }
+  body.innerHTML = `
+    <div class="slabel">${ready.length} SKU${ready.length!==1?'s':''} ready to send</div>
+    ${ready.map(s => `
+      <div style="background:var(--surface);border:1px solid rgba(74,222,128,.25);border-radius:2px;padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;gap:16px;">
+        <span style="font-size:20px;">✅</span>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:14px;">${s.name}</div>
+          <div style="font-size:12px;color:var(--dim);margin-top:2px;">${s.brand} · ${s.size} · ${s.format}</div>
+        </div>
+        <span class="brand-pill ${BRAND_CLASS[s.brand]||''}">${s.brand}</span>
+        <button class="btn btn-primary" onclick="openSKU('${s.id}')">View Files →</button>
+      </div>
+    `).join('')}
+    <div style="margin-top:24px;background:var(--surface2);border:1px solid var(--border);border-radius:2px;padding:16px 20px;">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Printer Checklist</div>
+      <div style="font-size:12px;color:var(--dim);line-height:2;">
+        ☐ Export final PDF/X-1a with bleed + crop marks<br>
+        ☐ Confirm CMYK color profile with printer<br>
+        ☐ Send dieline separately (labeled layer)<br>
+        ☐ Request color proof before full run<br>
+        ☐ Confirm quantity, substrate, and finish (matte/gloss/soft touch)<br>
+        ☐ Get PO confirmation + lead time in writing
+      </div>
+    </div>`;
+}
+
+// ── EXPORT ───────────────────────────────────────────
+function exportCSV() {
+  const rows = [['Brand','SKU Name','Size','Format','Front','Back','Print','Owner','Priority','Deadline']];
+  skus.forEach(s => rows.push([s.brand,s.name,s.size,s.format,s.front,s.back,s.print,s.owner||'',s.priority,s.deadline||'']));
+  const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'hs-print-board-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+// ── HELPERS ──────────────────────────────────────────
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'sku-modal') { editingId = null; renderTable(); }
+}
+function showTab(group, tab) {
+  document.querySelectorAll(`#${group}-tab-${tab}`.replace(`-tab-${tab}`,'')+' .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll(`[id^="${group}-tab-"]`).forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(`${group}-tab-${tab}`).classList.add('active');
+}
+document.querySelectorAll('.modal-bg').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// ── INIT ─────────────────────────────────────────────
+loadData();
+renderTable();
+</script>
+</body>
+</html>
