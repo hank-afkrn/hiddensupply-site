@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hidden Supply — SKU Admin v2</title>
+<title>Hidden Supply — Admin</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -179,6 +179,104 @@
 
   .pkg-other { display: none; margin-top: 8px; }
   .pkg-other.show { display: block; }
+
+  /* ---- TOOL SWITCHER ---- */
+  .tool-nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; align-items: center; gap: 4px; }
+  .tnav-btn { display: flex; align-items: center; gap: 8px; padding: 0 16px; height: 42px; font-size: 12px; font-weight: 600; letter-spacing: .08em; color: var(--text-muted); cursor: pointer; border: none; background: none; font-family: var(--font); position: relative; transition: color .15s; white-space: nowrap; }
+  .tnav-btn::after { content:''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: transparent; transition: background .15s; }
+  .tnav-btn:hover { color: var(--text); }
+  .tnav-btn.active { color: var(--text); }
+  .tnav-btn.active::after { background: var(--accent); }
+  .tnav-icon { font-size: 13px; }
+  .tnav-badge { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; background: var(--surface-3); color: var(--text-muted); }
+  .tnav-btn.active .tnav-badge { background: var(--accent-dim); color: var(--accent); }
+
+  /* ---- TOOL PANELS ---- */
+  .tool-panel { display: none; }
+  .tool-panel.active { display: block; }
+  .tool-panel-iframe { display: none; }
+  .tool-panel-iframe.active { display: flex; flex-direction: column; height: calc(100vh - 56px - 42px); }
+  .tool-iframe { flex: 1; border: none; width: 100%; height: 100%; display: block; }
+
+  /* ---- FDA LABEL BUILDER ---- */
+  .fda-wrap { max-width: 1160px; margin: 0 auto; padding: 36px 32px; }
+  .fda-layout { display: grid; grid-template-columns: 1fr 320px; gap: 28px; }
+  .fda-form-col { display: flex; flex-direction: column; gap: 20px; }
+  .fda-preview-col { position: sticky; top: 20px; align-self: start; }
+
+  .section-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+  .sc-hdr { padding: 13px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .sc-title { font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--text-muted); }
+  .sc-body { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .form-row.single { grid-template-columns: 1fr; }
+  .fi { display: flex; flex-direction: column; gap: 5px; }
+  .fi label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
+  .fi input, .fi textarea, .fi select { background: var(--surface-2); border: 1px solid var(--border); border-radius: 5px; color: var(--text); font-family: var(--font); font-size: 13px; padding: 8px 12px; outline: none; transition: border-color .15s; width: 100%; }
+  .fi input:focus, .fi textarea:focus, .fi select:focus { border-color: var(--border-active); }
+  .fi textarea { resize: vertical; min-height: 72px; }
+  .fi input[type=number] { font-family: var(--mono); }
+
+  .nr-table { width: 100%; border-collapse: collapse; }
+  .nr-table tr { border-bottom: 1px solid var(--border); }
+  .nr-table tr:last-child { border-bottom: none; }
+  .nr-table td { padding: 5px 4px; vertical-align: middle; }
+  .nr-table .td-name { font-size: 12px; color: var(--text); white-space: nowrap; }
+  .nr-table .td-name.bold { font-weight: 700; }
+  .nr-table .td-name.sub { padding-left: 14px; color: var(--text-dim); font-size: 11px; }
+  .nr-table .td-name.subsub { padding-left: 24px; color: var(--text-dim); font-size: 11px; }
+  .nr-table .td-unit { font-size: 10px; color: var(--text-muted); padding-left: 2px; }
+  .nri { background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: var(--mono); font-size: 12px; padding: 4px 7px; outline: none; width: 64px; transition: border-color .15s; }
+  .nri:focus { border-color: var(--border-active); }
+  .nri.pct { width: 52px; }
+
+  .allergen-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+  .ag-chip { display: flex; align-items: center; gap: 5px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 5px 10px; cursor: pointer; user-select: none; transition: all .15s; }
+  .ag-chip:hover { border-color: var(--border-active); }
+  .ag-chip.on { background: var(--red-dim); border-color: var(--red); }
+  .ag-chip span { font-size: 11px; font-weight: 600; color: var(--text-dim); }
+  .ag-chip.on span { color: var(--red); }
+
+  /* FDA PREVIEW (white box) */
+  .fda-preview-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .fda-ph { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .fda-ph-title { font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--text-muted); }
+  .fda-ph-actions { display: flex; gap: 7px; }
+  .fda-ab { background: transparent; border: 1px solid var(--border); border-radius: 4px; color: var(--text-muted); cursor: pointer; font-family: var(--font); font-size: 10px; font-weight: 600; letter-spacing: .1em; padding: 5px 11px; text-transform: uppercase; transition: all .15s; }
+  .fda-ab:hover { border-color: var(--accent); color: var(--accent); }
+  .fda-ab.pri { background: var(--accent); border-color: var(--accent); color: #111; }
+  .fda-ab.pri:hover { opacity: .88; }
+  .fda-preview-body { padding: 18px 20px; background: #fff; }
+
+  #fda-label { font-family: Arial, Helvetica, sans-serif; color: #000; max-width: 260px; margin: 0 auto; border: 2px solid #000; padding: 5px 7px; font-size: 12px; line-height: 1.3; }
+  #fda-label .fl-title { font-size: 26px; font-weight: 900; letter-spacing: -.5px; line-height: 1; border-bottom: 9px solid #000; padding-bottom: 3px; margin-bottom: 3px; }
+  #fda-label .fl-ss { font-size: 10px; font-weight: 700; margin-bottom: 1px; }
+  #fda-label .fl-spc { font-size: 10px; margin-bottom: 3px; }
+  #fda-label .fl-cal-row { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 4px solid #000; padding: 2px 0 3px; margin-bottom: 2px; }
+  #fda-label .fl-cal-lbl { font-size: 12px; font-weight: 700; }
+  #fda-label .fl-cal-num { font-size: 36px; font-weight: 900; line-height: 1; }
+  #fda-label .fl-pct-hdr { text-align: right; font-size: 8px; font-weight: 700; border-bottom: 1px solid #000; padding-bottom: 1px; margin-bottom: 1px; }
+  #fda-label .nr { display: flex; justify-content: space-between; align-items: baseline; font-size: 10px; padding: 1px 0; }
+  #fda-label .nr.bld { font-weight: 700; border-top: 1px solid #000; }
+  #fda-label .nr.sb { padding-left: 12px; font-weight: 400; font-size: 9px; }
+  #fda-label .nr.ssb { padding-left: 20px; font-weight: 400; font-size: 9px; }
+  #fda-label .nr .pct { font-weight: 700; }
+  #fda-label .fl-foot { font-size: 7px; line-height: 1.3; border-top: 1px solid #000; margin-top: 4px; padding-top: 3px; }
+  #fda-label .fl-ing { font-size: 8px; line-height: 1.4; border-top: 2px solid #000; margin-top: 4px; padding-top: 3px; }
+  #fda-label .fl-all { font-size: 8px; font-weight: 700; margin-top: 2px; }
+  #fda-label .fl-dist { font-size: 7px; margin-top: 3px; color: #333; }
+
+  .fda-lib { padding: 12px; max-height: 220px; overflow-y: auto; }
+  .fda-lib-item { display: flex; align-items: center; justify-content: space-between; padding: 7px 6px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .fda-lib-item:last-child { border-bottom: none; }
+  .fda-lib-item:hover { background: var(--surface-2); border-radius: 4px; }
+  .fda-lib-name { font-size: 12px; font-weight: 700; color: var(--text); }
+  .fda-lib-sub { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+  .fda-lib-del { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px; padding: 2px 6px; }
+  .fda-lib-del:hover { color: var(--red); }
+  .fda-export-row { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; gap: 7px; }
+
   @media (max-width: 800px) {
     .content { padding: 24px 16px; }
     .mockup-grid { grid-template-columns: 1fr; }
@@ -190,12 +288,58 @@
 </style>
 </head>
 <body>
+<!-- HS APP NAV -->
+<div id="hs-appnav" style="position:fixed;top:0;left:0;right:0;height:32px;background:#0d0d0d;border-bottom:1px solid #222;display:flex;align-items:center;padding:0 14px;gap:4px;z-index:9999;font-family:'Space Grotesk',-apple-system,sans-serif;font-size:11px;">
+  <a href="https://hiddensupply.co/admin" style="color:#555;text-decoration:none;font-weight:700;letter-spacing:.1em;font-size:10px;text-transform:uppercase;padding:4px 8px;border-radius:3px;white-space:nowrap;" onmouseover="this.style.color='#e0e0e0'" onmouseout="this.style.color='#555'">&#8962; Tower</a>
+  <div style="width:1px;height:14px;background:#2a2a2a;margin:0 2px;"></div>
+  <a href="/v6-os/admin/index.html" class="hs-nav-item" data-id="sku-wizard">&#9879;&#65039; SKU Wizard</a>
+  <a href="http://20.165.197.60:8095" class="hs-nav-item" data-id="pkg-studio">&#128230; Packaging Studio</a>
+  <a href="http://20.165.197.60:8095/rescue.html" class="hs-nav-item" data-id="rescue">&#128657; Rescue Mode</a>
+  <a href="http://20.165.197.60:8095/direction.html" class="hs-nav-item" data-id="direction">&#9999;&#65039; Direction</a>
+  <a href="http://20.165.197.60:8086" class="hs-nav-item" data-id="assets">&#128193; Assets</a>
+  <a href="http://20.165.197.60:8082" class="hs-nav-item" data-id="design-ops">&#128203; Design Ops</a>
+  <a href="/v6/index.html" class="hs-nav-item" data-id="site">&#127760; Site</a>
+</div>
+<style>
+.hs-nav-item{color:#555;text-decoration:none;font-weight:600;padding:4px 9px;border-radius:3px;white-space:nowrap;transition:color .12s,background .12s;}
+.hs-nav-item:hover{color:#e0e0e0;background:#1a1a1a;}
+.hs-nav-item.hs-current{color:#f0e040;background:rgba(240,224,64,.08);}
+body{padding-top:32px!important;}
+</style>
+<script>
+(function(){
+  var path=window.location.pathname+window.location.href;
+  var map={"sku-wizard":"v6-os/admin","pkg-studio":"8095","rescue":"rescue.html","direction":"direction.html","assets":"8086","design-ops":"8082","site":"/v6/"};
+  Object.keys(map).forEach(function(id){
+    if(path.indexOf(map[id])>-1){
+      var el=document.querySelector("[data-id='"+id+"']");
+      if(el)el.classList.add("hs-current");
+    }
+  });
+})();
+</script>
+
 
 <header>
-  <div class="hbrand">Hidden Supply — SKU Admin <span class="v">v2</span></div>
+  <div class="hbrand">Hidden Supply <span class="v">Admin</span></div>
   <div class="hright">Internal Use Only</div>
 </header>
 
+<!-- TOOL NAV -->
+<div class="tool-nav">
+  <button class="tnav-btn active" id="tnav-sku" onclick="switchTool('sku')">
+    <span class="tnav-icon">✦</span> SKU Builder
+  </button>
+  <button class="tnav-btn" id="tnav-fda" onclick="switchTool('fda')">
+    <span class="tnav-icon">🧾</span> FDA Label <span class="tnav-badge">New</span>
+  </button>
+  <button class="tnav-btn" id="tnav-ps" onclick="switchTool('ps')">
+    <span class="tnav-icon">📦</span> Packaging Studio
+  </button>
+</div>
+
+<!-- ===== TOOL: SKU BUILDER ===== -->
+<div class="tool-panel active" id="tool-sku">
 <div class="stepper">
   <div class="step active" id="st1"><div class="step-n">1</div><div class="step-lbl">Input</div></div>
   <div class="step-div"></div>
@@ -333,6 +477,179 @@
     </div>
   </div>
 
+</div>
+
+</div><!-- /tool-sku -->
+
+<!-- ===== TOOL: FDA LABEL BUILDER ===== -->
+<div class="tool-panel" id="tool-fda" style="overflow-y:auto;max-height:calc(100vh - 98px);">
+<div class="fda-wrap">
+  <div class="stitle" style="margin-bottom:6px;">FDA Label Builder</div>
+  <div class="ssub">Fill in the nutrition data — live preview updates as you type. Download, print, or save to library.</div>
+
+  <div class="fda-layout">
+    <!-- LEFT FORM -->
+    <div class="fda-form-col">
+
+      <div class="section-card">
+        <div class="sc-hdr"><div class="sc-title">SKU Identity</div></div>
+        <div class="sc-body">
+          <div class="form-row single"><div class="fi"><label>Product Name</label><input type="text" id="fda-pname" placeholder="e.g. Juice Bomb Astronauts" oninput="fdaUpdate()"/></div></div>
+          <div class="form-row">
+            <div class="fi"><label>Brand</label>
+              <select id="fda-brand" onchange="fdaUpdate()">
+                <option value="">— Select —</option>
+                <option>Juice Bomb</option><option>Dirty Sips</option><option>Candu</option><option>PeelPals</option><option>Nauti Labs</option>
+              </select>
+            </div>
+            <div class="fi"><label>Format</label>
+              <select id="fda-format" onchange="fdaUpdate()">
+                <option>Stand-Up Pouch</option><option>Blister Card</option><option>Box / Tray</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="sc-hdr"><div class="sc-title">Serving Info</div></div>
+        <div class="sc-body">
+          <div class="form-row">
+            <div class="fi"><label>Serving Size</label><input type="text" id="fda-ss" placeholder="5 pieces (40g)" oninput="fdaUpdate()"/></div>
+            <div class="fi"><label>Servings Per Container</label><input type="text" id="fda-spc" placeholder="About 3" oninput="fdaUpdate()"/></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="sc-hdr"><div class="sc-title">Nutrition Facts</div></div>
+        <div class="sc-body" style="padding:0 18px 16px;">
+          <table class="nr-table" style="margin-top:14px;">
+            <tr><td class="td-name bold">Calories</td><td></td><td><input class="nri" type="number" id="n-cal" placeholder="0" min="0" oninput="fdaUpdate()"/></td><td class="td-unit"></td></tr>
+            <tr><td colspan="4" style="padding:6px 0 2px;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);border-top:1px solid var(--border);">% Daily Value</td></tr>
+            <tr><td class="td-name bold">Total Fat</td><td class="td-unit">g</td><td><input class="nri" type="number" id="n-tf" placeholder="0" oninput="fdaUpdate()"/></td><td><input class="nri pct" type="number" id="p-tf" placeholder="%" oninput="fdaUpdate()"/><span class="td-unit">%</span></td></tr>
+            <tr><td class="td-name sub">Saturated Fat</td><td class="td-unit">g</td><td><input class="nri" type="number" id="n-sf" placeholder="0" oninput="fdaUpdate()"/></td><td><input class="nri pct" type="number" id="p-sf" placeholder="%" oninput="fdaUpdate()"/><span class="td-unit">%</span></td></tr>
+            <tr><td class="td-name sub"><i>Trans</i> Fat</td><td class="td-unit">g</td><td><input class="nri" type="number" id="n-xf" placeholder="0" oninput="fdaUpdate()"/></td><td></td></tr>
+            <tr><td class="td-name bold">Cholesterol</td><td class="td-unit">mg</td><td><input class="nri" type="number" id="n-ch" placeholder="0" oninput="fdaUpdate()"/></td><td><input class="nri pct" type="number" id="p-ch" placeholder="%" oninput="fdaUpdate()"/><span class="td-unit">%</span></td></tr>
+            <tr><td class="td-name bold">Sodium</td><td class="td-unit">mg</td><td><input class="nri" type="number" id="n-na" placeholder="0" oninput="fdaUpdate()"/></td><td><input class="nri pct" type="number" id="p-na" placeholder="%" oninput="fdaUpdate()"/><span class="td-unit">%</span></td></tr>
+            <tr><td class="td-name bold">Total Carbohydrate</td><td class="td-unit">g</td><td><input class="nri" type="number" id="n-tc" placeholder="0" oninput="fdaUpdate()"/></td><td><input class="nri pct" type="number" id="p-tc" placeholder="%" oninput="fdaUpdate()"/><span class="td-unit">%</span></td></tr>
+            <tr><td class="td-name sub">Dietary Fiber</td><td class="td-unit">g</td><td><input class="nri" type="number" id="n-df" placeholder="0" oninput="fdaUpdate()"/></td><td><input class="nri pct" type="number" id="p-df" placeholder="%" oninput="fdaUpdate()"/><span class="td-unit">%</span></td></tr>
+            <tr><td class="td-name sub">Total Sugars</td><td class="td-unit">g</td><td><input class="nri" type="number" id="n-su" placeholder="0" oninput="fdaUpdate()"/></td><td></td></tr>
+            <tr><td class="td-name subsub">Incl. Added Sugars</td><td class="td-unit">g</td><td><input class="nri" type="number" id="n-as" placeholder="0" oninput="fdaUpdate()"/></td><td><input class="nri pct" type="number" id="p-as" placeholder="%" oninput="fdaUpdate()"/><span class="td-unit">%</span></td></tr>
+            <tr><td class="td-name bold">Protein</td><td class="td-unit">g</td><td><input class="nri" type="number" id="n-pr" placeholder="0" oninput="fdaUpdate()"/></td><td></td></tr>
+            <tr><td colspan="4" style="padding:6px 0 2px;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);border-top:1px solid var(--border);">Micronutrients</td></tr>
+            <tr><td class="td-name">Vitamin D</td><td class="td-unit">mcg</td><td><input class="nri" type="number" id="n-vd" placeholder="0" oninput="fdaUpdate()"/></td><td><input class="nri pct" type="number" id="p-vd" placeholder="%" oninput="fdaUpdate()"/><span class="td-unit">%</span></td></tr>
+            <tr><td class="td-name">Calcium</td><td class="td-unit">mg</td><td><input class="nri" type="number" id="n-ca" placeholder="0" oninput="fdaUpdate()"/></td><td><input class="nri pct" type="number" id="p-ca" placeholder="%" oninput="fdaUpdate()"/><span class="td-unit">%</span></td></tr>
+            <tr><td class="td-name">Iron</td><td class="td-unit">mg</td><td><input class="nri" type="number" id="n-fe" placeholder="0" oninput="fdaUpdate()"/></td><td><input class="nri pct" type="number" id="p-fe" placeholder="%" oninput="fdaUpdate()"/><span class="td-unit">%</span></td></tr>
+            <tr><td class="td-name">Potassium</td><td class="td-unit">mg</td><td><input class="nri" type="number" id="n-k" placeholder="0" oninput="fdaUpdate()"/></td><td><input class="nri pct" type="number" id="p-k" placeholder="%" oninput="fdaUpdate()"/><span class="td-unit">%</span></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="sc-hdr"><div class="sc-title">Ingredients & Allergens</div></div>
+        <div class="sc-body">
+          <div class="fi"><label>Ingredients (descending weight — CAPS for allergens)</label>
+            <textarea id="fda-ing" rows="4" placeholder="SUGAR, CORN SYRUP, CARNAUBA WAX, NATURAL AND ARTIFICIAL FLAVORS, CITRIC ACID..." oninput="fdaUpdate()"></textarea>
+          </div>
+          <div class="fi"><label>Allergens — click to toggle</label>
+            <div class="allergen-grid" style="margin-top:4px">
+              <div class="ag-chip" onclick="toggleAl(this,'Wheat')"><span>Wheat</span></div>
+              <div class="ag-chip" onclick="toggleAl(this,'Milk')"><span>Milk</span></div>
+              <div class="ag-chip" onclick="toggleAl(this,'Eggs')"><span>Eggs</span></div>
+              <div class="ag-chip" onclick="toggleAl(this,'Fish')"><span>Fish</span></div>
+              <div class="ag-chip" onclick="toggleAl(this,'Shellfish')"><span>Shellfish</span></div>
+              <div class="ag-chip" onclick="toggleAl(this,'Tree Nuts')"><span>Tree Nuts</span></div>
+              <div class="ag-chip" onclick="toggleAl(this,'Peanuts')"><span>Peanuts</span></div>
+              <div class="ag-chip" onclick="toggleAl(this,'Soybeans')"><span>Soybeans</span></div>
+              <div class="ag-chip" onclick="toggleAl(this,'Sesame')"><span>Sesame</span></div>
+            </div>
+          </div>
+          <div class="fi"><label>Custom Allergen Statement (overrides auto)</label>
+            <input type="text" id="fda-al-custom" placeholder="Leave blank to auto-generate from selections above" oninput="fdaUpdate()"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="sc-hdr"><div class="sc-title">Net Weight & Distributor</div></div>
+        <div class="sc-body">
+          <div class="form-row">
+            <div class="fi"><label>Net Wt (oz)</label><input type="number" id="fda-oz" placeholder="5" oninput="fdaUpdate()"/></div>
+            <div class="fi"><label>Net Wt (g)</label><input type="number" id="fda-g" placeholder="140" oninput="fdaUpdate()"/></div>
+          </div>
+          <div class="fi"><label>Distributor Line</label>
+            <input type="text" id="fda-dist" value="Distributed by: Nauti Co, Los Angeles, CA 90210 | nautico.com" oninput="fdaUpdate()"/>
+          </div>
+          <div class="fi"><label>Country of Origin</label>
+            <input type="text" id="fda-origin" value="Manufactured in China" oninput="fdaUpdate()"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PREVIEW -->
+    <div class="fda-preview-col">
+      <div class="fda-preview-card">
+        <div class="fda-ph">
+          <div class="fda-ph-title">Live Preview</div>
+          <div class="fda-ph-actions">
+            <button class="fda-ab" onclick="fdaCopyJson()">JSON</button>
+            <button class="fda-ab" onclick="fdaPrint()">Print</button>
+            <button class="fda-ab pri" onclick="fdaDownload()">Download</button>
+          </div>
+        </div>
+        <div class="fda-preview-body">
+          <div id="fda-label">
+            <div class="fl-title">Nutrition Facts</div>
+            <div class="fl-ss">Serving size <span id="l-ss">—</span></div>
+            <div class="fl-spc"><span id="l-spc">—</span> servings per container</div>
+            <div class="fl-cal-row"><div class="fl-cal-lbl">Calories</div><div class="fl-cal-num" id="l-cal">0</div></div>
+            <div class="fl-pct-hdr">% Daily Value*</div>
+            <div class="nr bld"><span><b>Total Fat</b> <span id="l-tf">0</span>g</span><span class="pct" id="l-ptf">0%</span></div>
+            <div class="nr sb"><span>Saturated Fat <span id="l-sf">0</span>g</span><span class="pct" id="l-psf">0%</span></div>
+            <div class="nr sb"><span><i>Trans</i> Fat <span id="l-xf">0</span>g</span><span></span></div>
+            <div class="nr bld"><span><b>Cholesterol</b> <span id="l-ch">0</span>mg</span><span class="pct" id="l-pch">0%</span></div>
+            <div class="nr bld"><span><b>Sodium</b> <span id="l-na">0</span>mg</span><span class="pct" id="l-pna">0%</span></div>
+            <div class="nr bld"><span><b>Total Carbohydrate</b> <span id="l-tc">0</span>g</span><span class="pct" id="l-ptc">0%</span></div>
+            <div class="nr sb"><span>Dietary Fiber <span id="l-df">0</span>g</span><span class="pct" id="l-pdf">0%</span></div>
+            <div class="nr sb"><span>Total Sugars <span id="l-su">0</span>g</span><span></span></div>
+            <div class="nr ssb"><span>Includes <span id="l-as">0</span>g Added Sugars</span><span class="pct" id="l-pas">0%</span></div>
+            <div class="nr bld" style="border-bottom:4px solid #000"><span><b>Protein</b> <span id="l-pr">0</span>g</span><span></span></div>
+            <div class="nr" style="border-top:1px solid #000;padding-top:2px"><span>Vitamin D <span id="l-vd">0</span>mcg</span><span class="pct" id="l-pvd">0%</span></div>
+            <div class="nr"><span>Calcium <span id="l-ca">0</span>mg</span><span class="pct" id="l-pca">0%</span></div>
+            <div class="nr"><span>Iron <span id="l-fe">0</span>mg</span><span class="pct" id="l-pfe">0%</span></div>
+            <div class="nr"><span>Potassium <span id="l-k">0</span>mg</span><span class="pct" id="l-pk">0%</span></div>
+            <div class="fl-foot">*The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.</div>
+            <div class="fl-ing"><strong>INGREDIENTS:</strong> <span id="l-ing">—</span></div>
+            <div class="fl-all" id="l-all"></div>
+            <div class="fl-dist" id="l-dist">—</div>
+          </div>
+        </div>
+        <div class="fda-export-row">
+          <button class="fda-ab" style="flex:1" onclick="fdaClear()">Clear</button>
+          <button class="fda-ab pri" style="flex:2" onclick="fdaSave()">Save to Library</button>
+        </div>
+      </div>
+
+      <!-- Library -->
+      <div class="section-card" style="margin-top:16px;">
+        <div class="sc-hdr">
+          <div class="sc-title">Saved Labels</div>
+          <span style="font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;" onclick="fdaClearLib()">Clear All</span>
+        </div>
+        <div class="fda-lib" id="fda-lib">
+          <div id="fda-lib-empty" style="font-size:11px;color:var(--text-muted);text-align:center;padding:16px 0;">No saved labels yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- /tool-fda -->
+
+<!-- ===== TOOL: PACKAGING STUDIO ===== -->
+<div class="tool-panel-iframe" id="tool-ps">
+  <iframe class="tool-iframe" id="ps-iframe" src="about:blank" title="Packaging Studio"></iframe>
 </div>
 
 <div class="toast" id="toast"><div class="toast-t" id="tt"></div><div class="toast-b" id="tb"></div></div>
@@ -790,6 +1107,207 @@ function deployAct() {
   if (!document.getElementById('btn-deploy').classList.contains('ready')) return;
   toast('Deploy Pipeline','Not yet connected. Export JSON to hand off.',4000);
 }
+// ============================================================
+//  TOOL SWITCHER
+// ============================================================
+function switchTool(id) {
+  // panels
+  document.querySelectorAll('.tool-panel, .tool-panel-iframe').forEach(p => p.classList.remove('active'));
+  document.getElementById('tool-' + id).classList.add('active');
+  // nav buttons
+  document.querySelectorAll('.tnav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tnav-' + id).classList.add('active');
+  // lazy load PS
+  if (id === 'ps') {
+    const f = document.getElementById('ps-iframe');
+    if (f.src === 'about:blank') f.src = 'http://20.165.197.60:8095';
+  }
+}
+
+// ============================================================
+//  FDA LABEL BUILDER
+// ============================================================
+let fdaAllergens = new Set();
+let fdaLib = JSON.parse(localStorage.getItem('hs_fda_lib') || '[]');
+
+function toggleAl(el, name) {
+  el.classList.toggle('on');
+  el.classList.contains('on') ? fdaAllergens.add(name) : fdaAllergens.delete(name);
+  fdaUpdate();
+}
+
+function g(id) { return (document.getElementById(id)?.value || '').trim(); }
+function gn(id) { return document.getElementById(id)?.value || '0'; }
+
+function fdaUpdate() {
+  const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v || '—'; };
+  s('l-ss', g('fda-ss')); s('l-spc', g('fda-spc')); s('l-cal', gn('n-cal'));
+  s('l-tf', gn('n-tf')); s('l-ptf', gn('p-tf') + '%');
+  s('l-sf', gn('n-sf')); s('l-psf', gn('p-sf') + '%');
+  s('l-xf', gn('n-xf'));
+  s('l-ch', gn('n-ch')); s('l-pch', gn('p-ch') + '%');
+  s('l-na', gn('n-na')); s('l-pna', gn('p-na') + '%');
+  s('l-tc', gn('n-tc')); s('l-ptc', gn('p-tc') + '%');
+  s('l-df', gn('n-df')); s('l-pdf', gn('p-df') + '%');
+  s('l-su', gn('n-su'));
+  s('l-as', gn('n-as')); s('l-pas', gn('p-as') + '%');
+  s('l-pr', gn('n-pr'));
+  s('l-vd', gn('n-vd')); s('l-pvd', gn('p-vd') + '%');
+  s('l-ca', gn('n-ca')); s('l-pca', gn('p-ca') + '%');
+  s('l-fe', gn('n-fe')); s('l-pfe', gn('p-fe') + '%');
+  s('l-k',  gn('n-k'));  s('l-pk',  gn('p-k')  + '%');
+  s('l-ing', g('fda-ing'));
+
+  const allEl = document.getElementById('l-all');
+  const custom = g('fda-al-custom');
+  if (allEl) allEl.textContent = custom ? custom : fdaAllergens.size ? 'Contains: ' + [...fdaAllergens].join(', ') + '.' : '';
+
+  const distParts = [g('fda-dist'), g('fda-origin')].filter(Boolean);
+  s('l-dist', distParts.join(' | '));
+}
+
+function fdaGetData() {
+  return {
+    product: g('fda-pname'), brand: g('fda-brand'), format: g('fda-format'),
+    serving_size: g('fda-ss'), servings: g('fda-spc'),
+    calories: gn('n-cal'),
+    total_fat: gn('n-tf'), p_total_fat: gn('p-tf'),
+    sat_fat: gn('n-sf'), p_sat_fat: gn('p-sf'), trans_fat: gn('n-xf'),
+    cholesterol: gn('n-ch'), p_cholesterol: gn('p-ch'),
+    sodium: gn('n-na'), p_sodium: gn('p-na'),
+    total_carb: gn('n-tc'), p_total_carb: gn('p-tc'),
+    fiber: gn('n-df'), p_fiber: gn('p-df'),
+    sugars: gn('n-su'), added_sugars: gn('n-as'), p_added_sugars: gn('p-as'),
+    protein: gn('n-pr'),
+    vit_d: gn('n-vd'), p_vit_d: gn('p-vd'),
+    calcium: gn('n-ca'), p_calcium: gn('p-ca'),
+    iron: gn('n-fe'), p_iron: gn('p-fe'),
+    potassium: gn('n-k'), p_potassium: gn('p-k'),
+    ingredients: g('fda-ing'),
+    allergens: [...fdaAllergens], allergen_custom: g('fda-al-custom'),
+    net_weight_oz: g('fda-oz'), net_weight_g: g('fda-g'),
+    distributor: g('fda-dist'), origin: g('fda-origin'),
+    ts: new Date().toISOString(),
+  };
+}
+
+function fdaLabelCSS() {
+  return `#fda-label{font-family:Arial,Helvetica,sans-serif;color:#000;max-width:260px;margin:0 auto;border:2px solid #000;padding:5px 7px;font-size:12px;line-height:1.3;}
+.fl-title{font-size:26px;font-weight:900;letter-spacing:-.5px;line-height:1;border-bottom:9px solid #000;padding-bottom:3px;margin-bottom:3px;}
+.fl-ss{font-size:10px;font-weight:700;margin-bottom:1px;}.fl-spc{font-size:10px;margin-bottom:3px;}
+.fl-cal-row{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:4px solid #000;padding:2px 0 3px;margin-bottom:2px;}
+.fl-cal-lbl{font-size:12px;font-weight:700;}.fl-cal-num{font-size:36px;font-weight:900;line-height:1;}
+.fl-pct-hdr{text-align:right;font-size:8px;font-weight:700;border-bottom:1px solid #000;padding-bottom:1px;margin-bottom:1px;}
+.nr{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;padding:1px 0;}
+.nr.bld{font-weight:700;border-top:1px solid #000;}.nr.sb{padding-left:12px;font-weight:400;font-size:9px;}.nr.ssb{padding-left:20px;font-weight:400;font-size:9px;}
+.pct{font-weight:700;}.fl-foot{font-size:7px;line-height:1.3;border-top:1px solid #000;margin-top:4px;padding-top:3px;}
+.fl-ing{font-size:8px;line-height:1.4;border-top:2px solid #000;margin-top:4px;padding-top:3px;}
+.fl-all{font-size:8px;font-weight:700;margin-top:2px;}.fl-dist{font-size:7px;margin-top:3px;color:#333;}`;
+}
+
+function fdaPrint() {
+  const label = document.getElementById('fda-label').outerHTML;
+  const w = window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>FDA — ${g('fda-pname')||'Label'}</title>
+  <style>body{margin:30px;font-family:Arial;background:#fff;}${fdaLabelCSS()}</style></head>
+  <body>
+${label}<script>window.print();window.close();<\/script></body></html>`);
+  w.document.close();
+}
+
+function fdaDownload() {
+  const name = g('fda-pname') || 'fda-label';
+  const label = document.getElementById('fda-label').outerHTML;
+  const html = `<!DOCTYPE html><html><head><title>FDA — ${name}</title>
+  <style>body{margin:40px;font-family:Arial;background:#f5f5f5;display:flex;justify-content:center;}
+  .wrap{background:#fff;padding:40px;border-radius:8px;box-shadow:0 2px 20px rgba(0,0,0,.1);}
+  ${fdaLabelCSS()}</style></head><body>
+<div class="wrap">${label}</div></body></html>`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([html], {type:'text/html'}));
+  a.download = `fda_${name.toLowerCase().replace(/\s+/g,'-')}.html`;
+  a.click();
+  toast('Downloaded', a.download);
+}
+
+function fdaCopyJson() {
+  navigator.clipboard.writeText(JSON.stringify(fdaGetData(), null, 2)).then(() => toast('Copied', 'FDA JSON copied.'));
+}
+
+function fdaSave() {
+  const d = fdaGetData();
+  if (!d.product) { toast('Missing Name', 'Enter a product name first.'); return; }
+  fdaLib.unshift(d);
+  localStorage.setItem('hs_fda_lib', JSON.stringify(fdaLib));
+  fdaRenderLib();
+  toast('Saved', d.product + ' added to library.');
+}
+
+function fdaClear() {
+  ['fda-pname','fda-brand','fda-format','fda-ss','fda-spc','fda-ing','fda-al-custom','fda-dist','fda-origin','fda-oz','fda-g'].forEach(id => { const el=document.getElementById(id); if(el)el.value=''; });
+  ['n-cal','n-tf','p-tf','n-sf','p-sf','n-xf','n-ch','p-ch','n-na','p-na','n-tc','p-tc','n-df','p-df','n-su','n-as','p-as','n-pr','n-vd','p-vd','n-ca','p-ca','n-fe','p-fe','n-k','p-k'].forEach(id => { const el=document.getElementById(id); if(el)el.value=''; });
+  document.querySelectorAll('.ag-chip').forEach(el => el.classList.remove('on'));
+  fdaAllergens.clear();
+  document.getElementById('fda-dist').value = 'Distributed by: Nauti Co, Los Angeles, CA 90210 | nautico.com';
+  document.getElementById('fda-origin').value = 'Manufactured in China';
+  fdaUpdate();
+  toast('Cleared', 'Form reset.');
+}
+
+function fdaClearLib() { fdaLib=[]; localStorage.removeItem('hs_fda_lib'); fdaRenderLib(); }
+
+function fdaLoad(idx) {
+  const d = fdaLib[idx]; if (!d) return;
+  const sv = (id, v) => { const el=document.getElementById(id); if(el)el.value=v||''; };
+  sv('fda-pname',d.product); sv('fda-brand',d.brand); sv('fda-format',d.format);
+  sv('fda-ss',d.serving_size); sv('fda-spc',d.servings);
+  sv('n-cal',d.calories);
+  sv('n-tf',d.total_fat); sv('p-tf',d.p_total_fat); sv('n-sf',d.sat_fat); sv('p-sf',d.p_sat_fat); sv('n-xf',d.trans_fat);
+  sv('n-ch',d.cholesterol); sv('p-ch',d.p_cholesterol);
+  sv('n-na',d.sodium); sv('p-na',d.p_sodium);
+  sv('n-tc',d.total_carb); sv('p-tc',d.p_total_carb);
+  sv('n-df',d.fiber); sv('p-df',d.p_fiber);
+  sv('n-su',d.sugars); sv('n-as',d.added_sugars); sv('p-as',d.p_added_sugars);
+  sv('n-pr',d.protein);
+  sv('n-vd',d.vit_d); sv('p-vd',d.p_vit_d);
+  sv('n-ca',d.calcium); sv('p-ca',d.p_calcium);
+  sv('n-fe',d.iron); sv('p-fe',d.p_iron);
+  sv('n-k',d.potassium); sv('p-k',d.p_potassium);
+  sv('fda-ing',d.ingredients); sv('fda-al-custom',d.allergen_custom);
+  sv('fda-oz',d.net_weight_oz); sv('fda-g',d.net_weight_g);
+  sv('fda-dist',d.distributor); sv('fda-origin',d.origin);
+  fdaAllergens = new Set(d.allergens||[]);
+  document.querySelectorAll('.ag-chip').forEach(el => {
+    const name = el.querySelector('span')?.textContent;
+    el.classList.toggle('on', fdaAllergens.has(name));
+  });
+  fdaUpdate();
+  toast('Loaded', d.product);
+}
+
+function fdaDelEntry(idx) { fdaLib.splice(idx,1); localStorage.setItem('hs_fda_lib',JSON.stringify(fdaLib)); fdaRenderLib(); }
+
+function fdaRenderLib() {
+  const c = document.getElementById('fda-lib');
+  const empty = document.getElementById('fda-lib-empty');
+  c.querySelectorAll('.fda-lib-item').forEach(el => el.remove());
+  if (!fdaLib.length) { if(empty) empty.style.display='block'; return; }
+  if (empty) empty.style.display='none';
+  fdaLib.forEach((d, idx) => {
+    const el = document.createElement('div');
+    el.className = 'fda-lib-item';
+    el.innerHTML = `<div onclick="fdaLoad(${idx})" style="flex:1">
+      <div class="fda-lib-name">${d.product||'Unnamed'}</div>
+      <div class="fda-lib-sub">${d.brand||''} · ${d.calories||0} cal · ${d.serving_size||''}</div>
+    </div>
+    <button class="fda-lib-del" onclick="fdaDelEntry(${idx})" title="Delete">✕</button>`;
+    c.appendChild(el);
+  });
+}
+
+fdaRenderLib();
+fdaUpdate();
+
 let toastTmr;
 function toast(title,body,dur=2800) {
   const t=document.getElementById('toast');
