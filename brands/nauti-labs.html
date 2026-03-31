@@ -74,7 +74,9 @@
     .sku-img .img-ph span { font-size: 0.58rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); }
     .sku-info { padding: 18px 20px 22px; border-top: 1px solid var(--line); }
     .sku-name { font-size: 0.82rem; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+    .sku-desc { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px; }
     .sku-meta { font-size: 0.67rem; color: var(--ink-faint); font-weight: 300; }
+    .sku-concept { display: inline-block; font-size: 0.56rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; padding: 3px 8px; background: #f5f0e8; color: #a08c6e; border: 1px solid #e0d5c0; margin-bottom: 6px; display: block; margin-bottom: 8px; }
     .sku-tag { display: inline-block; margin-top: 8px; font-size: 0.56rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; padding: 3px 8px; background: var(--brand); color: #fff; }
     @media(max-width:900px) { #skus { padding: 80px 20px; } .sku-grid { grid-template-columns: 1fr 1fr; } }
     @media(max-width:480px) { .sku-grid { grid-template-columns: 1fr; } }
@@ -201,16 +203,18 @@
     <div class="brand-hero-img-wrap">
       <div class="product-viewer">
         <div class="product-viewer-main" id="viewer-main">
-          <img src="../img/nl_hero.jpg" alt="Nauti Labs Hero" class="active" />
-          <img src="../img/nl_lifestyle_hero.jpg" alt="Nauti Labs Lifestyle" />
-          <img src="../img/nl_lifestyle_alt.jpg" alt="Nauti Labs Alternative" />
-          <img src="../img/nl_unhinged.jpg" alt="Nauti Labs Concept" />
+          <img src="../img/nl_fastfood_hero.webp" alt="Nauti Labs Fast Food Kit" class="active" />
+          <img src="../img/nl_fastfood_lifestyle.webp" alt="Nauti Labs Fast Food Lifestyle" />
+          <img src="../img/nl_diggable_concept.webp" alt="Nauti Labs Diggable Drops" />
+          <img src="../img/nl_eggtart_concept.webp" alt="Nauti Labs Egg Tart" />
+          <img src="../img/nl_foam_concept.webp" alt="Nauti Labs Foam Candy" />
         </div>
         <div class="product-viewer-thumbs">
-          <div class="product-thumb active" data-idx="0"><img src="../img/nl_hero.jpg" alt="Hero" /></div>
-          <div class="product-thumb" data-idx="1"><img src="../img/nl_lifestyle_hero.jpg" alt="Lifestyle" /></div>
-          <div class="product-thumb" data-idx="2"><img src="../img/nl_lifestyle_alt.jpg" alt="Alternative" /></div>
-          <div class="product-thumb" data-idx="3"><img src="../img/nl_unhinged.jpg" alt="Concept" /></div>
+          <div class="product-thumb active" data-idx="0"><img src="../img/nl_fastfood_hero.webp" alt="Fast Food" /></div>
+          <div class="product-thumb" data-idx="1"><img src="../img/nl_fastfood_lifestyle.webp" alt="Lifestyle" /></div>
+          <div class="product-thumb" data-idx="2"><img src="../img/nl_diggable_concept.webp" alt="Diggable" /></div>
+          <div class="product-thumb" data-idx="3"><img src="../img/nl_eggtart_concept.webp" alt="Egg Tart" /></div>
+          <div class="product-thumb" data-idx="4"><img src="../img/nl_foam_concept.webp" alt="Foam" /></div>
         </div>
       </div>
     </div>
@@ -231,46 +235,63 @@
 <section id="skus">
   <div class="skus-inner">
     <div class="section-eyebrow reveal">The Line</div>
-    <h2 class="section-headline reveal d1">Every SKU,<br /><em>shelf-ready.</em></h2>
+    <h2 class="section-headline reveal d1">Experimental.<br /><em>On purpose.</em></h2>
     <div class="sku-grid">
 
       <div class="sku-card reveal">
-        <div class="sku-img"><img src="../img/nl_hero.jpg" alt="Santa's Naughty List" /></div>
+        <div class="sku-img"><img src="../img/nl_fastfood_hero.webp" alt="Fast Food Gummy Kit" /></div>
         <div class="sku-info">
-          <div class="sku-name">Santa's Naughty List</div>
-          <div class="sku-meta">Crystal Candy · 3oz · Seasonal</div>
+          <div class="sku-name">Fast Food Gummy Kit</div>
+          <div class="sku-desc">Meal in candy form</div>
+          <div class="sku-meta">Novelty Candy Kit · Assorted</div>
           <div class="sku-flavors">
-            <div class="flavor-swatch"><div class="flavor-dot" style="background:#9c27b0;"></div>Purple Grape Coal</div>
-            <div class="flavor-swatch"><div class="flavor-dot" style="background:#1565c0;"></div>Blueberry Ice</div>
-            <div class="flavor-swatch"><div class="flavor-dot" style="background:#e53935;"></div>Cinnamon Fire</div>
+            <div class="flavor-swatch"><div class="flavor-dot" style="background:#f97316;"></div>Gummy Fries</div>
+            <div class="flavor-swatch"><div class="flavor-dot" style="background:#e63946;"></div>Burger Gummy</div>
+            <div class="flavor-swatch"><div class="flavor-dot" style="background:#8d6e63;"></div>Cola Candy</div>
           </div>
           <span class="sku-tag">Core SKU</span>
         </div>
       </div>
 
       <div class="sku-card reveal d1">
-        <div class="sku-img ph"><span>Coming Soon</span></div>
+        <div class="sku-img"><img src="../img/nl_diggable_concept.webp" alt="Diggable Drops" /></div>
         <div class="sku-info">
-          <div class="sku-name">Coming Soon</div>
-          <div class="sku-meta">Novelty Candy · Experimental</div>
+          <div class="sku-concept">Concept Packaging</div>
+          <div class="sku-name">Diggable Drops</div>
+          <div class="sku-desc">Dig for treasure</div>
+          <div class="sku-meta">Crystal Candy · Experimental</div>
+          <div class="sku-flavors">
+            <div class="flavor-swatch"><div class="flavor-dot" style="background:#ffd93d;"></div>Assorted Crystal</div>
+          </div>
           <span class="sku-tag">In Development</span>
         </div>
       </div>
 
       <div class="sku-card reveal d2">
-        <div class="sku-img ph"><span>Coming Soon</span></div>
+        <div class="sku-img"><img src="../img/nl_eggtart_concept.webp" alt="Egg Tart Candy" /></div>
         <div class="sku-info">
-          <div class="sku-name">Coming Soon</div>
+          <div class="sku-concept">Concept Packaging</div>
+          <div class="sku-name">Egg Tart Candy</div>
+          <div class="sku-desc">Break it open</div>
           <div class="sku-meta">Novelty Candy · Experimental</div>
+          <div class="sku-flavors">
+            <div class="flavor-swatch"><div class="flavor-dot" style="background:#ffd93d;"></div>Custard</div>
+            <div class="flavor-swatch"><div class="flavor-dot" style="background:#f4a261;"></div>Vanilla</div>
+          </div>
           <span class="sku-tag">In Development</span>
         </div>
       </div>
 
       <div class="sku-card reveal d3">
-        <div class="sku-img ph"><span>Coming Soon</span></div>
+        <div class="sku-img"><img src="../img/nl_foam_concept.webp" alt="Foam Candy" /></div>
         <div class="sku-info">
-          <div class="sku-name">Coming Soon</div>
+          <div class="sku-concept">Concept Packaging</div>
+          <div class="sku-name">Foam Candy</div>
+          <div class="sku-desc">Squeeze it first</div>
           <div class="sku-meta">Novelty Candy · Experimental</div>
+          <div class="sku-flavors">
+            <div class="flavor-swatch"><div class="flavor-dot" style="background:#ff6b9d;"></div>Pastel Mix</div>
+          </div>
           <span class="sku-tag">In Development</span>
         </div>
       </div>
@@ -309,22 +330,22 @@
     <div class="section-eyebrow reveal">Also From Hidden Supply</div>
     <div class="more-brands-grid">
       <a href="dirty-sips.html" class="mini-brand-card reveal">
-        <div class="mini-brand-img"><img src="../img/ds_hero.jpg" alt="Dirty Sips" /></div>
+        <div class="mini-brand-img"><img src="../img/ds_everyday_signature.webp" alt="Dirty Sips" /></div>
         <div class="mini-brand-name">Dirty Sips</div>
         <div class="mini-brand-type">Novelty Candy</div>
       </a>
       <a href="peelpals.html" class="mini-brand-card reveal d1">
-        <div class="mini-brand-img"><img src="../img/pp_hero.jpg" alt="PeelPals" /></div>
+        <div class="mini-brand-img"><img src="../img/pp_peach_hero.webp" alt="PeelPals" /></div>
         <div class="mini-brand-name">PeelPals</div>
         <div class="mini-brand-type">Gummies</div>
       </a>
       <a href="candu.html" class="mini-brand-card reveal d2">
-        <div class="mini-brand-img"><img src="../img/candu_hero.jpg" alt="Candu" /></div>
+        <div class="mini-brand-img"><img src="../img/candu_seasonal_hero.webp" alt="Candu" /></div>
         <div class="mini-brand-name">Candu</div>
         <div class="mini-brand-type">Gummies</div>
       </a>
       <a href="nauti-labs.html" class="mini-brand-card reveal d3">
-        <div class="mini-brand-img"><img src="../img/nl_hero.jpg" alt="Nauti Labs" /></div>
+        <div class="mini-brand-img"><img src="../img/nl_fastfood_hero.webp" alt="Nauti Labs" /></div>
         <div class="mini-brand-name">Nauti Labs</div>
         <div class="mini-brand-type">Novelty Candy</div>
       </a>

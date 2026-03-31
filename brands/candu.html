@@ -65,7 +65,7 @@
     .section-eyebrow { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 18px; }
     .section-headline { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 3.2vw, 2.8rem); font-weight: 400; line-height: 1.1; margin-bottom: 56px; }
     .section-headline em { font-style: italic; }
-    .sku-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); }
+    .sku-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); }
     .sku-card { background: var(--cream); padding: 0; overflow: hidden; }
     .sku-img { aspect-ratio: 1; background: #fff; display: flex; align-items: center; justify-content: center; padding: 24px; overflow: hidden; position: relative; }
     .sku-img img { max-width: 100%; max-height: 180px; object-fit: contain; transition: transform 0.5s cubic-bezier(0.16,1,0.3,1); }
@@ -74,7 +74,9 @@
     .sku-img .img-ph span { font-size: 0.58rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); }
     .sku-info { padding: 18px 20px 22px; border-top: 1px solid var(--line); }
     .sku-name { font-size: 0.82rem; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+    .sku-desc { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px; }
     .sku-meta { font-size: 0.67rem; color: var(--ink-faint); font-weight: 300; }
+    .sku-concept { display: inline-block; font-size: 0.56rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; padding: 3px 8px; background: #f5f0e8; color: #a08c6e; border: 1px solid #e0d5c0; margin-bottom: 6px; display: block; margin-bottom: 8px; }
     .sku-tag { display: inline-block; margin-top: 8px; font-size: 0.56rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; padding: 3px 8px; background: var(--brand); color: #fff; }
     @media(max-width:900px) { #skus { padding: 80px 20px; } .sku-grid { grid-template-columns: 1fr 1fr; } }
     @media(max-width:480px) { .sku-grid { grid-template-columns: 1fr; } }
@@ -201,16 +203,14 @@
     <div class="brand-hero-img-wrap">
       <div class="product-viewer">
         <div class="product-viewer-main" id="viewer-main">
-          <img src="../img/candu_hero.jpg" alt="Candu Body Parts Hero" class="active" />
-          <img src="../img/candu_lifestyle_hero.jpg" alt="Candu Lifestyle" />
-          <img src="../img/candu_lifestyle_alt.jpg" alt="Candu Alternative" />
-          <img src="../img/candu_unhinged.jpg" alt="Candu Concept" />
+          <img src="../img/candu_seasonal_hero.webp" alt="Candu Seasonal" class="active" />
+          <img src="../img/candu_dino_concept.webp" alt="Candu Dino Gummies" />
+          <img src="../img/candu_seaworms_concept.webp" alt="Candu Sea Worms" />
         </div>
         <div class="product-viewer-thumbs">
-          <div class="product-thumb active" data-idx="0"><img src="../img/candu_hero.jpg" alt="Hero" /></div>
-          <div class="product-thumb" data-idx="1"><img src="../img/candu_lifestyle_hero.jpg" alt="Lifestyle" /></div>
-          <div class="product-thumb" data-idx="2"><img src="../img/candu_lifestyle_alt.jpg" alt="Alternative" /></div>
-          <div class="product-thumb" data-idx="3"><img src="../img/candu_unhinged.jpg" alt="Concept" /></div>
+          <div class="product-thumb active" data-idx="0"><img src="../img/candu_seasonal_hero.webp" alt="Seasonal" /></div>
+          <div class="product-thumb" data-idx="1"><img src="../img/candu_dino_concept.webp" alt="Dino" /></div>
+          <div class="product-thumb" data-idx="2"><img src="../img/candu_seaworms_concept.webp" alt="Sea Worms" /></div>
         </div>
       </div>
     </div>
@@ -235,44 +235,44 @@
     <div class="sku-grid">
 
       <div class="sku-card reveal">
-        <div class="sku-img"><img src="../img/candu_hero.jpg" alt="Candu Body Parts" /></div>
+        <div class="sku-img"><img src="../img/candu_dino_concept.webp" alt="Dino Gummies" /></div>
         <div class="sku-info">
-          <div class="sku-name">Body Parts</div>
-          <div class="sku-meta">Gummies · 5oz · Halloween</div>
+          <div class="sku-concept">Concept Packaging</div>
+          <div class="sku-name">Dino Gummies</div>
+          <div class="sku-desc">Roar-worthy shapes</div>
+          <div class="sku-meta">Gummies · Everyday</div>
           <div class="sku-flavors">
-            <div class="flavor-swatch"><div class="flavor-dot" style="background:#e63946;"></div>Strawberry Brain</div>
-            <div class="flavor-swatch"><div class="flavor-dot" style="background:#4ecb71;"></div>Lime Hand</div>
-            <div class="flavor-swatch"><div class="flavor-dot" style="background:#a855f7;"></div>Grape Eye</div>
-            <div class="flavor-swatch"><div class="flavor-dot" style="background:#f97316;"></div>Orange Heart</div>
+            <div class="flavor-swatch"><div class="flavor-dot" style="background:#4ecb71;"></div>Assorted Fruit</div>
           </div>
-          <span class="sku-tag">Core SKU</span>
+          <span class="sku-tag">In Development</span>
         </div>
       </div>
 
       <div class="sku-card reveal d1">
-        <div class="sku-img ph"><span>Coming Soon</span></div>
+        <div class="sku-img"><img src="../img/candu_seaworms_concept.webp" alt="Sea Worms" /></div>
         <div class="sku-info">
-          <div class="sku-name">Coming Soon</div>
-          <div class="sku-meta">Gummies · Seasonal</div>
+          <div class="sku-concept">Concept Packaging</div>
+          <div class="sku-name">Sea Worms</div>
+          <div class="sku-desc">Sour & stretchy</div>
+          <div class="sku-meta">Gummies · Everyday</div>
+          <div class="sku-flavors">
+            <div class="flavor-swatch"><div class="flavor-dot" style="background:#3fbdff;"></div>Assorted Sour</div>
+          </div>
           <span class="sku-tag">In Development</span>
         </div>
       </div>
 
       <div class="sku-card reveal d2">
-        <div class="sku-img ph"><span>Coming Soon</span></div>
+        <div class="sku-img"><img src="../img/candu_seasonal_hero.webp" alt="Seasonal Mix" /></div>
         <div class="sku-info">
-          <div class="sku-name">Coming Soon</div>
-          <div class="sku-meta">Gummies · Everyday</div>
-          <span class="sku-tag">In Development</span>
-        </div>
-      </div>
-
-      <div class="sku-card reveal d3">
-        <div class="sku-img ph"><span>Coming Soon</span></div>
-        <div class="sku-info">
-          <div class="sku-name">Coming Soon</div>
+          <div class="sku-name">Seasonal Mix</div>
+          <div class="sku-desc">Limited run</div>
           <div class="sku-meta">Gummies · Seasonal</div>
-          <span class="sku-tag">In Development</span>
+          <div class="sku-flavors">
+            <div class="flavor-swatch"><div class="flavor-dot" style="background:#e63946;"></div>Assorted</div>
+            <div class="flavor-swatch"><div class="flavor-dot" style="background:#4ecb71;"></div>Seasonal Flavors</div>
+          </div>
+          <span class="sku-tag">Seasonal</span>
         </div>
       </div>
 
@@ -310,22 +310,22 @@
     <div class="section-eyebrow reveal">Also From Hidden Supply</div>
     <div class="more-brands-grid">
       <a href="dirty-sips.html" class="mini-brand-card reveal">
-        <div class="mini-brand-img"><img src="../img/ds_hero.jpg" alt="Dirty Sips" /></div>
+        <div class="mini-brand-img"><img src="../img/ds_everyday_signature.webp" alt="Dirty Sips" /></div>
         <div class="mini-brand-name">Dirty Sips</div>
         <div class="mini-brand-type">Gummies</div>
       </a>
       <a href="peelpals.html" class="mini-brand-card reveal d1">
-        <div class="mini-brand-img"><img src="../img/pp_hero.jpg" alt="PeelPals" /></div>
+        <div class="mini-brand-img"><img src="../img/pp_peach_hero.webp" alt="PeelPals" /></div>
         <div class="mini-brand-name">PeelPals</div>
         <div class="mini-brand-type">Gummies</div>
       </a>
       <a href="candu.html" class="mini-brand-card reveal d2">
-        <div class="mini-brand-img"><img src="../img/candu_hero.jpg" alt="Candu" /></div>
+        <div class="mini-brand-img"><img src="../img/candu_seasonal_hero.webp" alt="Candu" /></div>
         <div class="mini-brand-name">Candu</div>
         <div class="mini-brand-type">Gummies</div>
       </a>
       <a href="nauti-labs.html" class="mini-brand-card reveal d3">
-        <div class="mini-brand-img"><img src="../img/nl_hero.jpg" alt="Nauti Labs" /></div>
+        <div class="mini-brand-img"><img src="../img/nl_fastfood_hero.webp" alt="Nauti Labs" /></div>
         <div class="mini-brand-name">Nauti Labs</div>
         <div class="mini-brand-type">Novelty Candy</div>
       </a>
