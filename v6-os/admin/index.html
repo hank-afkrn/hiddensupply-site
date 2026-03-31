@@ -336,6 +336,9 @@ body{padding-top:32px!important;}
   <button class="tnav-btn" id="tnav-ps" onclick="switchTool('ps')">
     <span class="tnav-icon">📦</span> Packaging Studio
   </button>
+  <button class="tnav-btn" id="tnav-mockup" onclick="switchTool('mockup')">
+    <span class="tnav-icon">🖼️</span> Mockup Generator <span class="tnav-badge">New</span>
+  </button>
 </div>
 
 <!-- ===== TOOL: SKU BUILDER ===== -->
@@ -651,6 +654,110 @@ body{padding-top:32px!important;}
 <div class="tool-panel-iframe" id="tool-ps">
   <iframe class="tool-iframe" id="ps-iframe" src="about:blank" title="Packaging Studio"></iframe>
 </div>
+
+<!-- ===== TOOL: MOCKUP GENERATOR ===== -->
+<div class="tool-panel" id="tool-mockup" style="overflow-y:auto;max-height:calc(100vh - 98px);">
+<div class="content" style="max-width:880px;">
+  <div class="stitle">Mockup Generator</div>
+  <div class="ssub">Upload print-ready artwork (front + back panels). We'll composite them onto a clean white background for visualization and download.</div>
+
+  <!-- Pouch shape selector -->
+  <div class="slabel">Packaging Format</div>
+  <div class="tag-row" style="margin-bottom:24px;">
+    <button class="tag-btn active" id="mfmt-pouch" onclick="mgSetFormat('pouch',this)">Stand-Up Pouch</button>
+    <button class="tag-btn" id="mfmt-blister" onclick="mgSetFormat('blister',this)">Blister Card</button>
+    <button class="tag-btn" id="mfmt-flat" onclick="mgSetFormat('flat',this)">Flat Lay</button>
+  </div>
+
+  <!-- Upload row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+    <!-- Front -->
+    <div>
+      <div class="slabel">Front Panel</div>
+      <div class="drop-zone" id="mg-front-dz" onclick="document.getElementById('mg-front-fi').click()" ondragover="mgDragOver(event,'mg-front-dz')" ondragleave="mgDragLeave('mg-front-dz')" ondrop="mgDrop(event,'front')">
+        <div class="dzi" id="mg-front-icon">📄</div>
+        <div class="dzt" id="mg-front-label">Drop front panel here</div>
+        <div class="dzs">PNG, JPG, PDF · print-res OK</div>
+      </div>
+      <input type="file" id="mg-front-fi" accept="image/*,.pdf" onchange="mgFileChosen(event,'front')" style="display:none">
+      <div id="mg-front-meta" style="font-size:11px;color:var(--text-muted);margin-top:4px;"></div>
+    </div>
+    <!-- Back -->
+    <div>
+      <div class="slabel">Back Panel</div>
+      <div class="drop-zone" id="mg-back-dz" onclick="document.getElementById('mg-back-fi').click()" ondragover="mgDragOver(event,'mg-back-dz')" ondragleave="mgDragLeave('mg-back-dz')" ondrop="mgDrop(event,'back')">
+        <div class="dzi" id="mg-back-icon">📄</div>
+        <div class="dzt" id="mg-back-label">Drop back panel here</div>
+        <div class="dzs">PNG, JPG, PDF · print-res OK</div>
+      </div>
+      <input type="file" id="mg-back-fi" accept="image/*,.pdf" onchange="mgFileChosen(event,'back')" style="display:none">
+      <div id="mg-back-meta" style="font-size:11px;color:var(--text-muted);margin-top:4px;"></div>
+    </div>
+  </div>
+
+  <!-- Options row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px;">
+    <div class="field">
+      <label>SKU Name (optional)</label>
+      <input type="text" id="mg-sku" placeholder="e.g. Juice Bomb Astronauts">
+    </div>
+    <div class="field">
+      <label>Background Color</label>
+      <select id="mg-bg">
+        <option value="#ffffff">Pure White</option>
+        <option value="#f7f7f5">Off-White / Warm</option>
+        <option value="#f0f0f0">Light Grey</option>
+        <option value="#000000">Black Studio</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Shadow</label>
+      <select id="mg-shadow">
+        <option value="soft">Soft Drop Shadow</option>
+        <option value="none">No Shadow</option>
+        <option value="floor">Floor Reflection</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Generate button -->
+  <div class="btn-row">
+    <button class="btn-p" id="mg-gen-btn" onclick="mgGenerate()" disabled>Generate Mockup</button>
+    <span id="mg-status" style="font-size:12px;color:var(--text-muted);"></span>
+  </div>
+
+  <!-- Output -->
+  <div id="mg-output" style="display:none;margin-top:36px;">
+    <div class="slabel">Result</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;">
+      <!-- front mockup -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid var(--border);">
+        <div style="padding:20px;border-right:1px solid var(--border);">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Front</div>
+          <canvas id="mg-canvas-front" style="width:100%;border-radius:6px;display:block;cursor:pointer;" title="Click to download" onclick="mgDownload('front')"></canvas>
+        </div>
+        <div style="padding:20px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Back</div>
+          <canvas id="mg-canvas-back" style="width:100%;border-radius:6px;display:block;cursor:pointer;" title="Click to download" onclick="mgDownload('back')"></canvas>
+        </div>
+      </div>
+      <!-- combined mockup -->
+      <div style="padding:20px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Combined Sheet</div>
+        <canvas id="mg-canvas-combined" style="width:100%;border-radius:6px;display:block;cursor:pointer;" title="Click to download" onclick="mgDownload('combined')"></canvas>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-p" onclick="mgDownload('combined')">⬇ Download Combined</button>
+      <button class="btn-s" onclick="mgDownload('front')">⬇ Front Only</button>
+      <button class="btn-s" onclick="mgDownload('back')">⬇ Back Only</button>
+      <button class="btn-s" onclick="mgReset()">↺ Start Over</button>
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:10px;" id="mg-file-note"></div>
+  </div>
+
+</div>
+</div><!-- /tool-mockup -->
 
 <div class="toast" id="toast"><div class="toast-t" id="tt"></div><div class="toast-b" id="tb"></div></div>
 
@@ -1308,6 +1415,13 @@ function fdaRenderLib() {
 fdaRenderLib();
 fdaUpdate();
 
+// Auto-switch tool from URL param (?tool=mockup etc.)
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const tool = params.get('tool');
+  if (tool && document.getElementById('tool-' + tool)) switchTool(tool);
+})();
+
 let toastTmr;
 function toast(title,body,dur=2800) {
   const t=document.getElementById('toast');
@@ -1316,6 +1430,233 @@ function toast(title,body,dur=2800) {
   t.classList.add('show');
   clearTimeout(toastTmr);
   toastTmr=setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+// ============================================================
+//  MOCKUP GENERATOR
+// ============================================================
+const mgState = {
+  front: null,   // { img: HTMLImageElement, name: String, w: Number, h: Number }
+  back:  null,
+  format: 'pouch',
+};
+
+function mgSetFormat(fmt, btn) {
+  mgState.format = fmt;
+  document.querySelectorAll('[id^="mfmt-"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function mgDragOver(e, zoneId) {
+  e.preventDefault();
+  document.getElementById(zoneId).classList.add('drag-over');
+}
+function mgDragLeave(zoneId) {
+  document.getElementById(zoneId).classList.remove('drag-over');
+}
+function mgDrop(e, side) {
+  e.preventDefault();
+  const zoneId = 'mg-' + side + '-dz';
+  document.getElementById(zoneId).classList.remove('drag-over');
+  const files = e.dataTransfer.files;
+  if (files && files[0]) mgLoadFile(files[0], side);
+}
+function mgFileChosen(e, side) {
+  const files = e.target.files;
+  if (files && files[0]) mgLoadFile(files[0], side);
+}
+
+function mgLoadFile(file, side) {
+  const zoneId = 'mg-' + side + '-dz';
+  const iconId = 'mg-' + side + '-icon';
+  const labelId = 'mg-' + side + '-label';
+  const metaId = 'mg-' + side + '-meta';
+  const zone = document.getElementById(zoneId);
+
+  // Show loading state
+  document.getElementById(labelId).textContent = 'Loading…';
+
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.onload = function() {
+      mgState[side] = { img, name: file.name, w: img.naturalWidth, h: img.naturalHeight };
+      // Update drop zone to show thumbnail
+      zone.classList.add('has-img');
+      zone.innerHTML = `<img src="${ev.result}" alt="${side} panel">`;
+      // Meta
+      const sizeKB = (file.size / 1024).toFixed(0);
+      document.getElementById(metaId).textContent = `${img.naturalWidth}×${img.naturalHeight}px · ${sizeKB} KB · ${file.name}`;
+      mgCheckReady();
+    };
+    img.onerror = function() {
+      document.getElementById(labelId).textContent = 'Failed to load — use PNG or JPG';
+    };
+    img.src = ev.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function mgCheckReady() {
+  const btn = document.getElementById('mg-gen-btn');
+  if (mgState.front || mgState.back) {
+    btn.disabled = false;
+  }
+}
+
+function mgReset() {
+  ['front','back'].forEach(side => {
+    mgState[side] = null;
+    const zoneId = 'mg-' + side + '-dz';
+    const zone = document.getElementById(zoneId);
+    zone.classList.remove('has-img');
+    const fi = side === 'front' ? 'mg-front-fi' : 'mg-back-fi';
+    zone.innerHTML = `<div class="dzi" id="mg-${side}-icon">📄</div>
+      <div class="dzt" id="mg-${side}-label">Drop ${side} panel here</div>
+      <div class="dzs">PNG, JPG, PDF · print-res OK</div>`;
+    document.getElementById('mg-' + side + '-meta').textContent = '';
+  });
+  document.getElementById('mg-output').style.display = 'none';
+  document.getElementById('mg-gen-btn').disabled = true;
+  document.getElementById('mg-status').textContent = '';
+}
+
+// Core compositing
+function mgComposite(imgData, canvasId, label, bg, shadow, format) {
+  const canvas = document.getElementById(canvasId);
+  // Output canvas: 800×1000 (portrait, suitable for pouch)
+  const OUT_W = 800, OUT_H = 1000;
+  canvas.width  = OUT_W;
+  canvas.height = OUT_H;
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, OUT_W, OUT_H);
+
+  if (!imgData) {
+    // Placeholder
+    ctx.fillStyle = bg === '#000000' ? '#222' : '#e8e8e8';
+    ctx.fillRect(80, 120, OUT_W - 160, OUT_H - 240);
+    ctx.fillStyle = bg === '#000000' ? '#555' : '#aaa';
+    ctx.font = '500 18px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('No panel uploaded', OUT_W / 2, OUT_H / 2);
+    return;
+  }
+
+  const img = imgData.img;
+  // Scale image to fit within a padded area (80px padding each side)
+  const PAD = 80;
+  const maxW = OUT_W - PAD * 2;
+  const maxH = OUT_H - PAD * 2;
+  let iw = img.naturalWidth, ih = img.naturalHeight;
+  const scale = Math.min(maxW / iw, maxH / ih);
+  const dw = iw * scale, dh = ih * scale;
+  const dx = (OUT_W - dw) / 2, dy = (OUT_H - dh) / 2;
+
+  // Shadow / reflection
+  if (shadow === 'soft') {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.22)';
+    ctx.shadowBlur = 40;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 14;
+    ctx.drawImage(img, dx, dy, dw, dh);
+    ctx.restore();
+  } else if (shadow === 'floor') {
+    ctx.save();
+    ctx.drawImage(img, dx, dy, dw, dh);
+    // reflection below
+    const reflH = dh * 0.25;
+    const grd = ctx.createLinearGradient(0, dy + dh, 0, dy + dh + reflH);
+    grd.addColorStop(0, 'rgba(0,0,0,0.12)');
+    grd.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.save();
+    ctx.translate(dx + dw / 2, dy + dh);
+    ctx.scale(1, -1);
+    ctx.globalAlpha = 0.3;
+    ctx.drawImage(img, -dw / 2, 0, dw, reflH);
+    ctx.restore();
+    ctx.fillStyle = grd;
+    ctx.fillRect(dx, dy + dh, dw, reflH);
+    ctx.restore();
+  } else {
+    ctx.drawImage(img, dx, dy, dw, dh);
+  }
+
+  // Label text
+  const sku = document.getElementById('mg-sku').value.trim();
+  const panelText = label + (sku ? ' · ' + sku : '');
+  ctx.fillStyle = bg === '#000000' ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)';
+  ctx.font = '500 13px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(panelText, OUT_W / 2, OUT_H - 28);
+}
+
+function mgMakeCombined(bgColor) {
+  const frontCanvas = document.getElementById('mg-canvas-front');
+  const backCanvas  = document.getElementById('mg-canvas-back');
+  const combo = document.getElementById('mg-canvas-combined');
+  // Combined: two panels side by side, 1680×1060 (with 30px gap + 40px top/bottom padding)
+  const PAD = 40, GAP = 30;
+  const PW = frontCanvas.width, PH = frontCanvas.height;
+  combo.width  = PW * 2 + GAP + PAD * 2;
+  combo.height = PH + PAD * 2;
+  const ctx = combo.getContext('2d');
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0, 0, combo.width, combo.height);
+  ctx.drawImage(frontCanvas, PAD, PAD);
+  ctx.drawImage(backCanvas, PAD + PW + GAP, PAD);
+
+  // Combined label
+  const sku = document.getElementById('mg-sku').value.trim();
+  if (sku) {
+    ctx.fillStyle = bgColor === '#000000' ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.22)';
+    ctx.font = '600 14px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(sku + ' — Front & Back Mockup', combo.width / 2, PAD / 2 + 6);
+  }
+}
+
+function mgGenerate() {
+  const bg = document.getElementById('mg-bg').value;
+  const shadow = document.getElementById('mg-shadow').value;
+  const fmt = mgState.format;
+
+  document.getElementById('mg-status').textContent = 'Compositing…';
+  document.getElementById('mg-gen-btn').disabled = true;
+
+  // Small delay so UI updates before canvas work
+  setTimeout(() => {
+    mgComposite(mgState.front, 'mg-canvas-front', 'Front', bg, shadow, fmt);
+    mgComposite(mgState.back,  'mg-canvas-back',  'Back',  bg, shadow, fmt);
+    mgMakeCombined(bg);
+
+    document.getElementById('mg-output').style.display = 'block';
+    document.getElementById('mg-status').textContent = '';
+    document.getElementById('mg-gen-btn').disabled = false;
+
+    const sku = document.getElementById('mg-sku').value.trim() || 'mockup';
+    document.getElementById('mg-file-note').textContent = 'Click any panel or use the download buttons below to save as PNG.';
+
+    document.getElementById('mg-output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    toast('Mockup Ready', 'Click to download front, back, or combined sheet.');
+  }, 50);
+}
+
+function mgDownload(which) {
+  const canvasId = which === 'combined' ? 'mg-canvas-combined'
+                 : which === 'front'    ? 'mg-canvas-front'
+                 :                        'mg-canvas-back';
+  const canvas = document.getElementById(canvasId);
+  const sku = document.getElementById('mg-sku').value.trim().replace(/\s+/g,'_') || 'hs';
+  const fname = `${sku}_mockup_${which}.png`;
+  const link = document.createElement('a');
+  link.download = fname;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  toast('Downloading', fname);
 }
 </script>
 </body>
