@@ -56,8 +56,12 @@
   .drop-zone .dzi { font-size: 22px; margin-bottom: 8px; }
   .drop-zone .dzt { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
   .drop-zone .dzs { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
-  .drop-zone.has-img { border-style: solid; border-color: var(--accent); padding: 0; overflow: hidden; }
+  .drop-zone.has-img { border-style: solid; border-color: var(--accent); padding: 0; overflow: hidden; position: relative; }
   .drop-zone.has-img img { width: 100%; height: 140px; object-fit: cover; display: block; }
+  .drop-zone.has-img .mg-clear-btn { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.65); color: #fff; border: none; border-radius: 4px; font-size: 11px; font-weight: 700; padding: 3px 7px; cursor: pointer; z-index: 3; }
+  .drop-zone.has-img .mg-clear-btn:hover { background: rgba(220,40,40,0.85); }
+  .drop-zone.load-error { border-color: #e55; background: rgba(220,40,40,0.06); }
+  .drop-zone.load-error .dzt { color: #e55; }
   #cfi { display: none; }
 
   .tag-row { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -677,9 +681,9 @@ body{padding-top:32px!important;}
       <div class="drop-zone" id="mg-front-dz" onclick="document.getElementById('mg-front-fi').click()" ondragover="mgDragOver(event,'mg-front-dz')" ondragleave="mgDragLeave('mg-front-dz')" ondrop="mgDrop(event,'front')">
         <div class="dzi" id="mg-front-icon">📄</div>
         <div class="dzt" id="mg-front-label">Drop front panel here</div>
-        <div class="dzs">PNG, JPG, PDF · print-res OK</div>
+        <div class="dzs">PNG, JPG, WEBP · print-res OK</div>
       </div>
-      <input type="file" id="mg-front-fi" accept="image/*,.pdf" onchange="mgFileChosen(event,'front')" style="display:none">
+      <input type="file" id="mg-front-fi" accept="image/png,image/jpeg,image/webp,image/gif" onchange="mgFileChosen(event,'front')" style="display:none">
       <div id="mg-front-meta" style="font-size:11px;color:var(--text-muted);margin-top:4px;"></div>
     </div>
     <!-- Back -->
@@ -688,9 +692,9 @@ body{padding-top:32px!important;}
       <div class="drop-zone" id="mg-back-dz" onclick="document.getElementById('mg-back-fi').click()" ondragover="mgDragOver(event,'mg-back-dz')" ondragleave="mgDragLeave('mg-back-dz')" ondrop="mgDrop(event,'back')">
         <div class="dzi" id="mg-back-icon">📄</div>
         <div class="dzt" id="mg-back-label">Drop back panel here</div>
-        <div class="dzs">PNG, JPG, PDF · print-res OK</div>
+        <div class="dzs">PNG, JPG, WEBP · print-res OK</div>
       </div>
-      <input type="file" id="mg-back-fi" accept="image/*,.pdf" onchange="mgFileChosen(event,'back')" style="display:none">
+      <input type="file" id="mg-back-fi" accept="image/png,image/jpeg,image/webp,image/gif" onchange="mgFileChosen(event,'back')" style="display:none">
       <div id="mg-back-meta" style="font-size:11px;color:var(--text-muted);margin-top:4px;"></div>
     </div>
   </div>
@@ -1467,34 +1471,72 @@ function mgFileChosen(e, side) {
 }
 
 function mgLoadFile(file, side) {
-  const zoneId = 'mg-' + side + '-dz';
-  const iconId = 'mg-' + side + '-icon';
-  const labelId = 'mg-' + side + '-label';
-  const metaId = 'mg-' + side + '-meta';
-  const zone = document.getElementById(zoneId);
+  const zoneId  = 'mg-' + side + '-dz';
+  const metaId  = 'mg-' + side + '-meta';
+  const zone    = document.getElementById(zoneId);
 
-  // Show loading state
-  document.getElementById(labelId).textContent = 'Loading…';
+  // Reset any prior error state
+  zone.classList.remove('load-error', 'has-img');
+
+  // Show loading state — restore inner HTML first so label IDs exist
+  zone.innerHTML = `<div class="dzi" id="mg-${side}-icon">⏳</div>
+    <div class="dzt" id="mg-${side}-label">Loading…</div>
+    <div class="dzs">${file.name}</div>`;
 
   const reader = new FileReader();
   reader.onload = function(ev) {
     const img = new Image();
     img.onload = function() {
       mgState[side] = { img, name: file.name, w: img.naturalWidth, h: img.naturalHeight };
-      // Update drop zone to show thumbnail
+      // Show thumbnail with clear button
       zone.classList.add('has-img');
-      zone.innerHTML = `<img src="${ev.result}" alt="${side} panel">`;
+      zone.innerHTML = `<img src="${ev.result}" alt="${side} panel">
+        <button class="mg-clear-btn" onclick="mgClearSide(event,'${side}')" title="Remove">✕ Clear</button>`;
       // Meta
       const sizeKB = (file.size / 1024).toFixed(0);
-      document.getElementById(metaId).textContent = `${img.naturalWidth}×${img.naturalHeight}px · ${sizeKB} KB · ${file.name}`;
+      document.getElementById(metaId).textContent =
+        `${img.naturalWidth}×${img.naturalHeight}px · ${sizeKB} KB · ${file.name}`;
       mgCheckReady();
     };
     img.onerror = function() {
-      document.getElementById(labelId).textContent = 'Failed to load — use PNG or JPG';
+      mgState[side] = null;
+      zone.classList.remove('has-img');
+      zone.classList.add('load-error');
+      zone.innerHTML = `<div class="dzi">⚠️</div>
+        <div class="dzt" id="mg-${side}-label">Failed to load — use PNG, JPG, or WEBP</div>
+        <div class="dzs" style="cursor:pointer;text-decoration:underline" onclick="document.getElementById('mg-${side}-fi').click()">Click to try again</div>`;
+      document.getElementById(metaId).textContent = '';
     };
     img.src = ev.result;
   };
+  reader.onerror = function() {
+    mgState[side] = null;
+    zone.classList.remove('has-img');
+    zone.classList.add('load-error');
+    zone.innerHTML = `<div class="dzi">⚠️</div>
+      <div class="dzt" id="mg-${side}-label">Could not read file</div>
+      <div class="dzs" style="cursor:pointer;text-decoration:underline" onclick="document.getElementById('mg-${side}-fi').click()">Click to try again</div>`;
+    document.getElementById(metaId).textContent = '';
+  };
   reader.readAsDataURL(file);
+}
+
+function mgClearSide(e, side) {
+  e.stopPropagation();
+  mgState[side] = null;
+  const zone = document.getElementById('mg-' + side + '-dz');
+  zone.classList.remove('has-img', 'load-error');
+  zone.innerHTML = `<div class="dzi" id="mg-${side}-icon">📄</div>
+    <div class="dzt" id="mg-${side}-label">Drop ${side} panel here</div>
+    <div class="dzs">PNG, JPG, WEBP · print-res OK</div>`;
+  document.getElementById('mg-' + side + '-meta').textContent = '';
+  // Reset file input so the same file can be re-selected
+  const fi = document.getElementById('mg-' + side + '-fi');
+  if (fi) fi.value = '';
+  // Disable generate if nothing loaded
+  if (!mgState.front && !mgState.back) {
+    document.getElementById('mg-gen-btn').disabled = true;
+  }
 }
 
 function mgCheckReady() {
@@ -1507,14 +1549,14 @@ function mgCheckReady() {
 function mgReset() {
   ['front','back'].forEach(side => {
     mgState[side] = null;
-    const zoneId = 'mg-' + side + '-dz';
-    const zone = document.getElementById(zoneId);
-    zone.classList.remove('has-img');
-    const fi = side === 'front' ? 'mg-front-fi' : 'mg-back-fi';
+    const zone = document.getElementById('mg-' + side + '-dz');
+    zone.classList.remove('has-img', 'load-error');
     zone.innerHTML = `<div class="dzi" id="mg-${side}-icon">📄</div>
       <div class="dzt" id="mg-${side}-label">Drop ${side} panel here</div>
-      <div class="dzs">PNG, JPG, PDF · print-res OK</div>`;
+      <div class="dzs">PNG, JPG, WEBP · print-res OK</div>`;
     document.getElementById('mg-' + side + '-meta').textContent = '';
+    const fi = document.getElementById('mg-' + side + '-fi');
+    if (fi) fi.value = '';
   });
   document.getElementById('mg-output').style.display = 'none';
   document.getElementById('mg-gen-btn').disabled = true;

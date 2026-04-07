@@ -1,3 +1,6 @@
 token.js
 img/new_assets/Brands.zip
 img/new_assets/*.zip
+
+# Local Netlify folder
+.netlify

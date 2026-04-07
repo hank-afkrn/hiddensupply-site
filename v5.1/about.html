@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Model — Hidden Supply</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #faf8f5;
+      --cream-dark: #f2ede5;
+      --ink: #1a1714;
+      --ink-mid: #5a5650;
+      --ink-faint: #a8a49e;
+      --line: rgba(26,23,20,0.08);
+      --candy-pink:   #ff4e91;
+      --candy-orange: #ff7b35;
+      --candy-yellow: #ffc933;
+      --candy-lime:   #7ed957;
+      --candy-blue:   #3fbdff;
+      --candy-purple: #a259ff;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--cream); color: var(--ink); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+    /* NAV */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 99; padding: 22px 52px; display: flex; align-items: center; justify-content: space-between; transition: background 0.4s, border-color 0.4s; border-bottom: 1px solid transparent; }
+    nav.solid { background: rgba(250,248,245,0.96); backdrop-filter: blur(18px); border-color: var(--line); }
+    .nav-logo { font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink); text-decoration: none; }
+    .nav-right { display: flex; align-items: center; gap: 36px; }
+    .nav-right a { font-size: 0.67rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mid); text-decoration: none; transition: color 0.2s; }
+    .nav-right a:hover { color: var(--ink); }
+    .nav-cta { background: var(--ink) !important; color: var(--cream) !important; padding: 9px 22px !important; border-radius: 2px; }
+    .nav-cta:hover { background: var(--candy-pink) !important; color: #fff !important; }
+    @media(max-width:768px) { nav { padding: 18px 20px; } .nav-right a:not(.nav-cta) { display: none; } }
+
+    /* HERO */
+    .page-hero { padding: 160px 52px 100px; border-bottom: 1px solid var(--line); position: relative; overflow: hidden; background: var(--ink); color: var(--cream); }
+    .hero-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.12; pointer-events: none; }
+    .blob-1 { width: 500px; height: 500px; background: var(--candy-yellow); top: -100px; right: -80px; }
+    .blob-2 { width: 300px; height: 300px; background: var(--candy-purple); bottom: -60px; left: 5%; }
+    .page-hero-inner { max-width: 860px; position: relative; }
+    .page-eyebrow { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(250,248,245,0.22); margin-bottom: 28px; }
+    .page-headline { font-family: 'Playfair Display', serif; font-size: clamp(3rem, 7vw, 6rem); font-weight: 400; line-height: 0.97; letter-spacing: -0.02em; color: var(--cream); margin-bottom: 32px; }
+    .page-headline em { font-style: italic; color: rgba(250,248,245,0.35); }
+    .page-sub { font-size: clamp(0.9rem, 1.3vw, 1.05rem); color: rgba(250,248,245,0.55); font-weight: 300; line-height: 1.8; max-width: 480px; }
+    @media(max-width:768px) { .page-hero { padding: 120px 20px 72px; } }
+
+    /* CANDY BAR */
+    .candy-bar { display: grid; grid-template-columns: repeat(6,1fr); height: 5px; }
+    .candy-bar span:nth-child(1) { background: var(--candy-pink); }
+    .candy-bar span:nth-child(2) { background: var(--candy-orange); }
+    .candy-bar span:nth-child(3) { background: var(--candy-yellow); }
+    .candy-bar span:nth-child(4) { background: var(--candy-lime); }
+    .candy-bar span:nth-child(5) { background: var(--candy-blue); }
+    .candy-bar span:nth-child(6) { background: var(--candy-purple); }
+
+    /* THE MODEL */
+    #model { padding: 120px 52px; border-bottom: 1px solid var(--line); }
+    .model-inner { max-width: 1100px; margin: 0 auto; }
+    .section-eyebrow { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 20px; }
+    .model-header { margin-bottom: 80px; max-width: 660px; }
+    .model-header h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem,3.6vw,3rem); font-weight: 400; line-height: 1.1; margin-bottom: 16px; }
+    .model-header h2 em { font-style: italic; }
+    .model-header-sub { font-size: 0.9rem; color: var(--ink-mid); font-weight: 300; line-height: 1.9; }
+
+    .pillar { display: grid; grid-template-columns: 1fr 2fr; gap: 80px; align-items: start; padding: 72px 0; border-top: 1px solid var(--line); }
+    .pillar:last-child { border-bottom: 1px solid var(--line); }
+    .pillar-num { font-size: 0.58rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; }
+    .pillar:nth-child(1) .pillar-num { color: var(--candy-pink); }
+    .pillar:nth-child(2) .pillar-num { color: var(--candy-blue); }
+    .pillar:nth-child(3) .pillar-num { color: var(--candy-lime); }
+    .pillar-title { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem,3vw,2.4rem); font-weight: 400; line-height: 1.1; margin-top: 16px; }
+    .pillar-title em { font-style: italic; }
+    .pillar-body { font-size: 0.9rem; color: var(--ink-mid); font-weight: 300; line-height: 1.95; }
+    .pillar-body p + p { margin-top: 20px; }
+    .pillar-accent { width: 48px; height: 3px; margin-top: 32px; border-radius: 2px; }
+    .pillar:nth-child(1) .pillar-accent { background: var(--candy-pink); }
+    .pillar:nth-child(2) .pillar-accent { background: var(--candy-blue); }
+    .pillar:nth-child(3) .pillar-accent { background: var(--candy-lime); }
+    @media(max-width:768px) { #model { padding: 80px 20px; } .pillar { grid-template-columns: 1fr; gap: 24px; padding: 52px 0; } }
+
+    /* FOUNDER */
+    #founder { padding: 120px 52px; background: var(--ink); color: var(--cream); border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .founder-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: start; }
+    .founder-left .section-eyebrow { color: rgba(250,248,245,0.22); margin-bottom: 28px; }
+    .founder-left h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem,3.2vw,2.8rem); font-weight: 400; line-height: 1.1; color: var(--cream); margin-bottom: 32px; }
+    .founder-left h2 em { font-style: italic; color: rgba(250,248,245,0.32); }
+    .founder-stat-row { display: flex; flex-direction: column; gap: 1px; margin-top: 48px; }
+    .founder-stat { background: rgba(250,248,245,0.04); padding: 24px 28px; display: flex; align-items: baseline; gap: 20px; }
+    .founder-stat-val { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 400; flex-shrink: 0; }
+    .founder-stat:nth-child(1) .founder-stat-val { color: var(--candy-yellow); }
+    .founder-stat:nth-child(2) .founder-stat-val { color: var(--candy-pink); }
+    .founder-stat:nth-child(3) .founder-stat-val { color: var(--candy-blue); }
+    .founder-stat-label { font-size: 0.78rem; color: rgba(250,248,245,0.4); font-weight: 300; line-height: 1.6; }
+    .founder-right { padding-top: 8px; }
+    .founder-body { font-size: 0.9rem; color: rgba(250,248,245,0.55); font-weight: 300; line-height: 1.95; }
+    .founder-body p + p { margin-top: 22px; }
+    @media(max-width:900px) { #founder { padding: 80px 20px; } .founder-inner { grid-template-columns: 1fr; gap: 52px; } }
+
+    /* WHY RETAIL FIRST */
+    #why { padding: 120px 52px; border-bottom: 1px solid var(--line); }
+    .why-inner { max-width: 1100px; margin: 0 auto; }
+    .why-header { margin-bottom: 64px; max-width: 660px; }
+    .why-header h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem,3.6vw,3rem); font-weight: 400; line-height: 1.1; margin-bottom: 16px; }
+    .why-header h2 em { font-style: italic; }
+    .why-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 2px; }
+    .why-card { background: var(--cream-dark); padding: 48px 40px; }
+    .why-card-label { font-size: 0.57rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 16px; }
+    .why-card-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 400; margin-bottom: 16px; line-height: 1.2; }
+    .why-card-body { font-size: 0.85rem; color: var(--ink-mid); font-weight: 300; line-height: 1.85; }
+    @media(max-width:768px) { #why { padding: 80px 20px; } .why-grid { grid-template-columns: 1fr; } }
+
+    /* CTA */
+    #about-cta { padding: 140px 52px; border-bottom: 1px solid var(--line); }
+    .cta-inner { max-width: 780px; margin: 0 auto; text-align: center; }
+    .cta-inner .section-eyebrow { margin-bottom: 28px; }
+    .cta-inner h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem,3.8vw,3.2rem); font-weight: 400; line-height: 1.1; margin-bottom: 24px; }
+    .cta-inner h2 em { font-style: italic; }
+    .cta-inner p { font-size: 0.9rem; color: var(--ink-mid); font-weight: 300; line-height: 1.85; max-width: 480px; margin: 0 auto 44px; }
+    .cta-actions { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 12px; font-size: 0.67rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--cream); background: var(--ink); padding: 16px 34px; text-decoration: none; border-radius: 2px; transition: background 0.22s, gap 0.22s; }
+    .btn-primary:hover { background: var(--candy-pink); gap: 18px; }
+    .btn-secondary { display: inline-flex; align-items: center; gap: 10px; font-size: 0.67rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-mid); text-decoration: none; padding: 16px 0; border-bottom: 1px solid var(--line); transition: color 0.2s, border-color 0.2s; }
+    .btn-secondary:hover { color: var(--ink); border-color: var(--ink); }
+    @media(max-width:768px) { #about-cta { padding: 100px 20px; } }
+
+    /* FOOTER */
+    footer { padding: 44px 52px; border-top: 1px solid var(--line); }
+    .foot-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 28px; }
+    .foot-logo { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink); }
+    .foot-nav { display: flex; gap: 32px; }
+    .foot-nav a { font-size: 0.63rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); text-decoration: none; transition: color 0.2s; font-weight: 400; }
+    .foot-nav a:hover { color: var(--ink); }
+    .foot-bottom { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 28px; border-top: 1px solid var(--line); }
+    .foot-copy { font-size: 0.62rem; color: var(--ink-faint); }
+    .foot-tag { font-size: 0.62rem; color: var(--ink-faint); font-style: italic; }
+    @media(max-width:768px) { footer { padding: 36px 20px; } .foot-nav { display: none; } .foot-tag { display: none; } }
+
+    /* REVEAL */
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.75s cubic-bezier(0.16,1,0.3,1), transform 0.75s cubic-bezier(0.16,1,0.3,1); }
+    .reveal.d1 { transition-delay: 0.08s; } .reveal.d2 { transition-delay: 0.16s; } .reveal.d3 { transition-delay: 0.24s; }
+    .reveal.in { opacity: 1; transform: none; }
+    ::selection { background: rgba(255,78,145,0.12); }
+    ::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-track { background: var(--cream); } ::-webkit-scrollbar-thumb { background: var(--ink-faint); }
+  </style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">Hidden Supply</a>
+  <div class="nav-right">
+    <a href="brands.html">Brands</a>
+    <a href="about.html">The Model</a>
+    <a href="retailers.html">Retailers</a>
+    <a href="contact.html" class="nav-cta">Work With Us</a>
+  </div>
+</nav>
+
+<section class="page-hero">
+  <div class="hero-blob blob-1"></div>
+  <div class="hero-blob blob-2"></div>
+  <div class="page-hero-inner">
+    <div class="page-eyebrow reveal">The Model</div>
+    <h1 class="page-headline reveal d1">One engine.<br /><em>Infinite brand skins.</em></h1>
+    <p class="page-sub reveal d2">We didn't reinvent candy. We reinvented how candy brands get built — and how they earn their place on the shelf.</p>
+  </div>
+</section>
+
+<div class="candy-bar"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<section id="model">
+  <div class="model-inner">
+    <div class="model-header">
+      <div class="section-eyebrow reveal">How It Works</div>
+      <h2 class="reveal d1">Built for velocity.<br /><em>Designed for culture.</em></h2>
+      <p class="model-header-sub reveal d2">Hidden Supply is a brand house with a repeatable playbook: proven product formats wrapped in brand identities built for the customer standing in front of them.</p>
+    </div>
+
+    <div class="pillar reveal">
+      <div>
+        <div class="pillar-num">01 — Product Engine</div>
+        <div class="pillar-title">Core SKUs,<br /><em>perfected.</em></div>
+        <div class="pillar-accent"></div>
+      </div>
+      <div class="pillar-body">
+        <p>Every Hidden Supply product starts as a proven format. Wax candy, peelable gummies, crystal candy, novelty formats — categories with demonstrated velocity and consumer demand. We don't experiment with whether the format works. We perfect it.</p>
+        <p>Manufacturing is handled at scale with quality and margin built in from day one. Our COGS discipline means we can offer strong retailer margins without sacrificing product quality. High-velocity SKUs that turn fast, fill carts, and come back.</p>
+        <p>The engine runs quietly. The brands run loud.</p>
+      </div>
+    </div>
+
+    <div class="pillar reveal">
+      <div>
+        <div class="pillar-num">02 — Brand Skins</div>
+        <div class="pillar-title">Tailored per<br /><em>retailer.</em></div>
+        <div class="pillar-accent"></div>
+      </div>
+      <div class="pillar-body">
+        <p>Each core product wears its own brand identity. Same great product, different story — letting us match every retailer's customer culture without redesigning from scratch. Your shelf, your customer, your brand.</p>
+        <p>A pop culture retailer gets Nauti Labs. A specialty candy destination gets Juice Bomb. An off-price chain gets a format that fits their value story. The product engine underneath is the same. The brand on top is built for that specific customer.</p>
+        <p>This is how we scale across 7+ retail partners without losing identity at any of them.</p>
+      </div>
+    </div>
+
+    <div class="pillar reveal">
+      <div>
+        <div class="pillar-num">03 — Social Pull</div>
+        <div class="pillar-title">We drive<br /><em>the demand.</em></div>
+        <div class="pillar-accent"></div>
+      </div>
+      <div class="pillar-body">
+        <p>We don't just ship and hope. Our founders have built brands to 2M+ followers and 2B+ social views. That playbook — short-form content, creator partnerships, cultural moments — drives customers into stores and turns product into something people seek out.</p>
+        <p>Most CPG brands rely on trade spend and promotions to drive velocity. We rely on content and community. The result is a more defensible brand, stronger organic sell-through, and a retailer partnership that actually benefits both sides.</p>
+        <p>When we put a brand on your shelf, we put the demand engine behind it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="founder">
+  <div class="founder-inner">
+    <div class="founder-left">
+      <div class="section-eyebrow reveal">The Founders</div>
+      <h2 class="reveal d1">Built by operators<br /><em>who've done it before.</em></h2>
+      <div class="founder-stat-row reveal d2">
+        <div class="founder-stat">
+          <div class="founder-stat-val">$100M+</div>
+          <div class="founder-stat-label">Revenue built at Japan Crate — the world's leading Japanese snack subscription brand</div>
+        </div>
+        <div class="founder-stat">
+          <div class="founder-stat-val">2B+</div>
+          <div class="founder-stat-label">Social views generated through brand-building and content across consumer brands</div>
+        </div>
+        <div class="founder-stat">
+          <div class="founder-stat-val">2M+</div>
+          <div class="founder-stat-label">Followers built across social platforms — organic, not paid</div>
+        </div>
+      </div>
+    </div>
+    <div class="founder-right">
+      <div class="founder-body reveal d1">
+        <p>Hidden Supply was built by people who've already won in consumer — and learned exactly what it takes to build brands that last beyond the launch cycle.</p>
+        <p>Japan Crate became the world's leading Japanese snack subscription, scaling to $100M+ in revenue and building a devoted community of snack culture enthusiasts. That brand wasn't built on ad spend. It was built on cultural identity, product curation, and a community that genuinely loved what they were part of.</p>
+        <p>Kanpai Foods brought the same playbook to Japanese-inspired food — building a brand that resonated far beyond the product category. The pattern was clear: product + identity + social pull = velocity that compounds.</p>
+        <p>Hidden Supply is that playbook applied to candy — with the retail relationships, manufacturing discipline, and operational infrastructure to scale it properly. We're not experimenting. We're executing a model that's already worked.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="candy-bar"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<section id="why">
+  <div class="why-inner">
+    <div class="why-header">
+      <div class="section-eyebrow reveal">Why Retail-First</div>
+      <h2 class="reveal d1">The shelf is still<br /><em>where it happens.</em></h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-card reveal">
+        <div class="why-card-label">Discovery</div>
+        <div class="why-card-title">Impulse is a retail superpower.</div>
+        <div class="why-card-body">Candy is one of the highest-impulse categories in retail. The right product at the right shelf at the right price converts without any additional marketing. We build products designed for that moment — packaging that stops, product that delivers.</div>
+      </div>
+      <div class="why-card reveal d1">
+        <div class="why-card-label">Scale</div>
+        <div class="why-card-title">3,000 doors beats 3M followers.</div>
+        <div class="why-card-body">DTC is loud. Retail is scale. A single placement at a national retailer reaches more buyers in a week than most DTC brands see in a quarter. We build for retail first — and use social to defend and grow the shelf position we earn.</div>
+      </div>
+      <div class="why-card reveal d2">
+        <div class="why-card-label">Margin</div>
+        <div class="why-card-title">Strong margin, no games.</div>
+        <div class="why-card-body">Our COGS discipline is what makes the whole model work. We manufacture at scale, land with freight and duties baked in, and price to leave strong margin for our retail partners. No slotting fees needed when the product earns its place.</div>
+      </div>
+      <div class="why-card reveal d3">
+        <div class="why-card-label">Velocity</div>
+        <div class="why-card-title">Fast turns, happy buyers.</div>
+        <div class="why-card-body">We focus on everyday SKUs designed to turn 6+ times per year. Fast-turning products mean happier retail partners, better placement, and a business that can be financed efficiently. We don't chase seasonal hits. We build staples.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about-cta">
+  <div class="cta-inner">
+    <div class="section-eyebrow reveal">Ready to Work Together?</div>
+    <h2 class="reveal d1">Let's put something<br /><em>real on your shelf.</em></h2>
+    <p class="reveal d2">We work with buyers, retailers, and distributors who want candy that actually moves. Every inquiry is reviewed personally.</p>
+    <div class="cta-actions reveal d3">
+      <a href="contact.html" class="btn-primary">
+        Buyer Inquiries
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5h12M8 1l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="brands.html" class="btn-secondary">
+        Explore the Brands
+        <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5h10M7 1l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-top">
+    <div class="foot-logo">Hidden Supply</div>
+    <nav class="foot-nav">
+      <a href="brands.html">Brands</a>
+      <a href="about.html">The Model</a>
+      <a href="retailers.html">Retail</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+  <div class="foot-bottom">
+    <div class="foot-copy">&copy; 2026 Hidden Supply · hiddensupply.co</div>
+    <div class="foot-tag">Los Angeles, CA &mdash; Built for the shelf.</div>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => { nav.classList.toggle('solid', window.scrollY > 40); }, { passive: true });
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.07, rootMargin: '0px 0px -20px 0px' });
+  reveals.forEach(el => io.observe(el));
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.page-hero .reveal').forEach((el, i) => { setTimeout(() => el.classList.add('in'), 100 + i * 140); });
+  });
+</script>
+</body>
+</html>

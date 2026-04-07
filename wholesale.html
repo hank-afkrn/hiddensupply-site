@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wholesale Inquiry — Juice Bomb / Hidden Supply</title>
+  <meta name="description" content="Juice Bomb wax candy — wholesale inquiry for retail buyers. Shelf-ready, PDQ-format, high-velocity. Request the line sheet." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream:      #faf8f2;
+      --cream-dark: #f0ede4;
+      --ink:        #1a1714;
+      --ink-mid:    #6b6762;
+      --ink-faint:  #b0aca7;
+      --line:       rgba(26,23,20,0.09);
+      --black:      #0a0a0f;
+      --black-mid:  #111118;
+      --black-soft: #1a1a24;
+      --line-dark:  rgba(250,248,242,0.08);
+      --jb:         #ffe600;
+      --jb-hot:     #ff2d6b;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--black); color: var(--cream); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+    /* ── CANDY BAR ── */
+    .cbar { display: grid; grid-template-columns: repeat(6,1fr); height: 4px; position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+    .cbar span:nth-child(1){background:#ff4e91}
+    .cbar span:nth-child(2){background:#ff7b35}
+    .cbar span:nth-child(3){background:#ffc933}
+    .cbar span:nth-child(4){background:#7ed957}
+    .cbar span:nth-child(5){background:#3fbdff}
+    .cbar span:nth-child(6){background:#a259ff}
+
+    /* ── NAV ── */
+    nav { position: fixed; top: 4px; left: 0; right: 0; z-index: 99; padding: 20px 52px; display: flex; align-items: center; justify-content: space-between; transition: background .3s, border-color .3s; border-bottom: 1px solid transparent; }
+    nav.solid { background: rgba(10,10,15,.96); backdrop-filter: blur(18px); border-color: var(--line-dark); }
+    .nav-logo { font-size: .67rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; color: var(--cream); text-decoration: none; }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a { font-size: .66rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: rgba(250,248,242,.45); text-decoration: none; transition: color .2s; }
+    .nav-links a:hover { color: var(--cream); }
+    .nav-cta { background: var(--jb) !important; color: var(--black) !important; padding: 9px 22px !important; font-weight: 700 !important; border-radius: 2px; }
+    .nav-cta:hover { background: var(--jb-hot) !important; color: #fff !important; }
+    @media(max-width:768px){ nav { padding: 16px 20px; } .nav-links a:not(.nav-cta){ display: none; } }
+
+    /* ── HERO ── */
+    #hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 160px 72px 100px; gap: 80px; position: relative; overflow: hidden; }
+    .hero-glow { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 70% 55% at 30% 50%, rgba(255,230,0,.06) 0%, transparent 60%); }
+    .hero-left { }
+    .hero-tag { font-size: .58rem; font-weight: 700; letter-spacing: .28em; text-transform: uppercase; color: var(--jb); margin-bottom: 28px; }
+    .hero-headline { font-family: 'Playfair Display', serif; font-size: clamp(2.6rem,4.5vw,4.2rem); font-weight: 900; line-height: .95; letter-spacing: -.025em; color: var(--cream); margin-bottom: 24px; }
+    .hero-headline em { font-style: italic; color: var(--jb); }
+    .hero-sub { font-size: .92rem; font-weight: 300; line-height: 1.8; color: rgba(250,248,242,.5); max-width: 420px; margin-bottom: 44px; }
+    .hero-proof { display: flex; gap: 2px; }
+    .proof-pill { background: var(--black-mid); padding: 20px 28px; flex: 1; text-align: center; }
+    .proof-num { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: var(--jb); display: block; line-height: 1; }
+    .proof-label { font-size: .55rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: rgba(250,248,242,.3); margin-top: 4px; display: block; }
+    .hero-right { position: relative; }
+    .hero-img-wrap { position: relative; }
+    .hero-img { width: 100%; border-radius: 2px; display: block; }
+    .hero-badge { position: absolute; top: 24px; right: 24px; background: var(--jb); color: var(--black); font-size: .58rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; padding: 8px 16px; }
+    @media(max-width:960px){ #hero { grid-template-columns: 1fr; padding: 140px 24px 80px; gap: 52px; } }
+
+    /* ── WHY ── */
+    #why { background: var(--cream); padding: 100px 72px; }
+    .why-inner { max-width: 1100px; margin: 0 auto; }
+    .sec-label { font-size: .58rem; font-weight: 700; letter-spacing: .28em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 16px; }
+    .sec-head { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem,3.2vw,2.8rem); font-weight: 900; line-height: 1.0; letter-spacing: -.02em; color: var(--ink); margin-bottom: 14px; }
+    .sec-head em { font-style: italic; color: var(--jb-hot); }
+    .sec-sub { font-size: .88rem; color: var(--ink-mid); font-weight: 300; line-height: 1.75; max-width: 520px; margin-bottom: 64px; }
+    .why-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--ink); }
+    .why-card { background: var(--cream); padding: 48px 40px; }
+    .why-num { font-family: 'Playfair Display', serif; font-size: 3.5rem; font-weight: 900; color: rgba(26,23,20,.05); line-height: 1; display: block; margin-bottom: 16px; }
+    .why-verb { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; font-style: italic; display: block; margin-bottom: 12px; }
+    .why-card:nth-child(1) .why-verb { color: var(--ink); }
+    .why-card:nth-child(2) .why-verb { color: var(--jb-hot); }
+    .why-card:nth-child(3) .why-verb { color: #3fbdff; }
+    .why-card:nth-child(4) .why-verb { color: #7ed957; }
+    .why-card:nth-child(5) .why-verb { color: var(--jb-hot); }
+    .why-card:nth-child(6) .why-verb { color: var(--jb); -webkit-text-stroke: .5px var(--ink); }
+    .why-desc { font-size: .82rem; color: var(--ink-mid); font-weight: 300; line-height: 1.8; }
+    @media(max-width:768px){ #why { padding: 80px 20px; } .why-grid { grid-template-columns: 1fr; } }
+
+    /* ── MANIFESTO STRIP ── */
+    #manifesto { background: var(--black-mid); padding: 80px 72px; border-top: 1px solid var(--line-dark); border-bottom: 1px solid var(--line-dark); }
+    .manifesto-inner { max-width: 860px; margin: 0 auto; text-align: center; }
+    .manifesto-quote { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem,3vw,2.4rem); font-weight: 400; font-style: italic; line-height: 1.4; color: var(--cream); }
+    .manifesto-quote em { color: var(--jb); font-style: normal; }
+    .manifesto-cite { display: block; margin-top: 20px; font-size: .6rem; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: rgba(250,248,242,.25); font-style: normal; }
+
+    /* ── FORM SECTION ── */
+    #inquiry { background: var(--cream); padding: 100px 72px 120px; }
+    .inquiry-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.2fr; gap: 100px; align-items: start; }
+    .inq-left { position: sticky; top: 100px; }
+    .inq-headline { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem,3vw,2.6rem); font-weight: 900; line-height: 1.0; color: var(--ink); letter-spacing: -.02em; margin-bottom: 20px; }
+    .inq-headline em { font-style: italic; color: var(--jb-hot); }
+    .inq-body { font-size: .86rem; color: var(--ink-mid); font-weight: 300; line-height: 1.9; margin-bottom: 44px; }
+    .inq-detail { margin-bottom: 20px; }
+    .inq-detail-label { font-size: .55rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 4px; }
+    .inq-detail-val { font-size: .84rem; color: var(--ink-mid); }
+    .inq-detail-val a { color: var(--ink-mid); text-decoration: none; border-bottom: 1px solid var(--line); transition: color .2s, border-color .2s; }
+    .inq-detail-val a:hover { color: var(--jb-hot); border-color: var(--jb-hot); }
+    .inq-block { margin-top: 44px; background: var(--ink); padding: 32px; }
+    .inq-block-text { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: var(--cream); }
+    .inq-block-text em { font-style: italic; color: rgba(250,248,242,.3); }
+
+    /* ── FORM ── */
+    .form-wrap { }
+    .form-section { font-size: .55rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-faint); padding: 20px 0 10px; border-bottom: 1px solid var(--line); margin-bottom: 1px; }
+    .form-grid { display: flex; flex-direction: column; gap: 1px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; }
+    .fg { display: flex; flex-direction: column; }
+    .fg label { font-size: .54rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); background: var(--cream-dark); border: 1px solid var(--line); border-bottom: none; padding: 12px 14px 4px; }
+    .fg input, .fg select, .fg textarea { background: var(--cream-dark); border: 1px solid var(--line); border-top: none; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: .88rem; font-weight: 300; color: var(--ink); outline: none; width: 100%; transition: border-color .2s; -webkit-appearance: none; }
+    .fg input:focus, .fg select:focus, .fg textarea:focus { border-color: var(--jb-hot); }
+    .fg textarea { resize: vertical; min-height: 110px; }
+    .form-submit { margin-top: 1px; width: 100%; background: var(--ink); color: var(--cream); font-family: 'Inter', sans-serif; font-size: .66rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; border: none; padding: 20px 40px; cursor: pointer; transition: background .2s; }
+    .form-submit:hover { background: var(--jb-hot); }
+    .form-note { margin-top: 14px; font-size: .67rem; color: var(--ink-faint); text-align: center; line-height: 1.6; }
+    .form-success { display: none; padding: 80px 40px; text-align: center; border: 1px solid var(--line); }
+    .form-success.on { display: block; }
+    .form-success h3 { font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 900; color: var(--ink); margin-bottom: 12px; }
+    .form-success p { font-size: .88rem; color: var(--ink-mid); line-height: 1.8; }
+    .form-success a { color: var(--jb-hot); }
+    @media(max-width:960px){ #inquiry { padding: 80px 20px; } .inquiry-inner { grid-template-columns: 1fr; gap: 52px; } .inq-left { position: static; } .form-row { grid-template-columns: 1fr; } }
+
+    /* ── FOOTER ── */
+    footer { background: var(--black); padding: 40px 72px; border-top: 1px solid var(--line-dark); }
+    .foot-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .foot-logo { font-size: .64rem; font-weight: 700; letter-spacing: .28em; text-transform: uppercase; color: rgba(250,248,242,.4); }
+    .foot-links { display: flex; gap: 28px; }
+    .foot-links a { font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(250,248,242,.25); text-decoration: none; transition: color .2s; }
+    .foot-links a:hover { color: var(--cream); }
+    .foot-sub { margin-top: 24px; font-size: .6rem; color: rgba(250,248,242,.18); }
+    @media(max-width:768px){ footer { padding: 32px 20px; } .foot-links { display: none; } }
+
+    /* ── REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+    .d1 { transition-delay: .08s } .d2 { transition-delay: .16s } .d3 { transition-delay: .24s }
+    .reveal.in { opacity: 1; transform: none; }
+
+    ::selection { background: rgba(255,45,107,.12); }
+    ::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-thumb { background: rgba(250,248,242,.15); }
+  </style>
+</head>
+<body>
+
+<div class="cbar"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<nav id="nav">
+  <a href="v6/index.html" class="nav-logo">Hidden Supply</a>
+  <div class="nav-links">
+    <a href="v6/brands/juice-bomb.html">Juice Bomb</a>
+    <a href="v6/index.html">All Brands</a>
+    <a href="#inquiry" class="nav-cta">Request Line Sheet</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-left">
+    <div class="hero-tag" id="htag">Wholesale Inquiry — Juice Bomb</div>
+    <h1 class="hero-headline" id="hh">You get it<br />in <em>3 seconds.</em><br />So do your shoppers.</h1>
+    <p class="hero-sub" id="hs">Juice Bomb is wax candy with a mechanic that sells itself. Bite it — juice spills out. No pitch needed. Built for specialty retail, off-price, and entertainment. PDQ-ready. Ships Q2 2026.</p>
+    <div class="hero-proof" id="hp">
+      <div class="proof-pill">
+        <span class="proof-num">76+</span>
+        <span class="proof-label">SKUs</span>
+      </div>
+      <div class="proof-pill">
+        <span class="proof-num">3K+</span>
+        <span class="proof-label">Doors</span>
+      </div>
+      <div class="proof-pill">
+        <span class="proof-num">2B+</span>
+        <span class="proof-label">Social Views</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right reveal d2">
+    <div class="hero-img-wrap">
+      <img src="img/jb_hero_dark_optimized.webp" onerror="this.src='v6/brands/../../../hidden-supply/assets-clean/juice-bomb/hero/jb_hero_dark.png'" alt="Juice Bomb Space Astronaut Wax Candy" class="hero-img" />
+      <div class="hero-badge">Shelf-Ready ↗</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHY IT WINS ── -->
+<section id="why">
+  <div class="why-inner">
+    <div class="sec-label reveal">Why Juice Bomb wins at retail</div>
+    <h2 class="sec-head reveal d1">Three seconds flat.<br /><em>No pitch needed.</em></h2>
+    <p class="sec-sub reveal d2">Every Hidden Supply brand is built around a single question: does the shopper understand it the moment they pick it up? Juice Bomb answers yes, every time.</p>
+    <div class="why-grid">
+      <div class="why-card reveal">
+        <span class="why-num">01</span>
+        <span class="why-verb">Clear concept.</span>
+        <p class="why-desc">Bite the wax. The juice inside spills out. Shoppers understand it instantly — without reading a word of copy. The mechanic is the marketing.</p>
+      </div>
+      <div class="why-card reveal d1">
+        <span class="why-num">02</span>
+        <span class="why-verb">Stands out.</span>
+        <p class="why-desc">Packaging engineered to stop a shopper mid-aisle. Bold visual identity, strong shelf presence. Reads fast in specialty gifting, off-price, and entertainment equally.</p>
+      </div>
+      <div class="why-card reveal d2">
+        <span class="why-num">03</span>
+        <span class="why-verb">Moves fast.</span>
+        <p class="why-desc">Impulse-priced. PDQ-ready. Grab-and-go format built for checkout and high-traffic displays. Designed to turn, not sit.</p>
+      </div>
+      <div class="why-card reveal">
+        <span class="why-num">04</span>
+        <span class="why-verb">Social flywheel.</span>
+        <p class="why-desc">2B+ social views across the brand. Shoppers already know it before they reach the shelf. That demand signal is already built — you just need to stock it.</p>
+      </div>
+      <div class="why-card reveal d1">
+        <span class="why-num">05</span>
+        <span class="why-verb">Operationally clean.</span>
+        <p class="why-desc">Net 30 standard terms. PDQ-ready ships shelf-ready. Consistent manufacturing out of a single primary facility. No surprises.</p>
+      </div>
+      <div class="why-card reveal d2">
+        <span class="why-num">06</span>
+        <span class="why-verb">Built to earn margin.</span>
+        <p class="why-desc">50% GM at wholesale. Impulse price point that works for the buyer and the shopper. No promotional dependency to drive turns.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── MANIFESTO ── -->
+<section id="manifesto">
+  <div class="manifesto-inner">
+    <blockquote class="manifesto-quote">
+      "We build candy that earns its shelf space — not through promotions or price cuts,<br />but because it <em>means something</em> to the person standing in front of it."
+    </blockquote>
+    <cite class="manifesto-cite">Hidden Supply · Los Angeles, CA</cite>
+  </div>
+</section>
+
+<!-- ── INQUIRY FORM ── -->
+<section id="inquiry">
+  <div class="inquiry-inner">
+    <div class="inq-left reveal">
+      <div class="sec-label">Wholesale Inquiry</div>
+      <h2 class="inq-headline">Let's put Juice Bomb<br />on your <em>shelf.</em></h2>
+      <p class="inq-body">We review every inquiry personally. No auto-responses, no sales team. If Juice Bomb is the right fit for your doors, we'll make it happen fast.</p>
+
+      <div class="inq-detail">
+        <div class="inq-detail-label">Buyer Inquiries</div>
+        <div class="inq-detail-val"><a href="mailto:buyers@hiddensupply.co">buyers@hiddensupply.co</a></div>
+      </div>
+      <div class="inq-detail">
+        <div class="inq-detail-label">Distribution</div>
+        <div class="inq-detail-val">Nationwide · Specialty &amp; Off-Price</div>
+      </div>
+      <div class="inq-detail">
+        <div class="inq-detail-label">Standard Terms</div>
+        <div class="inq-detail-val">Net 30 · PDQ-ready · Ship-ready Q2 2026</div>
+      </div>
+      <div class="inq-detail">
+        <div class="inq-detail-label">Response Time</div>
+        <div class="inq-detail-val">Within 2 business days</div>
+      </div>
+      <div class="inq-detail">
+        <div class="inq-detail-label">Based In</div>
+        <div class="inq-detail-val">Los Angeles, CA</div>
+      </div>
+
+      <div class="inq-block">
+        <div class="inq-block-text">
+          We don't work with every door —<br /><em>but when we do, we make it count.</em>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-wrap reveal d1">
+      <form class="form-grid" id="inquiryForm">
+        <div class="form-section">About You</div>
+        <div class="form-row">
+          <div class="fg">
+            <label>First Name</label>
+            <input type="text" placeholder="First name" required />
+          </div>
+          <div class="fg">
+            <label>Last Name</label>
+            <input type="text" placeholder="Last name" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label>Company / Retailer</label>
+            <input type="text" placeholder="Where you buy" required />
+          </div>
+          <div class="fg">
+            <label>Your Role</label>
+            <input type="text" placeholder="Buyer, Category Manager..." />
+          </div>
+        </div>
+        <div class="fg">
+          <label>Email</label>
+          <input type="email" placeholder="your@company.com" required />
+        </div>
+
+        <div class="form-section" style="margin-top:12px;">Your Retail Context</div>
+        <div class="form-row">
+          <div class="fg">
+            <label>Retail Channel</label>
+            <select>
+              <option value="">Select channel...</option>
+              <option>Specialty Gifting</option>
+              <option>Pop Culture / Entertainment</option>
+              <option>Off-Price / Value</option>
+              <option>Convenience</option>
+              <option>Distributor</option>
+              <option>Online / eComm</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Number of Doors</label>
+            <select>
+              <option value="">Select range...</option>
+              <option>1–10</option>
+              <option>11–50</option>
+              <option>51–200</option>
+              <option>201–500</option>
+              <option>501–1,000</option>
+              <option>1,000+</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label>Brand / SKU Interest</label>
+            <select>
+              <option value="">Select...</option>
+              <option>Juice Bomb (primary interest)</option>
+              <option>Dirty Sips</option>
+              <option>PeelPals</option>
+              <option>Candu</option>
+              <option>Nauti Labs</option>
+              <option>Multiple brands — show me the full portfolio</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Order Timing</label>
+            <select>
+              <option value="">Select...</option>
+              <option>Ready now / Q2 2026</option>
+              <option>Q3 2026</option>
+              <option>Q4 2026 / Holiday</option>
+              <option>Exploratory — no timeline yet</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Anything Else</label>
+          <textarea placeholder="Current candy set, open space on shelf, specific SKU formats you need, questions about margins or terms..."></textarea>
+        </div>
+
+        <button type="submit" class="form-submit">Send Wholesale Inquiry →</button>
+        <div class="form-note">Every inquiry is reviewed personally. We'll follow up within 2 business days.</div>
+      </form>
+
+      <div class="form-success" id="formSuccess">
+        <h3>Received.</h3>
+        <p>
+          We review every inquiry personally — no auto-responses.<br />
+          You'll hear back within 2 business days.<br /><br />
+          In the meantime: <a href="v6/brands/juice-bomb.html">explore Juice Bomb →</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-row">
+    <div class="foot-logo">Hidden Supply</div>
+    <div class="foot-links">
+      <a href="v6/brands/juice-bomb.html">Juice Bomb</a>
+      <a href="v6/index.html">All Brands</a>
+      <a href="#inquiry">Wholesale</a>
+    </div>
+  </div>
+  <div class="foot-sub">&copy; 2026 Hidden Supply · hiddensupply.co · Los Angeles, CA — Built for the shelf.</div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => { nav.classList.toggle('solid', scrollY > 40); }, { passive: true });
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: .07, rootMargin: '0px 0px -20px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Hero entrance
+  document.addEventListener('DOMContentLoaded', () => {
+    ['htag','hh','hs','hp'].forEach((id,i) => setTimeout(() => document.getElementById(id)?.classList.add('in'), 100 + i*140));
+  });
+
+  // Form submit
+  document.getElementById('inquiryForm').addEventListener('submit', e => {
+    e.preventDefault();
+    e.target.style.display = 'none';
+    document.getElementById('formSuccess').classList.add('on');
+  });
+</script>
+</body>
+</html>
