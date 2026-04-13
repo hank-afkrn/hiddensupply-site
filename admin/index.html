@@ -575,6 +575,7 @@
   <a href="https://hiddensupply.co/admin" style="color:#555;text-decoration:none;font-weight:700;letter-spacing:.1em;font-size:10px;text-transform:uppercase;padding:4px 8px;border-radius:3px;white-space:nowrap;" onmouseover="this.style.color='#e0e0e0'" onmouseout="this.style.color='#555'">&#8962; Tower</a>
   <div style="width:1px;height:14px;background:#2a2a2a;margin:0 2px;"></div>
   <a href="http://20.165.197.60:8097" class="hs-nav-item" data-id="magic-sku">&#10024; Magic SKU Maker</a>
+  <a href="http://20.165.197.60:8096" class="hs-nav-item" data-id="ad-builder">&#128172; Magic Ad Builder</a>
   <a href="http://20.165.197.60:8095" class="hs-nav-item" data-id="pkg-studio">&#128230; Packaging Studio</a>
   <a href="http://20.165.197.60:8095/rescue.html" class="hs-nav-item" data-id="rescue">&#128657; Rescue Mode</a>
   <a href="http://20.165.197.60:8095/direction.html" class="hs-nav-item" data-id="direction">&#9999;&#65039; Direction</a>
@@ -591,7 +592,7 @@ body{padding-top:32px!important;}
 <script>
 (function(){
   var path=window.location.pathname+window.location.href;
-  var map={"magic-sku":"8097","pkg-studio":"8095","rescue":"rescue.html","direction":"direction.html","assets":"8086","design-ops":"8082","site":"/v6/"};
+  var map={"magic-sku":"8097","ad-builder":"8096","pkg-studio":"8095","rescue":"rescue.html","direction":"direction.html","assets":"8086","design-ops":"8082","site":"/v6/"};
   Object.keys(map).forEach(function(id){
     if(path.indexOf(map[id])>-1){
       var el=document.querySelector("[data-id='"+id+"']");
@@ -643,7 +644,7 @@ body{padding-top:32px!important;}
   <!-- System stats -->
   <div class="status-bar">
     <div class="stat">
-      <span class="stat-val" style="color:var(--green)">11</span>
+      <span class="stat-val" style="color:var(--green)">12</span>
       <span class="stat-label">Tools online</span>
     </div>
     <div class="stat-divider"></div>
@@ -686,6 +687,24 @@ body{padding-top:32px!important;}
       </div>
       <div class="card-footer">
         <div class="card-url">:8097</div>
+        <div class="card-cta">Launch →</div>
+      </div>
+    </a>
+
+    <!-- Magic Ad Builder — featured -->
+    <a href="http://20.165.197.60:8096" target="_blank" class="card featured blue">
+      <div class="card-icon">💬</div>
+      <div class="card-body">
+        <div class="card-header" style="margin-bottom:8px;">
+          <div>
+            <div class="card-name">Magic Ad Builder</div>
+          </div>
+          <div class="card-status online">Online</div>
+        </div>
+        <div class="card-desc">Meta static ad concept generator. Grounded on approved brand assets, performance-tuned prompts, creative steering controls — text-first concepts, render only what you select. Hook angle, visual device, aggression, boosts all wired.</div>
+      </div>
+      <div class="card-footer">
+        <div class="card-url">:8096</div>
         <div class="card-cta">Launch →</div>
       </div>
     </a>
@@ -781,7 +800,7 @@ body{padding-top:32px!important;}
         <div class="card-status online">Online</div>
       </div>
       <div class="card-name">Image Swapper</div>
-      <div class="card-desc">Click any site image slot — homepage belief mosaic, brand cards, proof rows, brand heroes — drop in a replacement, crop it live, and save. No code needed.</div>
+      <div class="card-desc">Swap site images with live preview — homepage hero grid (5 floating products), belief mosaic, brand cards, brand hero banners. Preview before committing. Hero grid swaps use preview-before-commit flow to avoid breaking layout.</div>
       <div class="card-footer">
         <div class="card-url">/admin/image-swap</div>
         <div class="card-cta">Open →</div>
@@ -802,17 +821,17 @@ body{padding-top:32px!important;}
       </div>
     </a>
 
-    <!-- FDA Label Builder -->
-    <a href="/v6-os/admin/index.html#fda" target="_blank" class="card green">
+    <!-- Nutrition Facts Studio -->
+    <a href="/admin/nutrition-facts/" target="_blank" class="card green">
       <div class="card-header">
-        <div class="card-icon">🧾</div>
+        <div class="card-icon">🟩</div>
         <div class="card-status online">Online</div>
       </div>
-      <div class="card-name">FDA Label Builder</div>
-      <div class="card-desc">Live-preview Nutrition Facts builder. Fill in serving size, all macros + micronutrients, ingredients, allergens, and distributor block. Download print-ready HTML or copy structured JSON.</div>
+      <div class="card-name">Nutrition Facts Studio</div>
+      <div class="card-desc">Full-featured label compliance studio. Manual build, supplier data conversion, label import, compliance preflight, and multi-tier exports. Standalone app — direct entry, no tab switching.</div>
       <div class="card-footer">
-        <div class="card-url">:8000/v6-os/admin → FDA Label tab</div>
-        <div class="card-cta">Build →</div>
+        <div class="card-url">/admin/nutrition-facts/</div>
+        <div class="card-cta">Open Studio →</div>
       </div>
     </a>
 

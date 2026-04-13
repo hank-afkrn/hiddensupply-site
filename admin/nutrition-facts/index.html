@@ -1,0 +1,2480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nutrition Facts Studio — Hidden Supply</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:        #080808;
+  --surface:   #111111;
+  --surface2:  #161616;
+  --surface3:  #1e1e1e;
+  --surface4:  #252525;
+  --border:    #222222;
+  --border2:   #2e2e2e;
+  --text:      #E8E6E0;
+  --muted:     #555550;
+  --dim:       #888880;
+  --accent:    #F0E040;
+  --accent-bg: rgba(240,224,64,0.08);
+  --green:     #4ADE80;
+  --green-bg:  rgba(74,222,128,0.08);
+  --red:       #F87171;
+  --red-bg:    rgba(248,113,113,0.08);
+  --orange:    #FB923C;
+  --orange-bg: rgba(251,146,60,0.08);
+  --blue:      #60A5FA;
+  --blue-bg:   rgba(96,165,250,0.08);
+  --purple:    #A78BFA;
+  --radius:    6px;
+  --mono:      'Space Mono', monospace;
+  --sans:      'Space Grotesk', sans-serif;
+}
+html { background: var(--bg); }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* scanline */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);
+  pointer-events: none;
+  z-index: 9000;
+}
+
+/* ============================================================
+   APP NAV BAR (top strip)
+   ============================================================ */
+#hs-appnav {
+  position: fixed; top: 0; left: 0; right: 0; height: 32px;
+  background: #0d0d0d; border-bottom: 1px solid #1a1a1a;
+  display: flex; align-items: center; padding: 0 14px; gap: 4px;
+  z-index: 8000; font-family: var(--sans); font-size: 11px;
+}
+.hs-nav-item {
+  color: #555; text-decoration: none; font-weight: 600;
+  padding: 4px 9px; border-radius: 3px; white-space: nowrap;
+  transition: color .12s, background .12s;
+}
+.hs-nav-item:hover { color: #e0e0e0; background: #1a1a1a; }
+.hs-nav-item.hs-current { color: var(--accent); background: var(--accent-bg); }
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+#app-header {
+  position: sticky; top: 32px;
+  background: rgba(8,8,8,0.96); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px; height: 52px; z-index: 200;
+}
+.app-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--text);
+}
+.app-logo-mark {
+  width: 26px; height: 26px;
+  border: 1px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--accent); position: relative;
+}
+.app-logo-mark::before {
+  content: ''; position: absolute; inset: 2px;
+  border: 1px solid rgba(240,224,64,0.3);
+}
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.hdr-btn {
+  background: transparent; border: 1px solid var(--border2);
+  border-radius: var(--radius); color: var(--dim); cursor: pointer;
+  font-family: var(--sans); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.08em; padding: 6px 14px; text-transform: uppercase;
+  transition: all 0.15s; white-space: nowrap;
+}
+.hdr-btn:hover { border-color: var(--accent); color: var(--accent); }
+.hdr-btn.accent { background: var(--accent); border-color: var(--accent); color: #111; }
+.hdr-btn.accent:hover { opacity: 0.88; }
+
+/* ============================================================
+   APP SHELL — left nav + main area
+   ============================================================ */
+#app-shell {
+  display: flex;
+  padding-top: 84px; /* appnav 32 + header 52 */
+  min-height: 100vh;
+}
+
+/* LEFT NAV */
+#left-nav {
+  width: 220px; flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  position: fixed; top: 84px; bottom: 0;
+  overflow-y: auto; padding: 20px 0;
+  background: var(--bg); z-index: 100;
+}
+.lnav-group-label {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  padding: 14px 18px 6px;
+}
+.lnav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 18px; cursor: pointer;
+  font-size: 12px; font-weight: 600; color: var(--dim);
+  transition: color 0.12s, background 0.12s;
+  border-left: 2px solid transparent;
+  user-select: none;
+}
+.lnav-item:hover { color: var(--text); background: var(--surface); }
+.lnav-item.active {
+  color: var(--accent); background: var(--accent-bg);
+  border-left-color: var(--accent);
+}
+.lnav-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+.lnav-badge {
+  margin-left: auto; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 3px;
+  background: var(--surface3); color: var(--muted);
+}
+.lnav-item.active .lnav-badge { background: var(--accent-bg); color: var(--accent); }
+
+/* MAIN CONTENT */
+#main-content {
+  margin-left: 220px;
+  flex: 1; min-width: 0;
+  padding: 0;
+}
+
+/* VIEWS */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ============================================================
+   COMMON COMPONENTS
+   ============================================================ */
+
+/* Page heading */
+.page-head {
+  padding: 28px 32px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.page-eyebrow {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent);
+  margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+}
+.page-eyebrow::before { content: ''; width: 16px; height: 1px; background: var(--accent); }
+.page-title { font-size: 22px; font-weight: 700; letter-spacing: -0.03em; }
+.page-sub { font-size: 12px; color: var(--dim); margin-top: 4px; line-height: 1.5; max-width: 540px; }
+
+/* Content area */
+.content-area { padding: 28px 32px; }
+.content-area.narrow { max-width: 900px; }
+.content-area.wide { max-width: 1200px; }
+
+/* Section cards */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.card-hdr {
+  padding: 11px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+}
+.card-body { padding: 16px; }
+
+/* Grid utilities */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+
+/* Field */
+.fi { display: flex; flex-direction: column; gap: 5px; }
+.fi label, .fi-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--dim);
+}
+.fi input, .fi textarea, .fi select,
+input[type=text], input[type=number], textarea, select {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 4px; color: var(--text); font-family: var(--sans);
+  font-size: 13px; padding: 8px 11px; outline: none;
+  transition: border-color 0.15s; width: 100%;
+}
+.fi input:focus, .fi textarea:focus, .fi select:focus,
+input:focus, textarea:focus, select:focus { border-color: #444; }
+.fi textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+select option { background: var(--surface2); }
+input[type=number] { font-family: var(--mono); }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; border-radius: var(--radius); font-family: var(--sans); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; transition: all 0.15s; border: none; }
+.btn-sm { font-size: 10px; padding: 6px 12px; }
+.btn-md { font-size: 11px; padding: 9px 18px; }
+.btn-lg { font-size: 12px; padding: 12px 24px; }
+.btn-primary { background: var(--accent); color: #111; }
+.btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+.btn-secondary { background: transparent; border: 1px solid var(--border2); color: var(--dim); }
+.btn-secondary:hover { border-color: #444; color: var(--text); }
+.btn-ghost { background: transparent; border: 1px solid transparent; color: var(--muted); }
+.btn-ghost:hover { color: var(--text); }
+.btn-danger { background: transparent; border: 1px solid var(--border2); color: var(--red); }
+.btn-danger:hover { border-color: var(--red); background: var(--red-bg); }
+.btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none !important; }
+
+/* Row */
+.btn-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* Status badges */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 3px; white-space: nowrap;
+}
+.badge-draft    { background: var(--surface3); color: var(--dim); }
+.badge-review   { background: var(--blue-bg); color: var(--blue); }
+.badge-approved { background: var(--green-bg); color: var(--green); }
+.badge-ready    { background: var(--accent-bg); color: var(--accent); }
+.badge-archived { background: var(--surface3); color: var(--muted); }
+.badge-error    { background: var(--red-bg); color: var(--red); }
+.badge-warn     { background: var(--orange-bg); color: var(--orange); }
+
+/* Divider label */
+.section-label {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  margin: 24px 0 12px; display: flex; align-items: center; gap: 10px;
+}
+.section-label::after { content:''; flex:1; height:1px; background: var(--border); }
+
+/* Inline tabs */
+.tab-bar {
+  display: flex; align-items: center; gap: 2px;
+  border-bottom: 1px solid var(--border); padding: 0 16px;
+}
+.tab-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 0 14px; height: 40px; cursor: pointer;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+  color: var(--muted); background: none; border: none;
+  font-family: var(--sans); position: relative;
+  transition: color 0.12s; white-space: nowrap;
+}
+.tab-btn::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:transparent; transition:background 0.12s; }
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--text); }
+.tab-btn.active::after { background: var(--accent); }
+
+/* Sub-tab panels */
+.sub-panel { display: none; }
+.sub-panel.active { display: block; }
+
+/* ============================================================
+   NUTRITION FACTS PANEL (white label CSS)
+   ============================================================ */
+.nf-label {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #000; background: #fff;
+  border: 2px solid #000;
+  padding: 5px 7px;
+  font-size: 12px; line-height: 1.3;
+  width: 260px;
+  margin: 0 auto;
+}
+.nf-title { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; line-height: 1; border-bottom: 9px solid #000; padding-bottom: 3px; margin-bottom: 3px; }
+.nf-ss { font-size: 10px; font-weight: 700; margin-bottom: 1px; }
+.nf-spc { font-size: 10px; margin-bottom: 3px; }
+.nf-cal-row { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 4px solid #000; padding: 2px 0 3px; margin-bottom: 2px; }
+.nf-cal-lbl { font-size: 12px; font-weight: 700; }
+.nf-cal-num { font-size: 36px; font-weight: 900; line-height: 1; }
+.nf-pct-hdr { text-align: right; font-size: 8px; font-weight: 700; border-bottom: 1px solid #000; padding-bottom: 1px; margin-bottom: 1px; }
+.nf-nr { display: flex; justify-content: space-between; align-items: baseline; font-size: 10px; padding: 1px 0; }
+.nf-nr.bld { font-weight: 700; border-top: 1px solid #000; }
+.nf-nr.sub { padding-left: 12px; font-weight: 400; font-size: 9px; }
+.nf-nr.subsub { padding-left: 20px; font-weight: 400; font-size: 9px; }
+.nf-nr .pct { font-weight: 700; }
+.nf-foot { font-size: 7px; line-height: 1.3; border-top: 1px solid #000; margin-top: 4px; padding-top: 3px; }
+.nf-ing { font-size: 8px; line-height: 1.4; border-top: 2px solid #000; margin-top: 4px; padding-top: 3px; }
+.nf-all { font-size: 8px; font-weight: 700; margin-top: 2px; }
+.nf-dist { font-size: 7px; margin-top: 3px; color: #444; }
+.nf-wt { font-size: 8px; margin-top: 3px; color: #333; }
+
+/* ============================================================
+   NUTRIENT ENTRY TABLE
+   ============================================================ */
+.nr-table { width: 100%; border-collapse: collapse; }
+.nr-table tr { border-bottom: 1px solid var(--border); }
+.nr-table tr:last-child { border-bottom: none; }
+.nr-table td { padding: 4px 3px; vertical-align: middle; }
+.nr-table .td-name { font-size: 12px; color: var(--text); white-space: nowrap; }
+.nr-table .td-name.bold { font-weight: 700; }
+.nr-table .td-name.sub { padding-left: 14px; color: var(--dim); font-size: 11px; }
+.nr-table .td-name.subsub { padding-left: 24px; color: var(--dim); font-size: 11px; }
+.nr-table .td-unit { font-size: 10px; color: var(--muted); padding: 0 3px; white-space: nowrap; }
+.nri { background: var(--surface2); border: 1px solid var(--border2); border-radius: 3px; color: var(--text); font-family: var(--mono); font-size: 12px; padding: 3px 6px; outline: none; width: 68px; transition: border-color .15s; }
+.nri:focus { border-color: #444; }
+.nri.pct { width: 50px; }
+.nr-src-badge { font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 1px 5px; border-radius: 2px; margin-left: 4px; }
+.src-manual { background: var(--surface3); color: var(--muted); }
+.src-converted { background: var(--blue-bg); color: var(--blue); }
+.src-imported { background: var(--orange-bg); color: var(--orange); }
+.src-formula { background: var(--purple-bg,rgba(167,139,250,0.08)); color: var(--purple); }
+
+/* ============================================================
+   ALLERGEN CHIPS
+   ============================================================ */
+.allergen-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+.ag-chip {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 4px; padding: 5px 11px; cursor: pointer; user-select: none;
+  transition: all .15s;
+}
+.ag-chip:hover { border-color: var(--border2); }
+.ag-chip.on { background: var(--red-bg); border-color: var(--red); }
+.ag-chip span { font-size: 11px; font-weight: 600; color: var(--dim); }
+.ag-chip.on span { color: var(--red); }
+
+/* ============================================================
+   PREFLIGHT / COMPLIANCE
+   ============================================================ */
+.pf-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 11px 14px; border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.pf-item:last-child { border-bottom: none; }
+.pf-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.pf-body { flex: 1; }
+.pf-title { font-weight: 700; color: var(--text); }
+.pf-desc { color: var(--dim); font-size: 11px; margin-top: 2px; line-height: 1.4; }
+.pf-sev { flex-shrink: 0; }
+
+/* ============================================================
+   MODE SELECTOR CARDS
+   ============================================================ */
+.mode-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 14px; }
+.mode-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 16px; cursor: pointer;
+  transition: all 0.15s; position: relative; overflow: hidden;
+}
+.mode-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.mode-card.selected { border-color: var(--accent); background: var(--accent-bg); }
+.mode-card-icon { font-size: 22px; margin-bottom: 10px; }
+.mode-card-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.mode-card-desc { font-size: 11px; color: var(--dim); line-height: 1.4; }
+.mode-card-check {
+  position: absolute; top: 10px; right: 10px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--accent); color: #111;
+  display: none; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 900;
+}
+.mode-card.selected .mode-card-check { display: flex; }
+
+/* ============================================================
+   CONVERSION TABLE
+   ============================================================ */
+.conv-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.conv-table th {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+  padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+.conv-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.conv-table tr:last-child td { border-bottom: none; }
+.conv-table .val-raw { color: var(--orange); font-family: var(--mono); font-size: 11px; }
+.conv-table .val-conv { color: var(--blue); font-family: var(--mono); font-size: 11px; }
+.conv-table .val-decl { color: var(--green); font-family: var(--mono); font-size: 11px; font-weight: 700; }
+
+/* ============================================================
+   SAVED PROJECTS LIST
+   ============================================================ */
+.project-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background 0.12s;
+}
+.project-row:hover { background: var(--surface2); }
+.project-row:last-child { border-bottom: none; }
+.pr-icon { font-size: 18px; flex-shrink: 0; }
+.pr-info { flex: 1; min-width: 0; }
+.pr-name { font-size: 13px; font-weight: 700; }
+.pr-meta { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.pr-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* ============================================================
+   DROP ZONE
+   ============================================================ */
+.drop-zone {
+  background: var(--surface2); border: 1px dashed var(--border2);
+  border-radius: var(--radius); padding: 32px 20px; text-align: center;
+  cursor: pointer; transition: all 0.15s;
+}
+.drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: var(--accent-bg); }
+.dz-icon { font-size: 28px; margin-bottom: 10px; }
+.dz-title { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+.dz-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* ============================================================
+   EXPORT TIER CARDS
+   ============================================================ */
+.export-tier {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.export-tier-name { font-size: 13px; font-weight: 700; }
+.export-tier-desc { font-size: 11px; color: var(--dim); line-height: 1.4; }
+.export-tier-locked { opacity: 0.4; pointer-events: none; }
+
+/* ============================================================
+   MATH INSPECTOR
+   ============================================================ */
+.math-row {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 5px 0; border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+.math-row:last-child { border-bottom: none; }
+.math-label { flex: 1; color: var(--dim); }
+.math-formula { flex: 2; color: var(--muted); font-family: var(--mono); font-size: 10px; }
+.math-result { font-family: var(--mono); font-weight: 700; color: var(--green); min-width: 60px; text-align: right; }
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+#toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: 12px 18px;
+  font-size: 13px; color: var(--text);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  transform: translateY(60px); opacity: 0;
+  transition: all 0.24s cubic-bezier(0.34,1.56,0.64,1);
+  z-index: 9999; max-width: 280px;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+#toast-title { font-weight: 700; margin-bottom: 2px; font-size: 12px; }
+#toast-body { font-size: 11px; color: var(--dim); }
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+  z-index: 5000; display: none; align-items: center; justify-content: center;
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: 0; width: 540px; max-width: 96vw;
+  max-height: 88vh; display: flex; flex-direction: column;
+}
+.modal-hdr {
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-title { font-size: 14px; font-weight: 700; }
+.modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; line-height: 1; }
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+.modal-foot { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  #left-nav { display: none; }
+  #main-content { margin-left: 0; }
+}
+@media (max-width: 640px) {
+  .content-area { padding: 20px 16px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ======================================================
+     APP NAV BAR
+     ====================================================== -->
+<div id="hs-appnav">
+  <a href="https://hiddensupply.co/admin" class="hs-nav-item">&#8962; Tower</a>
+  <div style="width:1px;height:14px;background:#2a2a2a;margin:0 2px;"></div>
+  <a href="/v6-os/admin/index.html" class="hs-nav-item">&#9879;&#65039; SKU Wizard</a>
+  <a href="/admin/nutrition-facts/" class="hs-nav-item hs-current">&#129001; Nutrition Facts Studio</a>
+  <a href="http://20.165.197.60:8095" class="hs-nav-item">&#128230; Packaging Studio</a>
+  <a href="http://20.165.197.60:8082" class="hs-nav-item">&#128203; Design Ops</a>
+</div>
+
+<!-- ======================================================
+     HEADER
+     ====================================================== -->
+<header id="app-header">
+  <div class="app-logo">
+    <div class="app-logo-mark">NF</div>
+    <span>Nutrition Facts Studio</span>
+    <span style="font-family:var(--sans);font-size:10px;font-weight:400;color:var(--muted);letter-spacing:0.06em;text-transform:none;margin-left:2px;">Hidden Supply Internal</span>
+  </div>
+  <div class="header-actions">
+    <span id="hdr-project-name" style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.1em;display:none;">No project open</span>
+    <button class="hdr-btn" onclick="nfsNewProject()">+ New Label</button>
+    <button class="hdr-btn" onclick="nfsNav('projects')">&#128196; All Labels</button>
+    <button class="hdr-btn accent" id="hdr-save-btn" onclick="nfsSaveProject()" style="display:none;">Save</button>
+  </div>
+</header>
+
+<!-- ======================================================
+     APP SHELL
+     ====================================================== -->
+<div id="app-shell">
+
+  <!-- LEFT NAV -->
+  <nav id="left-nav">
+    <div class="lnav-group-label">Studio</div>
+    <div class="lnav-item active" data-view="dashboard" onclick="nfsNav('dashboard')">
+      <span class="lnav-icon">&#128202;</span> Dashboard
+    </div>
+    <div class="lnav-item" data-view="projects" onclick="nfsNav('projects')">
+      <span class="lnav-icon">&#128196;</span> Saved Labels
+    </div>
+
+    <div class="lnav-group-label" style="margin-top:8px;">Build</div>
+    <div class="lnav-item" data-view="new-label" onclick="nfsNewProject()">
+      <span class="lnav-icon">&#43;</span> New Label
+    </div>
+    <div class="lnav-item" data-view="editor" id="lnav-editor" style="display:none;" onclick="nfsNav('editor')">
+      <span class="lnav-icon">&#9997;&#65039;</span> Editor
+    </div>
+
+    <div class="lnav-group-label" style="margin-top:8px;">Tools</div>
+    <div class="lnav-item" data-view="converter" onclick="nfsNav('converter')">
+      <span class="lnav-icon">&#128296;</span> Supplier Converter
+    </div>
+    <div class="lnav-item" data-view="importer" onclick="nfsNav('importer')">
+      <span class="lnav-icon">&#128229;</span> Import / Read
+    </div>
+    <div class="lnav-item" data-view="templates" onclick="nfsNav('templates')">
+      <span class="lnav-icon">&#128461;&#65039;</span> Templates
+    </div>
+    <div class="lnav-item" data-view="compliance" onclick="nfsNav('compliance')">
+      <span class="lnav-icon">&#9989;</span> Compliance Review
+      <span class="lnav-badge" id="lnav-pf-badge" style="display:none;">!</span>
+    </div>
+    <div class="lnav-item" data-view="export" onclick="nfsNav('export')">
+      <span class="lnav-icon">&#128228;</span> Export Center
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main id="main-content">
+
+    <!-- ====================================================
+         VIEW: DASHBOARD
+         ==================================================== -->
+    <div class="view active" id="view-dashboard">
+      <div class="page-head">
+        <div class="page-eyebrow">Nutrition Facts Studio</div>
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">Build, convert, and verify FDA-style nutrition labels for Hidden Supply packaging. Built with FDA-style formatting and compliance preflight checks — final legal responsibility remains with manufacturer/importer.</div>
+      </div>
+      <div class="content-area wide">
+        <!-- Quick stats -->
+        <div class="grid-4" style="margin-bottom:24px;">
+          <div class="card"><div class="card-body" style="text-align:center;padding:20px;">
+            <div style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--accent);" id="db-count-total">0</div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px;">Total Labels</div>
+          </div></div>
+          <div class="card"><div class="card-body" style="text-align:center;padding:20px;">
+            <div style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--green);" id="db-count-ready">0</div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px;">Mfr Ready</div>
+          </div></div>
+          <div class="card"><div class="card-body" style="text-align:center;padding:20px;">
+            <div style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--orange);" id="db-count-draft">0</div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px;">In Draft</div>
+          </div></div>
+          <div class="card"><div class="card-body" style="text-align:center;padding:20px;">
+            <div style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--red);" id="db-count-issues">0</div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px;">Flagged Issues</div>
+          </div></div>
+        </div>
+
+        <div class="grid-2" style="gap:24px;align-items:start;">
+          <!-- Recent labels -->
+          <div class="card">
+            <div class="card-hdr">
+              <span class="card-title">Recent Labels</span>
+              <button class="btn btn-sm btn-secondary" onclick="nfsNav('projects')">View All</button>
+            </div>
+            <div id="db-recent-list">
+              <div style="padding:28px 16px;text-align:center;font-size:12px;color:var(--muted);">No labels yet. Start by creating a new one.</div>
+            </div>
+          </div>
+          <!-- Quick actions -->
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="card">
+              <div class="card-hdr"><span class="card-title">Quick Start</span></div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:9px;">
+                <button class="btn btn-lg btn-primary" style="justify-content:center;" onclick="nfsNewProject()">&#43; Build New Label</button>
+                <button class="btn btn-md btn-secondary" style="justify-content:center;" onclick="nfsNav('converter')">&#128296; Convert Supplier Data</button>
+                <button class="btn btn-md btn-secondary" style="justify-content:center;" onclick="nfsNav('importer')">&#128229; Import Existing Label</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hdr"><span class="card-title">Compliance Note</span></div>
+              <div class="card-body">
+                <p style="font-size:11px;color:var(--dim);line-height:1.55;">This tool generates FDA-style formatted nutrition panels and runs structural preflight checks. It does <strong style="color:var(--text);">not</strong> substitute for lab testing or regulatory review. Final label accuracy and compliance responsibility rests with the manufacturer and importer of record.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /dashboard -->
+
+    <!-- ====================================================
+         VIEW: PROJECTS (Saved Labels)
+         ==================================================== -->
+    <div class="view" id="view-projects">
+      <div class="page-head" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div class="page-eyebrow">Library</div>
+          <div class="page-title">Saved Labels</div>
+        </div>
+        <button class="btn btn-md btn-primary" onclick="nfsNewProject()">+ New Label</button>
+      </div>
+      <div class="content-area wide">
+        <!-- Filters -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+          <select id="proj-filter-brand" onchange="renderProjectList()" style="width:150px;padding:8px 11px;">
+            <option value="">All Brands</option>
+            <option>Juice Bomb</option><option>Dirty Sips</option><option>Candu</option><option>PeelPals</option><option>Nauti Labs</option>
+          </select>
+          <select id="proj-filter-status" onchange="renderProjectList()" style="width:160px;padding:8px 11px;">
+            <option value="">All Statuses</option>
+            <option value="draft">Draft</option>
+            <option value="review">Review Ready</option>
+            <option value="approved">Ops Approved</option>
+            <option value="ready">Manufacturer Ready</option>
+            <option value="archived">Archived</option>
+          </select>
+        </div>
+        <div class="card">
+          <div id="proj-list">
+            <div id="proj-empty" style="padding:40px;text-align:center;font-size:12px;color:var(--muted);">No labels saved yet.</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /projects -->
+
+    <!-- ====================================================
+         VIEW: NEW LABEL (mode picker)
+         ==================================================== -->
+    <div class="view" id="view-new-label">
+      <div class="page-head">
+        <div class="page-eyebrow">Create</div>
+        <div class="page-title">New Label</div>
+        <div class="page-sub">Choose how you want to start building this label.</div>
+      </div>
+      <div class="content-area narrow">
+        <div class="mode-grid" style="margin-bottom:28px;">
+          <div class="mode-card selected" id="mc-manual" onclick="selectMode('manual')">
+            <div class="mode-card-check">✓</div>
+            <div class="mode-card-icon">&#9999;&#65039;</div>
+            <div class="mode-card-name">Manual Build</div>
+            <div class="mode-card-desc">Enter all nutrition values directly. Best when you have finalized data ready.</div>
+          </div>
+          <div class="mode-card" id="mc-convert" onclick="selectMode('convert')">
+            <div class="mode-card-check">✓</div>
+            <div class="mode-card-icon">&#128296;</div>
+            <div class="mode-card-name">Convert Supplier Data</div>
+            <div class="mode-card-desc">Manufacturer sent per-100g or per-piece values. Convert to your real serving size.</div>
+          </div>
+          <div class="mode-card" id="mc-import" onclick="selectMode('import')">
+            <div class="mode-card-check">✓</div>
+            <div class="mode-card-icon">&#128229;</div>
+            <div class="mode-card-name">Read Existing Label</div>
+            <div class="mode-card-desc">Upload a photo, screenshot, or PDF of an existing label to import the data.</div>
+          </div>
+          <div class="mode-card" id="mc-formula" onclick="selectMode('formula')">
+            <div class="mode-card-check">✓</div>
+            <div class="mode-card-icon">&#9883;&#65039;</div>
+            <div class="mode-card-name">Formula Estimate</div>
+            <div class="mode-card-desc">Estimate from raw formula / ingredient percentages. Outputs are estimates, not lab values.</div>
+          </div>
+        </div>
+
+        <!-- Product identity first -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-hdr"><span class="card-title">Product Identity</span></div>
+          <div class="card-body">
+            <div class="grid-2" style="gap:14px;margin-bottom:12px;">
+              <div class="fi"><label>Product Name *</label><input type="text" id="nl-name" placeholder="e.g. Juice Bomb Astronauts"/></div>
+              <div class="fi"><label>Brand *</label>
+                <select id="nl-brand">
+                  <option value="">— Select —</option>
+                  <option>Juice Bomb</option><option>Dirty Sips</option><option>Candu</option><option>PeelPals</option><option>Nauti Labs</option><option>Hidden Supply</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid-3" style="gap:14px;">
+              <div class="fi"><label>Package Format</label>
+                <select id="nl-format">
+                  <option>Stand-Up Pouch</option><option>Blister Card</option><option>Box / Tray</option><option>PET Jar</option><option>Bottle</option>
+                </select>
+              </div>
+              <div class="fi"><label>SKU / Item Code</label><input type="text" id="nl-sku" placeholder="e.g. JB-AST-001"/></div>
+              <div class="fi"><label>Net Weight (g)</label><input type="number" id="nl-netg" placeholder="140"/></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="nl-mode-convert-block" style="display:none;">
+          <div class="card" style="margin-bottom:20px;border-color:var(--blue);">
+            <div class="card-hdr" style="background:var(--blue-bg);"><span class="card-title" style="color:var(--blue);">&#128296; Supplier Conversion Setup</span></div>
+            <div class="card-body">
+              <div class="grid-2" style="gap:14px;margin-bottom:12px;">
+                <div class="fi"><label>Source Basis</label>
+                  <select id="nl-src-basis">
+                    <option value="per100g">Per 100g</option>
+                    <option value="perPiece">Per Piece</option>
+                    <option value="per100ml">Per 100ml</option>
+                    <option value="perServing">Per Serving (convert serving size)</option>
+                    <option value="perPackage">Per Package</option>
+                    <option value="custom">Custom Basis</option>
+                  </select>
+                </div>
+                <div class="fi"><label>Target Serving Size (household)</label><input type="text" id="nl-tgt-ss" placeholder="5 pieces (40g)"/></div>
+              </div>
+              <div class="grid-3" style="gap:14px;">
+                <div class="fi"><label>Target Serving (g)</label><input type="number" id="nl-tgt-g" placeholder="40"/></div>
+                <div class="fi"><label>Servings Per Container</label><input type="text" id="nl-tgt-spc" placeholder="About 3"/></div>
+                <div class="fi"><label>Pieces Per Serving</label><input type="number" id="nl-tgt-pcs" placeholder="5"/></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-lg btn-primary" onclick="nfsCreateProject()">Continue →</button>
+          <span style="font-size:11px;color:var(--muted);">You can change mode later</span>
+        </div>
+      </div>
+    </div><!-- /new-label -->
+
+    <!-- ====================================================
+         VIEW: EDITOR (Main label editor)
+         ==================================================== -->
+    <div class="view" id="view-editor">
+      <div class="page-head" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div class="page-eyebrow">Label Editor</div>
+          <div class="page-title" id="editor-title">Untitled Label</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+            <span id="editor-status-badge" class="badge badge-draft">Draft</span>
+            <span id="editor-source-badge" class="badge" style="background:var(--surface3);color:var(--muted);">Manual</span>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-sm btn-secondary" onclick="nfsNav('compliance')">&#9989; Preflight</button>
+          <button class="btn btn-sm btn-secondary" onclick="nfsNav('export')">&#128228; Export</button>
+          <button class="btn btn-md btn-primary" onclick="nfsSaveProject()">Save</button>
+        </div>
+      </div>
+
+      <!-- Tab bar -->
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="edit-nutrition" onclick="editorTab(this,'edit-nutrition')">Nutrition Core</button>
+        <button class="tab-btn" data-tab="edit-copy" onclick="editorTab(this,'edit-copy')">Support Copy</button>
+        <button class="tab-btn" data-tab="edit-convert" onclick="editorTab(this,'edit-convert')">Conversion</button>
+        <button class="tab-btn" data-tab="edit-math" onclick="editorTab(this,'edit-math')">Math Inspector</button>
+      </div>
+
+      <!-- Editor sub-panels -->
+      <div style="display:flex;gap:0;height:calc(100vh - 220px);overflow:hidden;">
+        <!-- Left: edit area -->
+        <div style="flex:1;overflow-y:auto;padding:24px 28px;min-width:0;">
+
+          <!-- NUTRITION CORE tab -->
+          <div class="sub-panel active" id="sub-edit-nutrition">
+            <div class="section-label">Serving</div>
+            <div class="grid-2" style="gap:14px;margin-bottom:20px;">
+              <div class="fi"><label>Serving Size (household)</label><input type="text" id="e-ss" placeholder="5 pieces (40g)" oninput="editorUpdate()"/></div>
+              <div class="fi"><label>Servings Per Container</label><input type="text" id="e-spc" placeholder="About 3" oninput="editorUpdate()"/></div>
+            </div>
+
+            <div class="section-label">Calories &amp; Macronutrients</div>
+            <div class="card" style="margin-bottom:20px;">
+              <div class="card-body" style="padding:0 16px 12px;">
+                <table class="nr-table" style="margin-top:10px;">
+                  <thead>
+                    <tr style="border-bottom:1px solid var(--border);">
+                      <th style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:7px 3px;text-align:left;">Nutrient</th>
+                      <th style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:7px 3px;text-align:center;">Amount</th>
+                      <th style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:7px 3px;text-align:center;">%DV</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="td-name bold">Calories</td><td><input class="nri" type="number" id="n-cal" placeholder="0" min="0" oninput="editorUpdate()"/></td><td class="td-unit"></td></tr>
+                    <tr><td colspan="3" style="padding:5px 3px 2px;"><div class="section-label" style="margin:0;font-size:9px;">% Daily Value →</div></td></tr>
+                    <tr><td class="td-name bold">Total Fat</td><td><input class="nri" type="number" id="n-tf" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td><input class="nri pct" type="number" id="p-tf" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name sub">Saturated Fat</td><td><input class="nri" type="number" id="n-sf" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td><input class="nri pct" type="number" id="p-sf" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name sub"><em>Trans</em> Fat</td><td><input class="nri" type="number" id="n-xf" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td></td></tr>
+                    <tr><td class="td-name bold">Cholesterol</td><td><input class="nri" type="number" id="n-ch" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">mg</span></td><td><input class="nri pct" type="number" id="p-ch" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name bold">Sodium</td><td><input class="nri" type="number" id="n-na" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">mg</span></td><td><input class="nri pct" type="number" id="p-na" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name bold">Total Carbohydrate</td><td><input class="nri" type="number" id="n-tc" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td><input class="nri pct" type="number" id="p-tc" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name sub">Dietary Fiber</td><td><input class="nri" type="number" id="n-df" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td><input class="nri pct" type="number" id="p-df" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name sub">Total Sugars</td><td><input class="nri" type="number" id="n-su" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td></td></tr>
+                    <tr><td class="td-name subsub">Incl. Added Sugars</td><td><input class="nri" type="number" id="n-as" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td><input class="nri pct" type="number" id="p-as" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name bold">Protein</td><td><input class="nri" type="number" id="n-pr" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td></td></tr>
+                    <tr><td colspan="3" style="padding:5px 3px 2px;"><div class="section-label" style="margin:0;font-size:9px;">Micronutrients</div></td></tr>
+                    <tr><td class="td-name">Vitamin D</td><td><input class="nri" type="number" id="n-vd" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">mcg</span></td><td><input class="nri pct" type="number" id="p-vd" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name">Calcium</td><td><input class="nri" type="number" id="n-ca" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">mg</span></td><td><input class="nri pct" type="number" id="p-ca" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name">Iron</td><td><input class="nri" type="number" id="n-fe" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">mg</span></td><td><input class="nri pct" type="number" id="p-fe" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name">Potassium</td><td><input class="nri" type="number" id="n-k" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">mg</span></td><td><input class="nri pct" type="number" id="p-k" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div><!-- /sub-edit-nutrition -->
+
+          <!-- SUPPORT COPY tab -->
+          <div class="sub-panel" id="sub-edit-copy">
+            <div class="section-label">Ingredients &amp; Allergens</div>
+            <div class="card" style="margin-bottom:16px;">
+              <div class="card-body">
+                <div class="fi" style="margin-bottom:14px;">
+                  <label>Ingredients (descending weight — CAPS for allergen names)</label>
+                  <textarea id="e-ing" rows="5" placeholder="SUGAR, CORN SYRUP, CARNAUBA WAX, NATURAL AND ARTIFICIAL FLAVORS, CITRIC ACID, RED 40, BLUE 1..." oninput="editorUpdate()"></textarea>
+                </div>
+                <div style="margin-bottom:12px;">
+                  <div class="fi-label" style="margin-bottom:8px;">Allergens — click to toggle</div>
+                  <div class="allergen-grid" id="allergen-grid">
+                    <div class="ag-chip" onclick="toggleAl(this,'Wheat')"><span>Wheat</span></div>
+                    <div class="ag-chip" onclick="toggleAl(this,'Milk')"><span>Milk</span></div>
+                    <div class="ag-chip" onclick="toggleAl(this,'Eggs')"><span>Eggs</span></div>
+                    <div class="ag-chip" onclick="toggleAl(this,'Fish')"><span>Fish</span></div>
+                    <div class="ag-chip" onclick="toggleAl(this,'Shellfish')"><span>Shellfish</span></div>
+                    <div class="ag-chip" onclick="toggleAl(this,'Tree Nuts')"><span>Tree Nuts</span></div>
+                    <div class="ag-chip" onclick="toggleAl(this,'Peanuts')"><span>Peanuts</span></div>
+                    <div class="ag-chip" onclick="toggleAl(this,'Soybeans')"><span>Soybeans</span></div>
+                    <div class="ag-chip" onclick="toggleAl(this,'Sesame')"><span>Sesame</span></div>
+                  </div>
+                </div>
+                <div class="fi">
+                  <label>Custom Allergen Statement (overrides auto)</label>
+                  <input type="text" id="e-al-custom" placeholder="Leave blank to auto-generate from selections above" oninput="editorUpdate()"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-label">Distributor &amp; Origin</div>
+            <div class="card" style="margin-bottom:16px;">
+              <div class="card-body">
+                <div class="grid-2" style="gap:14px;margin-bottom:12px;">
+                  <div class="fi"><label>Net Wt (oz)</label><input type="number" id="e-oz" placeholder="5" oninput="editorUpdate()"/></div>
+                  <div class="fi"><label>Net Wt (g)</label><input type="number" id="e-g" placeholder="140" oninput="editorUpdate()"/></div>
+                </div>
+                <div class="fi" style="margin-bottom:10px;">
+                  <label>Distributor Line</label>
+                  <input type="text" id="e-dist" placeholder="Distributed by: [Company], [City], [State] [ZIP] | website.com" oninput="editorUpdate()"/>
+                </div>
+                <div class="fi">
+                  <label>Country / Manufacturer Statement</label>
+                  <input type="text" id="e-origin" placeholder="Manufactured in China" oninput="editorUpdate()"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-label">Warnings &amp; Notes</div>
+            <div class="card" style="margin-bottom:16px;">
+              <div class="card-body">
+                <div class="fi" style="margin-bottom:10px;">
+                  <label>Warning Statement (novelty/candy if applicable)</label>
+                  <input type="text" id="e-warn" placeholder="e.g. CHOKING HAZARD — Not for children under 3 years." oninput="editorUpdate()"/>
+                </div>
+                <div class="fi">
+                  <label>Internal Notes (not on label)</label>
+                  <textarea id="e-notes" rows="3" placeholder="Source: Weihua factory sheet 2024-12. Serving size confirmed by Hank 2024-11."></textarea>
+                </div>
+              </div>
+            </div>
+          </div><!-- /sub-edit-copy -->
+
+          <!-- CONVERSION tab -->
+          <div class="sub-panel" id="sub-edit-convert">
+            <div style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:16px;margin-bottom:20px;">
+              <div style="font-size:11px;color:var(--dim);line-height:1.55;">
+                <strong style="color:var(--blue);">Supplier Conversion Mode</strong> — Enter the source values from your manufacturer's data sheet and the app will calculate declared serving values. Raw, converted, and displayed values are stored separately for auditability.
+              </div>
+            </div>
+
+            <div class="grid-2" style="gap:14px;margin-bottom:20px;">
+              <div class="fi"><label>Source Basis</label>
+                <select id="conv-basis" onchange="convUpdate()">
+                  <option value="per100g">Per 100g</option>
+                  <option value="perPiece">Per Piece</option>
+                  <option value="per100ml">Per 100ml</option>
+                  <option value="perPackage">Per Package</option>
+                  <option value="custom">Custom (enter factor below)</option>
+                </select>
+              </div>
+              <div class="fi" id="conv-custom-wrap" style="display:none;">
+                <label>Custom Factor (source ÷ target)</label>
+                <input type="number" id="conv-custom-factor" placeholder="e.g. 1.0" oninput="convUpdate()"/>
+              </div>
+            </div>
+
+            <div class="grid-3" style="gap:14px;margin-bottom:20px;">
+              <div class="fi"><label>Target Serving (g)</label><input type="number" id="conv-tgt-g" placeholder="40" oninput="convUpdate()"/></div>
+              <div class="fi"><label>Servings Per Container</label><input type="text" id="conv-tgt-spc" placeholder="3" oninput="convUpdate()"/></div>
+              <div class="fi"><label>Pieces Per Serving</label><input type="number" id="conv-tgt-pcs" placeholder="5" oninput="convUpdate()"/></div>
+            </div>
+
+            <div class="section-label">Source Values (from manufacturer)</div>
+            <div class="card" style="margin-bottom:20px;">
+              <div class="card-body" style="padding:0 16px 12px;">
+                <table class="nr-table" style="margin-top:10px;" id="conv-src-table">
+                  <thead>
+                    <tr style="border-bottom:1px solid var(--border);">
+                      <th style="font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:7px 3px;text-align:left;">Nutrient</th>
+                      <th style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:7px 3px;">Source Value</th>
+                      <th style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);padding:7px 3px;">Converted</th>
+                      <th style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);padding:7px 3px;">Declared</th>
+                    </tr>
+                  </thead>
+                  <tbody id="conv-tbody">
+                    <!-- filled by convBuildTable() -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-md btn-primary" onclick="convApplyToEditor()">Apply to Label →</button>
+              <span style="font-size:11px;color:var(--muted);">Raw source values are preserved. Declared values go to the nutrition panel.</span>
+            </div>
+          </div><!-- /sub-edit-convert -->
+
+          <!-- MATH INSPECTOR tab -->
+          <div class="sub-panel" id="sub-edit-math">
+            <div style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:16px;margin-bottom:20px;">
+              <p style="font-size:11px;color:var(--dim);line-height:1.5;">Shows how each declared value was derived. Conversions are based on serving weight ratio. Rounding follows FDA standard rounding rules (approximate — verify with lab data for final labels).</p>
+            </div>
+            <div class="card" id="math-inspector-card">
+              <div class="card-body" id="math-inspector-body">
+                <div style="font-size:12px;color:var(--muted);padding:12px 0;">Enter conversion data in the Conversion tab to see math here.</div>
+              </div>
+            </div>
+          </div><!-- /sub-edit-math -->
+
+        </div><!-- /left edit area -->
+
+        <!-- Right: live preview -->
+        <div style="width:310px;flex-shrink:0;border-left:1px solid var(--border);overflow-y:auto;padding:20px;background:var(--surface);">
+          <div style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Live Preview</div>
+
+          <!-- Template selector -->
+          <div class="fi" style="margin-bottom:14px;">
+            <label>Format Template</label>
+            <select id="preview-template" onchange="editorUpdate()">
+              <option value="standard">Standard Vertical (260px)</option>
+              <option value="narrow">Narrow Vertical (200px)</option>
+              <option value="wide">Wide / Relaxed (320px)</option>
+            </select>
+          </div>
+
+          <!-- The actual label -->
+          <div style="background:#fff;padding:14px;border-radius:4px;border:1px solid #e0e0e0;overflow:hidden;" id="label-preview-wrap">
+            <div class="nf-label" id="nf-label-preview">
+              <div class="nf-title">Nutrition Facts</div>
+              <div class="nf-ss">Serving size <span id="lp-ss">—</span></div>
+              <div class="nf-spc"><span id="lp-spc">—</span> servings per container</div>
+              <div class="nf-cal-row"><div class="nf-cal-lbl">Calories</div><div class="nf-cal-num" id="lp-cal">0</div></div>
+              <div class="nf-pct-hdr">% Daily Value*</div>
+              <div class="nf-nr bld"><span><b>Total Fat</b> <span id="lp-tf">0</span>g</span><span class="pct" id="lp-ptf">0%</span></div>
+              <div class="nf-nr sub"><span>Saturated Fat <span id="lp-sf">0</span>g</span><span class="pct" id="lp-psf">0%</span></div>
+              <div class="nf-nr sub"><span><em>Trans</em> Fat <span id="lp-xf">0</span>g</span><span></span></div>
+              <div class="nf-nr bld"><span><b>Cholesterol</b> <span id="lp-ch">0</span>mg</span><span class="pct" id="lp-pch">0%</span></div>
+              <div class="nf-nr bld"><span><b>Sodium</b> <span id="lp-na">0</span>mg</span><span class="pct" id="lp-pna">0%</span></div>
+              <div class="nf-nr bld"><span><b>Total Carbohydrate</b> <span id="lp-tc">0</span>g</span><span class="pct" id="lp-ptc">0%</span></div>
+              <div class="nf-nr sub"><span>Dietary Fiber <span id="lp-df">0</span>g</span><span class="pct" id="lp-pdf">0%</span></div>
+              <div class="nf-nr sub"><span>Total Sugars <span id="lp-su">0</span>g</span><span></span></div>
+              <div class="nf-nr subsub"><span>Includes <span id="lp-as">0</span>g Added Sugars</span><span class="pct" id="lp-pas">0%</span></div>
+              <div class="nf-nr bld" style="border-bottom:4px solid #000"><span><b>Protein</b> <span id="lp-pr">0</span>g</span><span></span></div>
+              <div class="nf-nr" style="border-top:1px solid #000;padding-top:2px"><span>Vitamin D <span id="lp-vd">0</span>mcg</span><span class="pct" id="lp-pvd">0%</span></div>
+              <div class="nf-nr"><span>Calcium <span id="lp-ca">0</span>mg</span><span class="pct" id="lp-pca">0%</span></div>
+              <div class="nf-nr"><span>Iron <span id="lp-fe">0</span>mg</span><span class="pct" id="lp-pfe">0%</span></div>
+              <div class="nf-nr"><span>Potassium <span id="lp-k">0</span>mg</span><span class="pct" id="lp-pk">0%</span></div>
+              <div class="nf-foot">*The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.</div>
+              <div class="nf-ing" id="lp-ing-block" style="display:none;"><strong>INGREDIENTS:</strong> <span id="lp-ing">—</span></div>
+              <div class="nf-all" id="lp-all"></div>
+              <div class="nf-wt" id="lp-wt"></div>
+              <div class="nf-dist" id="lp-dist"></div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px;">
+            <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="previewPrint()">Print Preview</button>
+            <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="previewDownload()">Download HTML</button>
+            <button class="btn btn-sm btn-primary" style="justify-content:center;" onclick="nfsSaveProject()">Save Project</button>
+          </div>
+        </div><!-- /right preview -->
+      </div><!-- /editor row -->
+    </div><!-- /editor -->
+
+    <!-- ====================================================
+         VIEW: CONVERTER (Standalone supplier conversion tool)
+         ==================================================== -->
+    <div class="view" id="view-converter">
+      <div class="page-head">
+        <div class="page-eyebrow">Tools</div>
+        <div class="page-title">Supplier Data Converter</div>
+        <div class="page-sub">Manufacturer sent values in a different basis (per 100g, per piece, etc.). Convert to your real serving size before building the label.</div>
+      </div>
+      <div class="content-area narrow">
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-hdr"><span class="card-title">Conversion Parameters</span></div>
+          <div class="card-body">
+            <div class="grid-2" style="gap:14px;margin-bottom:14px;">
+              <div class="fi"><label>Source Basis</label>
+                <select id="sa-basis" onchange="saUpdate()">
+                  <option value="per100g">Per 100g</option>
+                  <option value="perPiece">Per Piece</option>
+                  <option value="per100ml">Per 100ml</option>
+                  <option value="perPackage">Per Package</option>
+                  <option value="custom">Custom Factor</option>
+                </select>
+              </div>
+              <div class="fi" id="sa-custom-wrap" style="display:none;">
+                <label>Custom Factor</label>
+                <input type="number" id="sa-custom-factor" placeholder="1.0" oninput="saUpdate()"/>
+              </div>
+            </div>
+            <div class="grid-3" style="gap:14px;">
+              <div class="fi"><label>Target Serving (g)</label><input type="number" id="sa-tgt-g" placeholder="40" oninput="saUpdate()"/></div>
+              <div class="fi"><label>Pieces Per Serving</label><input type="number" id="sa-pcs" placeholder="5" oninput="saUpdate()"/></div>
+              <div class="fi"><label>Package Net Weight (g)</label><input type="number" id="sa-pkg-g" placeholder="120" oninput="saUpdate()"/></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-hdr">
+            <span class="card-title">Source Values</span>
+            <button class="btn btn-sm btn-ghost" onclick="saPasteHelper()">Paste Data</button>
+          </div>
+          <div class="card-body" style="padding:0 16px 12px;">
+            <table class="nr-table" style="margin-top:10px;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <th style="font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:7px 3px;text-align:left;width:180px;">Nutrient</th>
+                  <th style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:7px 3px;">Source</th>
+                  <th style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);padding:7px 3px;">→ Converted</th>
+                  <th style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);padding:7px 3px;">Declared</th>
+                </tr>
+              </thead>
+              <tbody id="sa-tbody"><!-- filled by saUpdate() --></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-hdr"><span class="card-title">Math Log</span></div>
+          <div class="card-body" id="sa-math-log">
+            <div style="font-size:11px;color:var(--muted);">Enter conversion params above to see math.</div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-lg btn-primary" onclick="saCreateLabel()">Create Label from Conversion →</button>
+        </div>
+      </div>
+    </div><!-- /converter -->
+
+    <!-- ====================================================
+         VIEW: IMPORTER
+         ==================================================== -->
+    <div class="view" id="view-importer">
+      <div class="page-head">
+        <div class="page-eyebrow">Tools</div>
+        <div class="page-title">Import / Read Existing Label</div>
+        <div class="page-sub">Upload a photo, screenshot, or PDF of an existing nutrition label. We'll attempt to parse the data and map it into a new project for you to review and edit.</div>
+      </div>
+      <div class="content-area narrow">
+        <div class="drop-zone" id="import-dz" onclick="document.getElementById('import-file').click()"
+             ondragover="dzOver(event,'import-dz')" ondragleave="dzLeave('import-dz')" ondrop="dzDrop(event,'import')">
+          <div class="dz-icon">&#128229;</div>
+          <div class="dz-title">Drop label image or PDF here</div>
+          <div class="dz-sub">PNG, JPG, WEBP, PDF — or click to browse</div>
+        </div>
+        <input type="file" id="import-file" accept="image/*,.pdf" style="display:none;" onchange="importFileChosen(event)"/>
+
+        <div id="import-preview-area" style="display:none;margin-top:24px;">
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-hdr"><span class="card-title">Uploaded File</span></div>
+            <div class="card-body" id="import-file-info" style="font-size:12px;color:var(--dim);"></div>
+          </div>
+
+          <div class="card" style="margin-bottom:16px;border-color:var(--orange);">
+            <div class="card-hdr" style="background:var(--orange-bg);">
+              <span class="card-title" style="color:var(--orange);">&#9888; Important — Review Required</span>
+            </div>
+            <div class="card-body">
+              <p style="font-size:12px;color:var(--dim);line-height:1.5;">Image parsing is an approximation. All extracted values must be reviewed and verified before use. Low-confidence fields are flagged. Manual correction is always available.</p>
+            </div>
+          </div>
+
+          <div class="section-label">Extracted Fields</div>
+          <div class="card" style="margin-bottom:20px;">
+            <div id="import-field-map" style="padding:0;">
+              <!-- Populated by importParseSimulated() -->
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn-md btn-primary" id="import-accept-btn" onclick="importAccept()">Accept Fields → Create Label</button>
+            <button class="btn btn-md btn-secondary" onclick="importReset()">Clear &amp; Start Over</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /importer -->
+
+    <!-- ====================================================
+         VIEW: TEMPLATES
+         ==================================================== -->
+    <div class="view" id="view-templates">
+      <div class="page-head">
+        <div class="page-eyebrow">Tools</div>
+        <div class="page-title">Label Templates &amp; Package Profiles</div>
+        <div class="page-sub">Choose the right label format for your package type. Templates control panel dimensions, safe margins, and column layout.</div>
+      </div>
+      <div class="content-area wide">
+        <div class="section-label">Label Format Templates</div>
+        <div class="grid-3" style="margin-bottom:28px;">
+          <div class="card" style="cursor:pointer;transition:all .15s;" onclick="selectTemplate('standard-vertical')" id="tpl-standard-vertical">
+            <div class="card-body" style="text-align:center;padding:20px;">
+              <div style="font-size:32px;margin-bottom:10px;">&#9646;</div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Standard Vertical</div>
+              <div style="font-size:11px;color:var(--dim);">The default FDA-style vertical panel. Works for most applications.</div>
+              <div style="margin-top:10px;"><span class="badge badge-approved">Default</span></div>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer;transition:all .15s;" onclick="selectTemplate('narrow-vertical')" id="tpl-narrow-vertical">
+            <div class="card-body" style="text-align:center;padding:20px;">
+              <div style="font-size:32px;margin-bottom:10px;">&#9645;</div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Narrow Vertical</div>
+              <div style="font-size:11px;color:var(--dim);">Compressed column for tight right-rail placement (stand-up pouch back).</div>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer;transition:all .15s;" onclick="selectTemplate('tabular')" id="tpl-tabular">
+            <div class="card-body" style="text-align:center;padding:20px;">
+              <div style="font-size:32px;margin-bottom:10px;">&#9776;</div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Tabular / Linear</div>
+              <div style="font-size:11px;color:var(--dim);">Horizontal layout for constrained spaces (tray sleeve, linear wrap).</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">Hidden Supply Package Profiles</div>
+        <div class="grid-2" style="margin-bottom:28px;">
+          <div class="card" style="cursor:pointer;" onclick="applyProfile('stand-up-pouch-right-rail')">
+            <div class="card-body">
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Stand-Up Pouch — Right Rail</div>
+              <div style="font-size:11px;color:var(--dim);margin-bottom:8px;">Standard right-side panel for Juice Bomb, Dirty Sips, Candu, PeelPals. Approx 2.25" × 3.5" safe zone.</div>
+              <span class="badge badge-approved">Core Format</span>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer;" onclick="applyProfile('narrow-pouch-rail')">
+            <div class="card-body">
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Narrow Pouch — Compliance Rail</div>
+              <div style="font-size:11px;color:var(--dim);margin-bottom:8px;">Compact label for smaller or narrower pouch formats. Constrained width layout.</div>
+              <span class="badge badge-draft">Compact</span>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer;" onclick="applyProfile('blister-card-back')">
+            <div class="card-body">
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Blister Card — Back Panel</div>
+              <div style="font-size:11px;color:var(--dim);margin-bottom:8px;">For PeelPals and blister card SKUs. Vertical column on back panel.</div>
+              <span class="badge badge-review">PeelPals</span>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer;" onclick="applyProfile('box-side-panel')">
+            <div class="card-body">
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Box / Tray — Side Panel</div>
+              <div style="font-size:11px;color:var(--dim);margin-bottom:8px;">Box side label — typically more vertical space, may support dual-column.</div>
+              <span class="badge badge-draft">Boxes</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="tpl-note" style="font-size:12px;color:var(--dim);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:none;"></div>
+      </div>
+    </div><!-- /templates -->
+
+    <!-- ====================================================
+         VIEW: COMPLIANCE REVIEW
+         ==================================================== -->
+    <div class="view" id="view-compliance">
+      <div class="page-head" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div class="page-eyebrow">Preflight</div>
+          <div class="page-title">Compliance Review</div>
+          <div class="page-sub">Structural and logic checks before export. Hard Blocks must be resolved before Manufacturer Ready export.</div>
+        </div>
+        <button class="btn btn-md btn-primary" onclick="runPreflight()">&#9989; Run Preflight</button>
+      </div>
+      <div class="content-area narrow">
+        <!-- Severity summary -->
+        <div class="grid-4" style="margin-bottom:20px;">
+          <div class="card" id="pf-stat-block" style="background:var(--red-bg);border-color:var(--red);">
+            <div class="card-body" style="text-align:center;padding:18px;">
+              <div style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--red);" id="pf-count-block">—</div>
+              <div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-top:3px;">Hard Blocks</div>
+            </div>
+          </div>
+          <div class="card" id="pf-stat-error" style="background:var(--orange-bg);border-color:var(--orange);">
+            <div class="card-body" style="text-align:center;padding:18px;">
+              <div style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--orange);" id="pf-count-error">—</div>
+              <div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin-top:3px;">Errors</div>
+            </div>
+          </div>
+          <div class="card" id="pf-stat-warn">
+            <div class="card-body" style="text-align:center;padding:18px;">
+              <div style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--accent);" id="pf-count-warn">—</div>
+              <div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:3px;">Warnings</div>
+            </div>
+          </div>
+          <div class="card" id="pf-stat-pass">
+            <div class="card-body" style="text-align:center;padding:18px;">
+              <div style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--green);" id="pf-count-pass">—</div>
+              <div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:3px;">Passing</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <div id="pf-result-list">
+            <div style="padding:40px;text-align:center;font-size:12px;color:var(--muted);">Click "Run Preflight" to analyze the current label.</div>
+          </div>
+        </div>
+
+        <!-- Export gate status -->
+        <div class="card" id="pf-export-status">
+          <div class="card-body">
+            <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Export Readiness</div>
+            <div id="pf-export-tiers" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;">
+                <span>Draft Export</span><span class="badge badge-review">Always Allowed</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;">
+                <span>Review Export</span><span class="badge" id="pf-tier-review">Run Preflight</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;">
+                <span>Manufacturer Ready Export</span><span class="badge" id="pf-tier-mfr">Run Preflight</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /compliance -->
+
+    <!-- ====================================================
+         VIEW: EXPORT CENTER
+         ==================================================== -->
+    <div class="view" id="view-export">
+      <div class="page-head">
+        <div class="page-eyebrow">Export</div>
+        <div class="page-title">Export Center</div>
+        <div class="page-sub">Export your label in the right format for its destination. Manufacturer Ready exports are gated behind clean preflight.</div>
+      </div>
+      <div class="content-area narrow">
+        <div id="export-pf-warning" style="background:var(--orange-bg);border:1px solid var(--orange);border-radius:var(--radius);padding:12px 16px;margin-bottom:20px;font-size:12px;color:var(--orange);display:none;">
+          &#9888; Preflight has unresolved issues. Manufacturer Ready export is locked. <a href="#" style="color:var(--orange);text-decoration:underline;" onclick="nfsNav('compliance');return false;">Run Preflight →</a>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <!-- Draft -->
+          <div class="export-tier">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div class="export-tier-name">Draft Export</div>
+                <div class="export-tier-desc">Working copy. All values as currently entered. No preflight gate.</div>
+              </div>
+              <span class="badge badge-review">Available</span>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-sm btn-secondary" onclick="exportDraftHTML()">HTML Label</button>
+              <button class="btn btn-sm btn-secondary" onclick="exportJSON()">Structured JSON</button>
+              <button class="btn btn-sm btn-secondary" onclick="exportCopyBlock()">Copy Block Only</button>
+            </div>
+          </div>
+
+          <!-- Review -->
+          <div class="export-tier">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div class="export-tier-name">Review Export</div>
+                <div class="export-tier-desc">For internal review / stakeholder check. Requires zero Hard Blocks.</div>
+              </div>
+              <span class="badge" id="exp-tier-review-badge">Run Preflight First</span>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-sm btn-secondary" id="exp-review-btn" onclick="exportReview()">Export for Review</button>
+            </div>
+          </div>
+
+          <!-- Mfr Ready -->
+          <div class="export-tier">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div class="export-tier-name">Manufacturer Ready</div>
+                <div class="export-tier-desc">For sending to packaging manufacturer. Requires clean preflight (zero Hard Blocks, zero Errors). Operator assumes final legal responsibility.</div>
+              </div>
+              <span class="badge" id="exp-tier-mfr-badge">Run Preflight First</span>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-sm btn-secondary" id="exp-mfr-btn" onclick="exportManufacturerReady()" disabled>Export Manufacturer Ready</button>
+            </div>
+            <div style="font-size:10px;color:var(--muted);font-style:italic;margin-top:4px;">Final label accuracy and compliance responsibility rests with manufacturer/importer of record.</div>
+          </div>
+        </div>
+
+        <!-- Packaging Studio hook -->
+        <div class="card" style="margin-top:24px;">
+          <div class="card-hdr"><span class="card-title">Packaging Studio Integration</span></div>
+          <div class="card-body">
+            <p style="font-size:12px;color:var(--dim);margin-bottom:12px;">Export a structured payload compatible with the Hidden Supply Packaging Studio for direct placement in pouch back-panel templates.</p>
+            <button class="btn btn-md btn-secondary" onclick="exportPackagingStudio()">Export for Packaging Studio →</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /export -->
+
+  </main>
+</div><!-- /app-shell -->
+
+<!-- ======================================================
+     TOAST
+     ====================================================== -->
+<div id="toast">
+  <div id="toast-title"></div>
+  <div id="toast-body"></div>
+</div>
+
+<!-- ======================================================
+     MODAL: Math Inspector expandable
+     ====================================================== -->
+<div class="modal-bg" id="math-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">Math Inspector</div>
+      <button class="modal-close" onclick="document.getElementById('math-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="math-modal-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-sm btn-secondary" onclick="document.getElementById('math-modal').classList.remove('open')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  STATE & DATA MODEL
+// ============================================================
+const NFS_STORAGE_KEY = 'hs_nfs_projects_v1';
+const NFS_CURRENT_KEY = 'hs_nfs_current_project';
+
+// Project schema
+function emptyProject() {
+  return {
+    id: 'proj_' + Date.now() + '_' + Math.random().toString(36).substr(2,6),
+    name: '',
+    brand: '',
+    format: 'Stand-Up Pouch',
+    sku: '',
+    status: 'draft',      // draft | review | approved | ready | archived
+    sourceMode: 'manual', // manual | convert | import | formula
+    created: new Date().toISOString(),
+    modified: new Date().toISOString(),
+    notes: '',
+
+    // Serving
+    servingSize: '',
+    servingsPerContainer: '',
+
+    // Nutrients — each: { raw, converted, declared }
+    nutrients: {
+      cal:  { raw: '', converted: '', declared: '' },
+      tf:   { raw: '', converted: '', declared: '' },
+      sf:   { raw: '', converted: '', declared: '' },
+      xf:   { raw: '', converted: '', declared: '' },
+      ch:   { raw: '', converted: '', declared: '' },
+      na:   { raw: '', converted: '', declared: '' },
+      tc:   { raw: '', converted: '', declared: '' },
+      df:   { raw: '', converted: '', declared: '' },
+      su:   { raw: '', converted: '', declared: '' },
+      as_:  { raw: '', converted: '', declared: '' },
+      pr:   { raw: '', converted: '', declared: '' },
+      vd:   { raw: '', converted: '', declared: '' },
+      ca:   { raw: '', converted: '', declared: '' },
+      fe:   { raw: '', converted: '', declared: '' },
+      k:    { raw: '', converted: '', declared: '' },
+    },
+
+    // % DV
+    dv: { tf:'',sf:'',ch:'',na:'',tc:'',df:'',as_:'',vd:'',ca:'',fe:'',k:'' },
+
+    // Support copy
+    ingredients: '',
+    allergens: [],
+    allergenCustom: '',
+    netOz: '',
+    netG: '',
+    distributor: '',
+    origin: '',
+    warning: '',
+
+    // Conversion params
+    conversion: {
+      basis: 'per100g',
+      targetServingG: '',
+      targetSPC: '',
+      targetPieces: '',
+      customFactor: '',
+      sourceValues: {},
+    },
+
+    // Preflight history
+    preflight: null,
+
+    // Audit log
+    auditLog: [],
+  };
+}
+
+let nfsProjects = JSON.parse(localStorage.getItem(NFS_STORAGE_KEY) || '[]');
+let nfsCurrentId = localStorage.getItem(NFS_CURRENT_KEY) || null;
+let nfsCurrent = null;   // the live project being edited
+let nfsAllergens = new Set();
+let nfsPreflight = null; // last preflight result
+
+// Conversion state (standalone converter)
+const saSourceVals = {};
+
+// ============================================================
+//  NAVIGATION
+// ============================================================
+function nfsNav(viewId) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.lnav-item').forEach(i => i.classList.remove('active'));
+  const view = document.getElementById('view-' + viewId);
+  if (view) view.classList.add('active');
+  const navItem = document.querySelector(`[data-view="${viewId}"]`);
+  if (navItem) navItem.classList.add('active');
+
+  // Hash routing for bookmarking
+  history.replaceState(null, '', '#' + viewId);
+
+  if (viewId === 'dashboard') renderDashboard();
+  if (viewId === 'projects') renderProjectList();
+  if (viewId === 'compliance') updateComplianceView();
+  if (viewId === 'export') updateExportView();
+  if (viewId === 'converter') saInit();
+}
+
+// Hash routing on load
+(function() {
+  const hash = window.location.hash.replace('#','');
+  const validViews = ['dashboard','projects','new-label','editor','converter','importer','templates','compliance','export'];
+  if (hash && validViews.includes(hash)) {
+    setTimeout(() => nfsNav(hash), 50);
+  }
+})();
+
+// ============================================================
+//  PROJECT LIFECYCLE
+// ============================================================
+function nfsNewProject() {
+  nfsCurrent = emptyProject();
+  nfsCurrentId = nfsCurrent.id;
+  nfsAllergens.clear();
+  clearEditorForm();
+  document.getElementById('lnav-editor').style.display = 'flex';
+  updateHeaderProject();
+  nfsNav('new-label');
+}
+
+function nfsCreateProject() {
+  const name = document.getElementById('nl-name').value.trim();
+  if (!name) { toast('Missing Name', 'Enter a product name to continue.'); return; }
+  if (!nfsCurrent) nfsCurrent = emptyProject();
+  nfsCurrent.name = name;
+  nfsCurrent.brand = document.getElementById('nl-brand').value;
+  nfsCurrent.format = document.getElementById('nl-format').value;
+  nfsCurrent.sku = document.getElementById('nl-sku').value;
+  nfsCurrent.netG = document.getElementById('nl-netg').value;
+
+  const mode = document.querySelector('.mode-card.selected')?.id?.replace('mc-','') || 'manual';
+  nfsCurrent.sourceMode = mode;
+
+  if (mode === 'convert') {
+    nfsCurrent.conversion.basis = document.getElementById('nl-src-basis').value;
+    nfsCurrent.conversion.targetServingG = document.getElementById('nl-tgt-g').value;
+    nfsCurrent.conversion.targetSPC = document.getElementById('nl-tgt-spc').value;
+    nfsCurrent.conversion.targetPieces = document.getElementById('nl-tgt-pcs').value;
+    nfsCurrent.servingSize = document.getElementById('nl-tgt-ss').value;
+    nfsCurrent.servingsPerContainer = document.getElementById('nl-tgt-spc').value;
+  }
+
+  nfsCurrent.auditLog.push({ ts: new Date().toISOString(), action: 'created', mode });
+  nfsSaveProject(false);
+  document.getElementById('editor-title').textContent = name;
+  document.getElementById('editor-source-badge').textContent = modeName(mode);
+  updateHeaderProject();
+
+  if (mode === 'import') { nfsNav('importer'); return; }
+  if (mode === 'convert') { populateEditorConversionFromProject(); }
+  nfsNav('editor');
+  toast('Project Created', name);
+}
+
+function modeName(m) {
+  return { manual:'Manual', convert:'Supplier Convert', import:'Imported', formula:'Formula Est.' }[m] || m;
+}
+
+function nfsSaveProject(notify = true) {
+  if (!nfsCurrent) return;
+  nfsCurrent.modified = new Date().toISOString();
+  // Read editor values into project
+  nfsCurrent.servingSize = document.getElementById('e-ss')?.value || nfsCurrent.servingSize;
+  nfsCurrent.servingsPerContainer = document.getElementById('e-spc')?.value || nfsCurrent.servingsPerContainer;
+  const nKeys = ['cal','tf','sf','xf','ch','na','tc','df','su','as_','pr','vd','ca','fe','k'];
+  nKeys.forEach(k => {
+    const key = k === 'as_' ? 'as' : k;
+    const val = document.getElementById('n-' + key)?.value || '';
+    if (!nfsCurrent.nutrients[k]) nfsCurrent.nutrients[k] = { raw:'', converted:'', declared:'' };
+    nfsCurrent.nutrients[k].declared = val;
+  });
+  const dvKeys = ['tf','sf','ch','na','tc','df','as_','vd','ca','fe','k'];
+  dvKeys.forEach(k => {
+    const key = k === 'as_' ? 'as' : k;
+    nfsCurrent.dv[k] = document.getElementById('p-' + key)?.value || '';
+  });
+  nfsCurrent.ingredients = document.getElementById('e-ing')?.value || '';
+  nfsCurrent.allergens = [...nfsAllergens];
+  nfsCurrent.allergenCustom = document.getElementById('e-al-custom')?.value || '';
+  nfsCurrent.netOz = document.getElementById('e-oz')?.value || '';
+  nfsCurrent.netG = nfsCurrent.netG || document.getElementById('e-g')?.value || '';
+  nfsCurrent.distributor = document.getElementById('e-dist')?.value || '';
+  nfsCurrent.origin = document.getElementById('e-origin')?.value || '';
+  nfsCurrent.warning = document.getElementById('e-warn')?.value || '';
+  nfsCurrent.notes = document.getElementById('e-notes')?.value || '';
+
+  // Upsert into projects array
+  const idx = nfsProjects.findIndex(p => p.id === nfsCurrent.id);
+  if (idx >= 0) nfsProjects[idx] = nfsCurrent;
+  else nfsProjects.unshift(nfsCurrent);
+  localStorage.setItem(NFS_STORAGE_KEY, JSON.stringify(nfsProjects));
+  localStorage.setItem(NFS_CURRENT_KEY, nfsCurrent.id);
+  if (notify) toast('Saved', nfsCurrent.name || 'Label saved.');
+}
+
+function nfsLoadProject(id) {
+  const p = nfsProjects.find(x => x.id === id);
+  if (!p) { toast('Not Found', 'Project not found.'); return; }
+  nfsCurrent = JSON.parse(JSON.stringify(p)); // deep copy
+  nfsCurrentId = id;
+  nfsAllergens = new Set(p.allergens || []);
+  populateEditorFromProject();
+  document.getElementById('lnav-editor').style.display = 'flex';
+  updateHeaderProject();
+  nfsNav('editor');
+}
+
+function nfsDeleteProject(id) {
+  if (!confirm('Delete this label? This cannot be undone.')) return;
+  nfsProjects = nfsProjects.filter(p => p.id !== id);
+  localStorage.setItem(NFS_STORAGE_KEY, JSON.stringify(nfsProjects));
+  if (nfsCurrent?.id === id) {
+    nfsCurrent = null;
+    document.getElementById('lnav-editor').style.display = 'none';
+    updateHeaderProject();
+  }
+  renderProjectList();
+  toast('Deleted', 'Label removed.');
+}
+
+function updateHeaderProject() {
+  const el = document.getElementById('hdr-project-name');
+  const btn = document.getElementById('hdr-save-btn');
+  if (nfsCurrent) {
+    el.textContent = nfsCurrent.name || 'Untitled';
+    el.style.display = 'block';
+    btn.style.display = 'inline-flex';
+  } else {
+    el.style.display = 'none';
+    btn.style.display = 'none';
+  }
+}
+
+// ============================================================
+//  POPULATE EDITOR FROM PROJECT
+// ============================================================
+function populateEditorFromProject() {
+  if (!nfsCurrent) return;
+  const sv = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+  sv('e-ss', nfsCurrent.servingSize);
+  sv('e-spc', nfsCurrent.servingsPerContainer);
+  const nKeys = ['cal','tf','sf','xf','ch','na','tc','df','su','as_','pr','vd','ca','fe','k'];
+  nKeys.forEach(k => {
+    const key = k === 'as_' ? 'as' : k;
+    sv('n-' + key, nfsCurrent.nutrients[k]?.declared || '');
+  });
+  const dvKeys = ['tf','sf','ch','na','tc','df','as_','vd','ca','fe','k'];
+  dvKeys.forEach(k => {
+    const key = k === 'as_' ? 'as' : k;
+    sv('p-' + key, nfsCurrent.dv[k] || '');
+  });
+  sv('e-ing', nfsCurrent.ingredients);
+  sv('e-al-custom', nfsCurrent.allergenCustom);
+  sv('e-oz', nfsCurrent.netOz);
+  sv('e-g', nfsCurrent.netG);
+  sv('e-dist', nfsCurrent.distributor);
+  sv('e-origin', nfsCurrent.origin);
+  sv('e-warn', nfsCurrent.warning);
+  sv('e-notes', nfsCurrent.notes);
+  document.querySelectorAll('.ag-chip').forEach(el => {
+    const name = el.querySelector('span')?.textContent;
+    el.classList.toggle('on', nfsAllergens.has(name));
+  });
+  document.getElementById('editor-title').textContent = nfsCurrent.name || 'Untitled';
+  document.getElementById('editor-status-badge').textContent = statusLabel(nfsCurrent.status);
+  document.getElementById('editor-status-badge').className = 'badge badge-' + nfsCurrent.status;
+  document.getElementById('editor-source-badge').textContent = modeName(nfsCurrent.sourceMode);
+  if (nfsCurrent.sourceMode === 'convert') populateEditorConversionFromProject();
+  editorUpdate();
+}
+
+function populateEditorConversionFromProject() {
+  if (!nfsCurrent?.conversion) return;
+  const sv = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+  sv('conv-basis', nfsCurrent.conversion.basis);
+  sv('conv-tgt-g', nfsCurrent.conversion.targetServingG);
+  sv('conv-tgt-spc', nfsCurrent.conversion.targetSPC);
+  sv('conv-tgt-pcs', nfsCurrent.conversion.targetPieces);
+  convUpdate();
+}
+
+function clearEditorForm() {
+  const ids = ['e-ss','e-spc','n-cal','n-tf','p-tf','n-sf','p-sf','n-xf','n-ch','p-ch','n-na','p-na','n-tc','p-tc','n-df','p-df','n-su','n-as','p-as','n-pr','n-vd','p-vd','n-ca','p-ca','n-fe','p-fe','n-k','p-k','e-ing','e-al-custom','e-oz','e-g','e-dist','e-origin','e-warn','e-notes'];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.querySelectorAll('.ag-chip').forEach(el => el.classList.remove('on'));
+  nfsAllergens.clear();
+  editorUpdate();
+}
+
+function statusLabel(s) {
+  return { draft:'Draft', review:'Review Ready', approved:'Ops Approved', ready:'Manufacturer Ready', archived:'Archived' }[s] || s;
+}
+
+// ============================================================
+//  EDITOR: Live preview update
+// ============================================================
+function gv(id) { return (document.getElementById(id)?.value || '').trim(); }
+function gn(id) { return document.getElementById(id)?.value || '0'; }
+
+function editorUpdate() {
+  const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v !== '' && v !== null ? v : '—'; };
+  s('lp-ss', gv('e-ss') || null);
+  s('lp-spc', gv('e-spc') || null);
+  document.getElementById('lp-cal').textContent = gn('n-cal');
+  s('lp-tf', gn('n-tf')); document.getElementById('lp-ptf').textContent = (gn('p-tf') || '0') + '%';
+  s('lp-sf', gn('n-sf')); document.getElementById('lp-psf').textContent = (gn('p-sf') || '0') + '%';
+  s('lp-xf', gn('n-xf'));
+  s('lp-ch', gn('n-ch')); document.getElementById('lp-pch').textContent = (gn('p-ch') || '0') + '%';
+  s('lp-na', gn('n-na')); document.getElementById('lp-pna').textContent = (gn('p-na') || '0') + '%';
+  s('lp-tc', gn('n-tc')); document.getElementById('lp-ptc').textContent = (gn('p-tc') || '0') + '%';
+  s('lp-df', gn('n-df')); document.getElementById('lp-pdf').textContent = (gn('p-df') || '0') + '%';
+  s('lp-su', gn('n-su'));
+  s('lp-as', gn('n-as')); document.getElementById('lp-pas').textContent = (gn('p-as') || '0') + '%';
+  s('lp-pr', gn('n-pr'));
+  s('lp-vd', gn('n-vd')); document.getElementById('lp-pvd').textContent = (gn('p-vd') || '0') + '%';
+  s('lp-ca', gn('n-ca')); document.getElementById('lp-pca').textContent = (gn('p-ca') || '0') + '%';
+  s('lp-fe', gn('n-fe')); document.getElementById('lp-pfe').textContent = (gn('p-fe') || '0') + '%';
+  s('lp-k',  gn('n-k'));  document.getElementById('lp-pk').textContent  = (gn('p-k')  || '0') + '%';
+
+  const ing = gv('e-ing');
+  const ingBlock = document.getElementById('lp-ing-block');
+  if (ing) { document.getElementById('lp-ing').textContent = ing; ingBlock.style.display = 'block'; }
+  else ingBlock.style.display = 'none';
+
+  const allEl = document.getElementById('lp-all');
+  const custom = gv('e-al-custom');
+  allEl.textContent = custom ? custom : nfsAllergens.size ? 'Contains: ' + [...nfsAllergens].join(', ') + '.' : '';
+
+  const oz = gv('e-oz'), g = gv('e-g');
+  const wtEl = document.getElementById('lp-wt');
+  wtEl.textContent = (oz || g) ? 'NET WT ' + (oz ? oz + ' OZ' : '') + (oz && g ? ' (' : '') + (g ? g + 'g' : '') + (oz && g ? ')' : '') : '';
+
+  const distParts = [gv('e-dist'), gv('e-origin')].filter(Boolean);
+  document.getElementById('lp-dist').textContent = distParts.join(' | ');
+
+  // Template width
+  const tpl = document.getElementById('preview-template')?.value;
+  const lbl = document.getElementById('nf-label-preview');
+  if (lbl) {
+    if (tpl === 'narrow') lbl.style.width = '200px';
+    else if (tpl === 'wide') lbl.style.width = '320px';
+    else lbl.style.width = '260px';
+  }
+}
+
+function editorTab(btn, panelId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('sub-' + panelId).classList.add('active');
+}
+
+// ============================================================
+//  ALLERGENS
+// ============================================================
+function toggleAl(el, name) {
+  el.classList.toggle('on');
+  el.classList.contains('on') ? nfsAllergens.add(name) : nfsAllergens.delete(name);
+  editorUpdate();
+}
+
+// ============================================================
+//  NEW LABEL — mode selection
+// ============================================================
+function selectMode(mode) {
+  document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('mc-' + mode).classList.add('selected');
+  document.getElementById('nl-mode-convert-block').style.display = mode === 'convert' ? 'block' : 'none';
+}
+
+// ============================================================
+//  CONVERSION ENGINE
+// ============================================================
+const NUTRIENT_CONFIG = [
+  { key:'cal',  label:'Calories',           unit:'',   refDV:null },
+  { key:'tf',   label:'Total Fat',           unit:'g',  refDV:78 },
+  { key:'sf',   label:'Saturated Fat',       unit:'g',  refDV:20 },
+  { key:'xf',   label:'Trans Fat',           unit:'g',  refDV:null },
+  { key:'ch',   label:'Cholesterol',         unit:'mg', refDV:300 },
+  { key:'na',   label:'Sodium',              unit:'mg', refDV:2300 },
+  { key:'tc',   label:'Total Carbohydrate',  unit:'g',  refDV:275 },
+  { key:'df',   label:'Dietary Fiber',       unit:'g',  refDV:28 },
+  { key:'su',   label:'Total Sugars',        unit:'g',  refDV:null },
+  { key:'as_',  label:'Added Sugars',        unit:'g',  refDV:50 },
+  { key:'pr',   label:'Protein',             unit:'g',  refDV:null },
+  { key:'vd',   label:'Vitamin D',           unit:'mcg',refDV:20 },
+  { key:'ca',   label:'Calcium',             unit:'mg', refDV:1300 },
+  { key:'fe',   label:'Iron',                unit:'mg', refDV:18 },
+  { key:'k',    label:'Potassium',           unit:'mg', refDV:4700 },
+];
+
+function convFactor(basis, tgtG, pcs, pkgG, customFactor) {
+  const t = parseFloat(tgtG) || 0;
+  const p = parseInt(pcs) || 1;
+  const pkg = parseFloat(pkgG) || 0;
+  switch (basis) {
+    case 'per100g':   return t / 100;
+    case 'per100ml':  return t / 100;
+    case 'perPiece':  return p;
+    case 'perPackage':return pkg > 0 ? t / pkg : 1;
+    case 'custom':    return parseFloat(customFactor) || 1;
+    default:          return 1;
+  }
+}
+
+function fdaRound(val, unit) {
+  const v = parseFloat(val);
+  if (isNaN(v)) return '0';
+  if (unit === 'cal') {
+    if (v < 5) return '0';
+    if (v < 50) return String(Math.round(v / 5) * 5);
+    return String(Math.round(v / 10) * 10);
+  }
+  if (unit === 'mg') {
+    if (v < 5) return '0';
+    if (v < 140) return String(Math.round(v / 5) * 5);
+    return String(Math.round(v / 10) * 10);
+  }
+  // grams
+  if (v < 0.5) return '0';
+  if (v < 5) return v.toFixed(1);
+  return String(Math.round(v));
+}
+
+function convUpdate() {
+  const basis = document.getElementById('conv-basis')?.value;
+  const tgtG = document.getElementById('conv-tgt-g')?.value;
+  const spc = document.getElementById('conv-tgt-spc')?.value;
+  const pcs = document.getElementById('conv-tgt-pcs')?.value;
+  const customF = document.getElementById('conv-custom-factor')?.value;
+  document.getElementById('conv-custom-wrap').style.display = basis === 'custom' ? 'block' : 'none';
+  const factor = convFactor(basis, tgtG, pcs, 0, customF);
+  buildConvTable('conv-tbody', factor);
+  buildMathInspector(basis, factor, tgtG);
+}
+
+function buildConvTable(tbodyId, factor) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  NUTRIENT_CONFIG.forEach(nc => {
+    const srcId = 'conv-src-' + nc.key;
+    const existing = document.getElementById(srcId)?.value || '';
+    const raw = parseFloat(existing) || 0;
+    const conv = raw * factor;
+    const declared = fdaRound(conv, nc.unit === '' ? 'cal' : nc.unit);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="td-name${nc.label.startsWith('  ') ? ' sub':''}">${nc.label}</td>
+      <td><input class="nri" type="number" id="${srcId}" placeholder="0" value="${existing}" oninput="convUpdate()"/> <span class="td-unit">${nc.unit}</span></td>
+      <td class="val-conv">${raw > 0 ? conv.toFixed(2) : '—'} ${nc.unit}</td>
+      <td class="val-decl">${raw > 0 ? declared : '—'} ${nc.unit}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function buildMathInspector(basis, factor, tgtG) {
+  const body = document.getElementById('math-inspector-body');
+  if (!body) return;
+  const basisLabel = { per100g:'per 100g', per100ml:'per 100ml', perPiece:'per piece', perPackage:'per package', custom:'custom factor' }[basis] || basis;
+  let html = `<div style="font-size:11px;color:var(--dim);margin-bottom:12px;">Conversion basis: <strong style="color:var(--text);">${basisLabel}</strong> → Serving: <strong style="color:var(--text);">${tgtG||'?'}g</strong><br>Factor: <strong style="color:var(--orange);font-family:var(--mono);">${factor.toFixed(4)}</strong></div>`;
+  html += '<div>';
+  NUTRIENT_CONFIG.forEach(nc => {
+    const srcId = 'conv-src-' + nc.key;
+    const raw = parseFloat(document.getElementById(srcId)?.value) || 0;
+    if (!raw) return;
+    const conv = raw * factor;
+    html += `<div class="math-row">
+      <span class="math-label">${nc.label}</span>
+      <span class="math-formula">${raw} × ${factor.toFixed(4)} = ${conv.toFixed(3)}</span>
+      <span class="math-result">${fdaRound(conv, nc.unit === '' ? 'cal' : nc.unit)} ${nc.unit}</span>
+    </div>`;
+  });
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+function convApplyToEditor() {
+  const basis = document.getElementById('conv-basis')?.value;
+  const tgtG = document.getElementById('conv-tgt-g')?.value;
+  const spc = document.getElementById('conv-tgt-spc')?.value;
+  const pcs = document.getElementById('conv-tgt-pcs')?.value;
+  const customF = document.getElementById('conv-custom-factor')?.value;
+  const factor = convFactor(basis, tgtG, pcs, 0, customF);
+
+  NUTRIENT_CONFIG.forEach(nc => {
+    const srcId = 'conv-src-' + nc.key;
+    const raw = parseFloat(document.getElementById(srcId)?.value) || 0;
+    if (!raw) return;
+    const conv = raw * factor;
+    const declared = fdaRound(conv, nc.unit === '' ? 'cal' : nc.unit);
+    const fieldKey = nc.key === 'as_' ? 'as' : nc.key;
+    const el = document.getElementById('n-' + fieldKey);
+    if (el) el.value = declared;
+  });
+  if (spc) { const el = document.getElementById('e-spc'); if (el) el.value = spc; }
+  editorUpdate();
+  toast('Applied', 'Converted values applied to label editor.');
+  editorTab(document.querySelector('[data-tab="edit-nutrition"]'), 'edit-nutrition');
+}
+
+// ============================================================
+//  STANDALONE SUPPLIER CONVERTER
+// ============================================================
+function saInit() {
+  if (!document.getElementById('sa-tbody').children.length) {
+    saUpdate();
+  }
+}
+
+function saUpdate() {
+  const basis = document.getElementById('sa-basis')?.value;
+  const tgtG = document.getElementById('sa-tgt-g')?.value;
+  const pcs = document.getElementById('sa-pcs')?.value;
+  const pkgG = document.getElementById('sa-pkg-g')?.value;
+  const customF = document.getElementById('sa-custom-factor')?.value;
+  document.getElementById('sa-custom-wrap').style.display = basis === 'custom' ? 'block' : 'none';
+  const factor = convFactor(basis, tgtG, pcs, pkgG, customF);
+
+  const tbody = document.getElementById('sa-tbody');
+  tbody.innerHTML = '';
+  let mathHtml = `<div style="font-size:11px;color:var(--dim);margin-bottom:10px;">Factor: <strong style="color:var(--orange);font-family:var(--mono);">${factor.toFixed(4)}</strong> (${basis})</div>`;
+
+  NUTRIENT_CONFIG.forEach(nc => {
+    const srcId = 'sa-src-' + nc.key;
+    const existing = saSourceVals[nc.key] || document.getElementById(srcId)?.value || '';
+    const raw = parseFloat(existing) || 0;
+    const conv = raw * factor;
+    const declared = fdaRound(conv, nc.unit === '' ? 'cal' : nc.unit);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="td-name">${nc.label}</td>
+      <td><input class="nri" type="number" id="${srcId}" placeholder="0" value="${existing}" oninput="saSourceVals['${nc.key}']=this.value;saUpdate()"/> <span class="td-unit">${nc.unit}</span></td>
+      <td class="val-conv">${raw > 0 ? conv.toFixed(2) : '—'}</td>
+      <td class="val-decl">${raw > 0 ? declared : '—'}</td>
+    `;
+    tbody.appendChild(tr);
+    if (raw > 0) {
+      mathHtml += `<div class="math-row"><span class="math-label">${nc.label}</span><span class="math-formula">${raw} × ${factor.toFixed(4)}</span><span class="math-result">${declared} ${nc.unit}</span></div>`;
+    }
+  });
+
+  document.getElementById('sa-math-log').innerHTML = mathHtml || '<div style="font-size:11px;color:var(--muted);">Enter source values to see math.</div>';
+}
+
+function saCreateLabel() {
+  if (!nfsCurrent) {
+    nfsCurrent = emptyProject();
+    nfsCurrent.name = 'Converted Label';
+    nfsCurrent.sourceMode = 'convert';
+  }
+  const basis = document.getElementById('sa-basis')?.value;
+  const tgtG = document.getElementById('sa-tgt-g')?.value;
+  const pcs = document.getElementById('sa-pcs')?.value;
+  const pkgG = document.getElementById('sa-pkg-g')?.value;
+  const customF = document.getElementById('sa-custom-factor')?.value;
+  const factor = convFactor(basis, tgtG, pcs, pkgG, customF);
+
+  NUTRIENT_CONFIG.forEach(nc => {
+    const raw = parseFloat(document.getElementById('sa-src-' + nc.key)?.value) || 0;
+    if (!raw) return;
+    const conv = raw * factor;
+    const declared = fdaRound(conv, nc.unit === '' ? 'cal' : nc.unit);
+    const fieldKey = nc.key === 'as_' ? 'as' : nc.key;
+    const el = document.getElementById('n-' + fieldKey);
+    if (el) el.value = declared;
+    if (!nfsCurrent.nutrients[nc.key]) nfsCurrent.nutrients[nc.key] = { raw:'', converted:'', declared:'' };
+    nfsCurrent.nutrients[nc.key].raw = String(raw);
+    nfsCurrent.nutrients[nc.key].converted = String(conv.toFixed(2));
+    nfsCurrent.nutrients[nc.key].declared = declared;
+  });
+  document.getElementById('lnav-editor').style.display = 'flex';
+  updateHeaderProject();
+  nfsNav('editor');
+  toast('Conversion Applied', 'Values loaded into editor. Review and save.');
+}
+
+function saPasteHelper() {
+  toast('Paste Helper', 'Paste from spreadsheet not yet available. Enter values manually in the table above.');
+}
+
+// ============================================================
+//  IMPORT / READ FLOW
+// ============================================================
+function dzOver(e, id) { e.preventDefault(); document.getElementById(id).classList.add('drag-over'); }
+function dzLeave(id) { document.getElementById(id).classList.remove('drag-over'); }
+function dzDrop(e, mode) { e.preventDefault(); dzLeave('import-dz'); const f = e.dataTransfer.files[0]; if (f) handleImportFile(f); }
+
+function importFileChosen(e) { const f = e.target.files[0]; if (f) handleImportFile(f); }
+
+function handleImportFile(file) {
+  document.getElementById('import-preview-area').style.display = 'block';
+  document.getElementById('import-file-info').innerHTML = `
+    <strong>${file.name}</strong><br/>
+    <span style="color:var(--muted);">${file.type || 'unknown type'} · ${(file.size/1024).toFixed(1)}KB</span>
+  `;
+  // Simulated parse — real OCR would go here
+  importParseSimulated();
+}
+
+function importParseSimulated() {
+  const fields = [
+    { label:'Serving Size', value:'1 piece (20g)', confidence:0.92, editable: true, key:'servingSize' },
+    { label:'Servings Per Container', value:'About 7', confidence:0.85, editable: true, key:'servingsPerContainer' },
+    { label:'Calories', value:'70', confidence:0.95, editable: true, key:'cal' },
+    { label:'Total Fat', value:'0g', confidence:0.90, editable: true, key:'tf' },
+    { label:'Sodium', value:'15mg', confidence:0.80, editable: true, key:'na' },
+    { label:'Total Carbohydrate', value:'18g', confidence:0.90, editable: true, key:'tc' },
+    { label:'Total Sugars', value:'14g', confidence:0.88, editable: true, key:'su' },
+    { label:'Protein', value:'0g', confidence:0.90, editable: true, key:'pr' },
+    { label:'Ingredients', value:'SUGAR, CORN SYRUP...', confidence:0.60, editable: true, key:'ingredients' },
+  ];
+  const container = document.getElementById('import-field-map');
+  container.innerHTML = '';
+  fields.forEach(f => {
+    const row = document.createElement('div');
+    row.className = 'pf-item';
+    const confColor = f.confidence > 0.85 ? 'var(--green)' : f.confidence > 0.65 ? 'var(--orange)' : 'var(--red)';
+    row.innerHTML = `
+      <div class="pf-body">
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:5px;">
+          <span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);min-width:160px;">${f.label}</span>
+          <span style="font-size:10px;color:${confColor};font-family:var(--mono);">&#x2022; ${Math.round(f.confidence*100)}% confidence</span>
+        </div>
+        <input type="text" value="${f.value}" data-key="${f.key}" style="width:100%;max-width:340px;"/>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function importAccept() {
+  if (!nfsCurrent) {
+    nfsCurrent = emptyProject();
+    nfsCurrent.name = 'Imported Label';
+    nfsCurrent.sourceMode = 'import';
+  }
+  const inputs = document.querySelectorAll('#import-field-map input');
+  inputs.forEach(inp => {
+    const key = inp.dataset.key;
+    const val = inp.value.trim();
+    if (key === 'servingSize') { nfsCurrent.servingSize = val; const el = document.getElementById('e-ss'); if(el) el.value = val; }
+    else if (key === 'servingsPerContainer') { nfsCurrent.servingsPerContainer = val; const el = document.getElementById('e-spc'); if(el) el.value = val; }
+    else if (key === 'ingredients') { nfsCurrent.ingredients = val; const el = document.getElementById('e-ing'); if(el) el.value = val; }
+    else {
+      const numVal = parseFloat(val) || '';
+      const fieldKey = key === 'as_' ? 'as' : key;
+      const el = document.getElementById('n-' + fieldKey);
+      if (el && numVal !== '') el.value = numVal;
+    }
+  });
+  nfsCurrent.auditLog.push({ ts: new Date().toISOString(), action: 'imported-fields' });
+  document.getElementById('lnav-editor').style.display = 'flex';
+  updateHeaderProject();
+  editorUpdate();
+  nfsNav('editor');
+  toast('Imported', 'Fields loaded into editor. Review and verify all values.');
+}
+
+function importReset() {
+  document.getElementById('import-file').value = '';
+  document.getElementById('import-preview-area').style.display = 'none';
+}
+
+// ============================================================
+//  TEMPLATES
+// ============================================================
+function selectTemplate(id) {
+  document.querySelectorAll('[id^="tpl-"]').forEach(el => {
+    el.style.borderColor = 'var(--border)';
+    el.style.background = 'var(--surface)';
+  });
+  const el = document.getElementById('tpl-' + id);
+  if (el) { el.style.borderColor = 'var(--accent)'; el.style.background = 'var(--accent-bg)'; }
+  const noteEl = document.getElementById('tpl-note');
+  noteEl.style.display = 'block';
+  noteEl.textContent = 'Template "' + id + '" selected. When you open a label in the editor, this template format will be applied to the preview.';
+  toast('Template Selected', id.replace(/-/g,' '));
+}
+
+function applyProfile(id) {
+  const profiles = {
+    'stand-up-pouch-right-rail': { tpl:'standard-vertical', note:'Stand-Up Pouch Right Rail — 2.25" × 3.5" safe zone. Standard vertical panel applies.' },
+    'narrow-pouch-rail': { tpl:'narrow-vertical', note:'Narrow Pouch Compliance Rail — Compressed column, 200px width. Suitable for tighter back-panel layouts.' },
+    'blister-card-back': { tpl:'standard-vertical', note:'Blister Card Back — Standard vertical panel in back-panel position. 135g / ~4.75oz typical.' },
+    'box-side-panel': { tpl:'wide', note:'Box Side Panel — More horizontal space available. Wide vertical layout selected.' },
+  };
+  const p = profiles[id];
+  if (!p) return;
+  if (nfsCurrent) { nfsCurrent.profileTemplate = id; }
+  const noteEl = document.getElementById('tpl-note');
+  noteEl.style.display = 'block';
+  noteEl.textContent = p.note;
+  toast('Profile Applied', id.replace(/-/g,' '));
+}
+
+// ============================================================
+//  COMPLIANCE / PREFLIGHT
+// ============================================================
+function runPreflight() {
+  if (!nfsCurrent) {
+    // Try building from current editor state
+    nfsCurrent = emptyProject();
+    nfsCurrent.name = gv('e-ss') ? 'Current Editor' : 'Untitled';
+    nfsSaveProject(false);
+  }
+  nfsSaveProject(false);
+  const checks = [];
+
+  // --- HARD BLOCKS ---
+  const ss = nfsCurrent.servingSize;
+  const spc = nfsCurrent.servingsPerContainer;
+  const cal = parseFloat(nfsCurrent.nutrients?.cal?.declared) || 0;
+  const tf = parseFloat(nfsCurrent.nutrients?.tf?.declared);
+  const tc = parseFloat(nfsCurrent.nutrients?.tc?.declared);
+  const su = parseFloat(nfsCurrent.nutrients?.su?.declared);
+  const as_ = parseFloat(nfsCurrent.nutrients?.as_?.declared);
+
+  if (!ss) checks.push({ sev:'block', icon:'🔴', title:'Missing Serving Size', desc:'A serving size is required on all nutrition labels.' });
+  if (!spc) checks.push({ sev:'block', icon:'🔴', title:'Missing Servings Per Container', desc:'Number of servings per container is required.' });
+  if (!nfsCurrent.nutrients?.cal?.declared && nfsCurrent.nutrients?.cal?.declared !== '0') checks.push({ sev:'block', icon:'🔴', title:'Missing Calories', desc:'Calorie declaration is required.' });
+  if (isNaN(tf) && nfsCurrent.sourceMode !== 'manual') checks.push({ sev:'block', icon:'🔴', title:'Missing Total Fat', desc:'Total Fat is required.' });
+  if (isNaN(tc)) checks.push({ sev:'block', icon:'🔴', title:'Missing Total Carbohydrate', desc:'Total Carbohydrate is required.' });
+  if (!isNaN(as_) && !isNaN(su) && as_ > su) checks.push({ sev:'block', icon:'🔴', title:'Added Sugars > Total Sugars', desc:'Added Sugars cannot exceed Total Sugars.' });
+  if (!nfsCurrent.ingredients && nfsCurrent.nutrients?.cal?.declared) checks.push({ sev:'block', icon:'🔴', title:'Missing Ingredients', desc:'Multi-ingredient products require an ingredient statement.' });
+  if (!nfsCurrent.distributor) checks.push({ sev:'block', icon:'🔴', title:'Missing Distributor Block', desc:'A distributor name and address is required for retail products.' });
+
+  // --- ERRORS ---
+  if (nfsCurrent.distributor && !nfsCurrent.distributor.match(/\d{5}/)) checks.push({ sev:'error', icon:'🟠', title:'Distributor ZIP Missing/Invalid', desc:'The distributor address appears to be missing a 5-digit ZIP code.' });
+  if (!nfsCurrent.origin) checks.push({ sev:'error', icon:'🟠', title:'Missing Country of Origin', desc:'A country of origin or manufacturer statement is typically required.' });
+  const estmated = nfsCurrent.sourceMode === 'formula';
+  if (estmated) checks.push({ sev:'error', icon:'🟠', title:'Formula-Estimated Values', desc:'Label values are based on formula estimates, not lab analysis. Confirm with lab testing before final label use.' });
+  if (nfsCurrent.sourceMode === 'import') checks.push({ sev:'error', icon:'🟠', title:'Imported Values — Verification Needed', desc:'Values were parsed from an uploaded file. All fields must be manually verified before use.' });
+
+  // --- WARNINGS ---
+  if (ss && !ss.match(/\d/)) checks.push({ sev:'warn', icon:'🟡', title:'Serving Size Format Review', desc:'Serving size does not appear to contain a numeric weight component (e.g., "5 pieces (40g)").' });
+  if (cal > 0 && !isNaN(tf) && !isNaN(tc)) {
+    const expectedCal = (tf * 9) + (tc * 4);
+    if (Math.abs(cal - expectedCal) > cal * 0.2) checks.push({ sev:'warn', icon:'🟡', title:'Calorie Math May Not Balance', desc:`Declared calories (${cal}) vs estimated from fat+carbs (${Math.round(expectedCal)}). Verify values are correct.` });
+  }
+  if (!nfsCurrent.netOz && !nfsCurrent.netG) checks.push({ sev:'warn', icon:'🟡', title:'Net Weight Not Set', desc:'Net weight (oz / g) is not entered. This is typically required on packaged food labels.' });
+  if (nfsCurrent.allergens?.length === 0 && nfsCurrent.ingredients?.match(/WHEAT|MILK|EGG|NUT|SOY|SESAME|FISH|SHELLFISH/i)) checks.push({ sev:'warn', icon:'🟡', title:'Possible Allergen Not Declared', desc:'Ingredient list may contain major food allergens but none are declared in the allergen section.' });
+
+  // --- PASSES ---
+  if (ss && spc) checks.push({ sev:'pass', icon:'🟢', title:'Serving Info Present', desc:'Serving size and servings per container are both set.' });
+  if (nfsCurrent.ingredients) checks.push({ sev:'pass', icon:'🟢', title:'Ingredients Statement Present', desc:'Ingredient list has been provided.' });
+  if (nfsCurrent.distributor) checks.push({ sev:'pass', icon:'🟢', title:'Distributor Block Present', desc:'Distributor information is set.' });
+
+  nfsPreflight = { checks, ts: new Date().toISOString() };
+  if (nfsCurrent) nfsCurrent.preflight = nfsPreflight;
+  renderPreflightResults(checks);
+  updateComplianceView();
+  updateExportView();
+  updateLnavBadge(checks);
+}
+
+function renderPreflightResults(checks) {
+  const counts = { block:0, error:0, warn:0, pass:0 };
+  checks.forEach(c => counts[c.sev]++);
+  document.getElementById('pf-count-block').textContent = counts.block;
+  document.getElementById('pf-count-error').textContent = counts.error;
+  document.getElementById('pf-count-warn').textContent = counts.warn;
+  document.getElementById('pf-count-pass').textContent = counts.pass;
+
+  const list = document.getElementById('pf-result-list');
+  list.innerHTML = '';
+  ['block','error','warn','pass'].forEach(sev => {
+    checks.filter(c => c.sev === sev).forEach(c => {
+      const row = document.createElement('div');
+      row.className = 'pf-item';
+      const sevBadge = { block:'badge-error', error:'badge-warn', warn:'badge-draft', pass:'badge-approved' }[sev];
+      const sevLabel = { block:'Hard Block', error:'Error', warn:'Warning', pass:'Pass' }[sev];
+      row.innerHTML = `
+        <span class="pf-icon">${c.icon}</span>
+        <div class="pf-body">
+          <div class="pf-title">${c.title}</div>
+          <div class="pf-desc">${c.desc}</div>
+        </div>
+        <span class="pf-sev"><span class="badge ${sevBadge}">${sevLabel}</span></span>
+      `;
+      list.appendChild(row);
+    });
+  });
+}
+
+function updateComplianceView() {
+  if (!nfsPreflight) return;
+  const checks = nfsPreflight.checks;
+  const blocks = checks.filter(c => c.sev === 'block').length;
+  const errors = checks.filter(c => c.sev === 'error').length;
+  const reviewBadge = document.getElementById('pf-tier-review');
+  const mfrBadge = document.getElementById('pf-tier-mfr');
+  if (reviewBadge) {
+    reviewBadge.textContent = blocks === 0 ? 'Unlocked' : 'Blocked';
+    reviewBadge.className = 'badge ' + (blocks === 0 ? 'badge-approved' : 'badge-error');
+  }
+  if (mfrBadge) {
+    mfrBadge.textContent = (blocks === 0 && errors === 0) ? 'Unlocked' : 'Locked';
+    mfrBadge.className = 'badge ' + (blocks === 0 && errors === 0 ? 'badge-ready' : 'badge-error');
+  }
+}
+
+function updateExportView() {
+  if (!nfsPreflight) return;
+  const checks = nfsPreflight.checks;
+  const blocks = checks.filter(c => c.sev === 'block').length;
+  const errors = checks.filter(c => c.sev === 'error').length;
+  const warnEl = document.getElementById('export-pf-warning');
+  const reviewBadge = document.getElementById('exp-tier-review-badge');
+  const mfrBadge = document.getElementById('exp-tier-mfr-badge');
+  const mfrBtn = document.getElementById('exp-mfr-btn');
+  if (warnEl) warnEl.style.display = blocks > 0 ? 'block' : 'none';
+  if (reviewBadge) { reviewBadge.textContent = blocks === 0 ? 'Unlocked' : 'Locked'; reviewBadge.className = 'badge ' + (blocks === 0 ? 'badge-approved' : 'badge-error'); }
+  if (mfrBadge) { mfrBadge.textContent = (blocks === 0 && errors === 0) ? 'Unlocked' : 'Locked'; mfrBadge.className = 'badge ' + (blocks === 0 && errors === 0 ? 'badge-ready' : 'badge-error'); }
+  if (mfrBtn) mfrBtn.disabled = !(blocks === 0 && errors === 0);
+}
+
+function updateLnavBadge(checks) {
+  const badge = document.getElementById('lnav-pf-badge');
+  if (!badge) return;
+  const issues = checks.filter(c => c.sev === 'block' || c.sev === 'error').length;
+  badge.style.display = issues > 0 ? 'inline-block' : 'none';
+  badge.textContent = issues;
+  badge.style.background = 'var(--red-bg)';
+  badge.style.color = 'var(--red)';
+}
+
+// ============================================================
+//  EXPORT FUNCTIONS
+// ============================================================
+function getLabelHTML() {
+  const label = document.getElementById('nf-label-preview');
+  return label ? label.outerHTML : '';
+}
+
+function getLabelCSS() {
+  return `.nf-label{font-family:Arial,Helvetica,sans-serif;color:#000;background:#fff;border:2px solid #000;padding:5px 7px;font-size:12px;line-height:1.3;width:260px;margin:0 auto;}
+.nf-title{font-size:26px;font-weight:900;letter-spacing:-.5px;line-height:1;border-bottom:9px solid #000;padding-bottom:3px;margin-bottom:3px;}
+.nf-ss{font-size:10px;font-weight:700;margin-bottom:1px;}.nf-spc{font-size:10px;margin-bottom:3px;}
+.nf-cal-row{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:4px solid #000;padding:2px 0 3px;margin-bottom:2px;}
+.nf-cal-lbl{font-size:12px;font-weight:700;}.nf-cal-num{font-size:36px;font-weight:900;line-height:1;}
+.nf-pct-hdr{text-align:right;font-size:8px;font-weight:700;border-bottom:1px solid #000;padding-bottom:1px;margin-bottom:1px;}
+.nf-nr{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;padding:1px 0;}
+.nf-nr.bld{font-weight:700;border-top:1px solid #000;}.nf-nr.sub{padding-left:12px;font-weight:400;font-size:9px;}.nf-nr.subsub{padding-left:20px;font-weight:400;font-size:9px;}
+.pct{font-weight:700;}.nf-foot{font-size:7px;line-height:1.3;border-top:1px solid #000;margin-top:4px;padding-top:3px;}
+.nf-ing{font-size:8px;line-height:1.4;border-top:2px solid #000;margin-top:4px;padding-top:3px;}
+.nf-all{font-size:8px;font-weight:700;margin-top:2px;}.nf-wt{font-size:8px;margin-top:3px;}.nf-dist{font-size:7px;margin-top:3px;color:#444;}`;
+}
+
+function buildExportHTML(tier) {
+  const name = nfsCurrent?.name || 'FDA Label';
+  const label = getLabelHTML();
+  return `<!DOCTYPE html>
+<html><head><title>Nutrition Facts — ${name}</title>
+<style>
+body{margin:40px;font-family:Arial;background:#f5f5f5;display:flex;justify-content:center;flex-direction:column;align-items:center;gap:20px;}
+.wrap{background:#fff;padding:40px;border-radius:8px;box-shadow:0 2px 20px rgba(0,0,0,.1);}
+.meta{font-family:Arial;font-size:11px;color:#666;text-align:center;}
+${getLabelCSS()}
+</style></head>
+<body>
+<div class="wrap">${label}</div>
+<div class="meta">
+  ${name} · ${nfsCurrent?.brand || ''}<br/>
+  Generated ${new Date().toLocaleString()} · Export Tier: ${tier}<br/>
+  <em>Built with FDA-style formatting and compliance preflight checks. Final legal responsibility remains with manufacturer/importer of record.</em>
+</div>
+</body></html>`;
+}
+
+function downloadFile(content, filename, mime) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+  a.download = filename;
+  a.click();
+}
+
+function exportDraftHTML() {
+  const name = (nfsCurrent?.name || 'draft-label').toLowerCase().replace(/\s+/g,'-');
+  downloadFile(buildExportHTML('Draft'), `nf_${name}_draft.html`, 'text/html');
+  toast('Exported', 'Draft HTML downloaded.');
+}
+
+function exportJSON() {
+  if (!nfsCurrent) { toast('No Project', 'Save a project first.'); return; }
+  nfsSaveProject(false);
+  const name = (nfsCurrent.name || 'label').toLowerCase().replace(/\s+/g,'-');
+  downloadFile(JSON.stringify(nfsCurrent, null, 2), `nf_${name}.json`, 'application/json');
+  toast('Exported', 'Structured JSON downloaded.');
+}
+
+function exportCopyBlock() {
+  const parts = [];
+  if (gv('e-ss')) parts.push(`Serving Size: ${gv('e-ss')}`);
+  if (gv('e-spc')) parts.push(`Servings Per Container: ${gv('e-spc')}`);
+  parts.push(`Calories: ${gn('n-cal')}`);
+  parts.push(`Total Fat: ${gn('n-tf')}g`);
+  if (gv('e-ing')) parts.push(`\nINGREDIENTS: ${gv('e-ing')}`);
+  if (gv('e-dist')) parts.push(gv('e-dist'));
+  navigator.clipboard.writeText(parts.join('\n')).then(() => toast('Copied', 'Copy block in clipboard.'));
+}
+
+function exportReview() {
+  if (!nfsPreflight) { toast('Run Preflight First', 'Click Compliance Review and run preflight before exporting.'); return; }
+  const blocks = nfsPreflight.checks.filter(c => c.sev === 'block').length;
+  if (blocks > 0) { toast('Hard Blocks Exist', 'Resolve all Hard Blocks before Review export.'); return; }
+  const name = (nfsCurrent?.name || 'review-label').toLowerCase().replace(/\s+/g,'-');
+  downloadFile(buildExportHTML('Review'), `nf_${name}_review.html`, 'text/html');
+  if (nfsCurrent) nfsCurrent.status = 'review';
+  toast('Review Export', 'Downloaded for stakeholder review.');
+}
+
+function exportManufacturerReady() {
+  if (!nfsPreflight) { toast('Run Preflight First', ''); return; }
+  const blocks = nfsPreflight.checks.filter(c => c.sev === 'block').length;
+  const errors = nfsPreflight.checks.filter(c => c.sev === 'error').length;
+  if (blocks > 0 || errors > 0) { toast('Export Locked', 'Resolve all Hard Blocks and Errors first.'); return; }
+  const name = (nfsCurrent?.name || 'mfr-label').toLowerCase().replace(/\s+/g,'-');
+  downloadFile(buildExportHTML('Manufacturer Ready'), `nf_${name}_manufacturer_ready.html`, 'text/html');
+  if (nfsCurrent) { nfsCurrent.status = 'ready'; nfsSaveProject(false); }
+  toast('Manufacturer Ready Export', 'Downloaded. Operator assumes final responsibility.');
+}
+
+function exportPackagingStudio() {
+  if (!nfsCurrent) { toast('No Project', 'Create and save a project first.'); return; }
+  nfsSaveProject(false);
+  const payload = {
+    source: 'nutrition-facts-studio',
+    version: '1.0',
+    project_id: nfsCurrent.id,
+    product_name: nfsCurrent.name,
+    brand: nfsCurrent.brand,
+    format: nfsCurrent.format,
+    serving_size: nfsCurrent.servingSize,
+    servings_per_container: nfsCurrent.servingsPerContainer,
+    label_html: getLabelHTML(),
+    label_css: getLabelCSS(),
+    nutrients: nfsCurrent.nutrients,
+    ingredients: nfsCurrent.ingredients,
+    allergens: nfsCurrent.allergens,
+    distributor: nfsCurrent.distributor,
+    origin: nfsCurrent.origin,
+    preflight: nfsCurrent.preflight,
+    exported: new Date().toISOString(),
+  };
+  navigator.clipboard.writeText(JSON.stringify(payload, null, 2))
+    .then(() => toast('Copied for Packaging Studio', 'Payload JSON copied to clipboard.'));
+}
+
+function previewPrint() {
+  const label = getLabelHTML();
+  const name = nfsCurrent?.name || 'Label';
+  const w = window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>${name}</title><style>body{margin:30px;background:#fff;}${getLabelCSS()}</style></head><body>${label}<script>window.print();window.close();<\/script></body></html>`);
+  w.document.close();
+}
+
+function previewDownload() { exportDraftHTML(); }
+
+// ============================================================
+//  DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const total = nfsProjects.length;
+  const ready = nfsProjects.filter(p => p.status === 'ready').length;
+  const draft = nfsProjects.filter(p => p.status === 'draft').length;
+  const issues = nfsProjects.filter(p => p.preflight && p.preflight.checks && p.preflight.checks.some(c => c.sev === 'block')).length;
+  document.getElementById('db-count-total').textContent = total;
+  document.getElementById('db-count-ready').textContent = ready;
+  document.getElementById('db-count-draft').textContent = draft;
+  document.getElementById('db-count-issues').textContent = issues;
+
+  const list = document.getElementById('db-recent-list');
+  if (!nfsProjects.length) {
+    list.innerHTML = '<div style="padding:28px 16px;text-align:center;font-size:12px;color:var(--muted);">No labels yet. Start by creating a new one.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  nfsProjects.slice(0,5).forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'project-row';
+    row.innerHTML = `
+      <span class="pr-icon">&#129001;</span>
+      <div class="pr-info">
+        <div class="pr-name">${p.name || 'Untitled'}</div>
+        <div class="pr-meta">${p.brand || '—'} · ${p.servingSize || '—'} · <span class="badge badge-${p.status}">${statusLabel(p.status)}</span></div>
+      </div>
+    `;
+    row.onclick = () => nfsLoadProject(p.id);
+    list.appendChild(row);
+  });
+}
+
+// ============================================================
+//  PROJECT LIST
+// ============================================================
+function renderProjectList() {
+  const brandFilter = document.getElementById('proj-filter-brand')?.value;
+  const statusFilter = document.getElementById('proj-filter-status')?.value;
+  let projects = [...nfsProjects];
+  if (brandFilter) projects = projects.filter(p => p.brand === brandFilter);
+  if (statusFilter) projects = projects.filter(p => p.status === statusFilter);
+
+  const list = document.getElementById('proj-list');
+  const empty = document.getElementById('proj-empty');
+  list.querySelectorAll('.project-row').forEach(el => el.remove());
+  if (!projects.length) { if (empty) empty.style.display = 'block'; return; }
+  if (empty) empty.style.display = 'none';
+
+  projects.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'project-row';
+    const d = new Date(p.modified).toLocaleDateString();
+    row.innerHTML = `
+      <span class="pr-icon">&#129001;</span>
+      <div class="pr-info">
+        <div class="pr-name">${p.name || 'Untitled'}</div>
+        <div class="pr-meta">${p.brand || '—'} · ${p.sku || ''} · ${p.servingSize || '—'} · Modified ${d}</div>
+      </div>
+      <div class="pr-actions">
+        <span class="badge badge-${p.status}">${statusLabel(p.status)}</span>
+        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();nfsLoadProject('${p.id}')">Open</button>
+        <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();nfsDeleteProject('${p.id}')">Delete</button>
+      </div>
+    `;
+    row.onclick = () => nfsLoadProject(p.id);
+    list.appendChild(row);
+  });
+}
+
+// ============================================================
+//  TOAST
+// ============================================================
+let toastTmr;
+function toast(title, body, dur=2800) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-body').textContent = body;
+  t.classList.add('show');
+  clearTimeout(toastTmr);
+  toastTmr = setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ============================================================
+//  BOOT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  renderDashboard();
+  // Restore last project
+  if (nfsCurrentId) {
+    const p = nfsProjects.find(x => x.id === nfsCurrentId);
+    if (p) {
+      nfsCurrent = JSON.parse(JSON.stringify(p));
+      nfsAllergens = new Set(p.allergens || []);
+      populateEditorFromProject();
+      document.getElementById('lnav-editor').style.display = 'flex';
+      updateHeaderProject();
+    }
+  }
+  // Build standalone converter table
+  saUpdate();
+  // Build editor conversion table (empty)
+  buildConvTable('conv-tbody', 1);
+  editorUpdate();
+});
+</script>
+</body>
+</html>
