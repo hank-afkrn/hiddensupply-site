@@ -454,71 +454,6 @@ input[type=number] { font-family: var(--mono); }
 .export-tier-locked { opacity: 0.4; pointer-events: none; }
 
 /* ============================================================
-   DUAL COLUMN LABEL
-   ============================================================ */
-.nf-dual { width: 340px; }
-.nf-dual-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-bottom: 1px solid #000; margin-bottom: 2px; }
-.nf-dual-col-hdr { font-size: 7px; font-weight: 700; text-align: center; padding: 2px 0; border-right: 1px solid #000; }
-.nf-dual-col-hdr:last-child { border-right: none; }
-.nf-dual-nr { display: grid; grid-template-columns: auto 1fr 1fr; font-size: 9px; padding: 1px 0; border-bottom: 1px solid #eee; }
-.nf-dual-nr .col-val { text-align: center; font-size: 9px; }
-
-/* ============================================================
-   FORMULA CALCULATOR
-   ============================================================ */
-.formula-row {
-  display: grid;
-  grid-template-columns: 2fr 80px 80px 100px 28px;
-  gap: 6px; align-items: center;
-  padding: 6px 0; border-bottom: 1px solid var(--border);
-}
-.formula-row:last-child { border-bottom: none; }
-.formula-total-row {
-  display: grid;
-  grid-template-columns: 2fr 80px 80px 100px 28px;
-  gap: 6px; align-items: center;
-  padding: 8px 0; font-weight: 700; font-family: var(--mono); font-size: 11px;
-  border-top: 2px solid var(--border2); background: var(--surface2);
-}
-.formula-hdr {
-  display: grid;
-  grid-template-columns: 2fr 80px 80px 100px 28px;
-  gap: 6px; padding: 6px 0;
-  font-family: var(--mono); font-size: 9px; font-weight: 700;
-  letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
-  border-bottom: 1px solid var(--border);
-}
-
-/* ============================================================
-   TRUST BADGES
-   ============================================================ */
-.trust-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 2px 7px; border-radius: 3px; white-space: nowrap;
-}
-.tb-manual      { background: var(--surface3); color: var(--muted); }
-.tb-convert     { background: var(--blue-bg); color: var(--blue); }
-.tb-import      { background: var(--orange-bg); color: var(--orange); }
-.tb-formula     { background: rgba(167,139,250,0.12); color: var(--purple); }
-.tb-lab         { background: var(--green-bg); color: var(--green); }
-.tb-override    { background: var(--orange-bg); color: var(--orange); }
-.tb-clean       { background: var(--green-bg); color: var(--green); }
-.tb-ready       { background: var(--accent-bg); color: var(--accent); }
-.tb-estimated   { background: rgba(167,139,250,0.12); color: var(--purple); border: 1px solid rgba(167,139,250,0.3); }
-
-/* Auto-DV indicator */
-.dv-auto-dot {
-  display: inline-block; width: 5px; height: 5px; border-radius: 50%;
-  background: var(--green); margin-left: 3px; vertical-align: middle;
-  title: 'Auto-calculated';
-}
-.dv-override-dot {
-  display: inline-block; width: 5px; height: 5px; border-radius: 50%;
-  background: var(--orange); margin-left: 3px; vertical-align: middle;
-}
-
-/* ============================================================
    MATH INSPECTOR
    ============================================================ */
 .math-row {
@@ -647,10 +582,6 @@ input[type=number] { font-family: var(--mono); }
     </div>
     <div class="lnav-item" data-view="templates" onclick="nfsNav('templates')">
       <span class="lnav-icon">&#128461;&#65039;</span> Templates
-    </div>
-    <div class="lnav-item" data-view="formula" onclick="nfsNav('formula')">
-      <span class="lnav-icon">&#129518;</span> Formula Calc
-      <span class="lnav-badge" id="lnav-formula-badge" style="background:rgba(167,139,250,0.15);color:var(--purple);display:none;">EST</span>
     </div>
     <div class="lnav-item" data-view="compliance" onclick="nfsNav('compliance')">
       <span class="lnav-icon">&#9989;</span> Compliance Review
@@ -864,13 +795,9 @@ input[type=number] { font-family: var(--mono); }
         <div>
           <div class="page-eyebrow">Label Editor</div>
           <div class="page-title" id="editor-title">Untitled Label</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
             <span id="editor-status-badge" class="badge badge-draft">Draft</span>
-            <span id="editor-source-badge" class="trust-badge tb-manual">Manual</span>
-            <span id="editor-estimated-badge" class="trust-badge tb-estimated" style="display:none;">⚠ Formula Estimated</span>
-            <span id="editor-preflight-badge" class="trust-badge tb-clean" style="display:none;">✓ Preflight Clean</span>
-            <span id="editor-ready-badge" class="trust-badge tb-ready" style="display:none;">★ Mfr Ready</span>
-            <span id="editor-dim-badge" style="font-family:var(--mono);font-size:9px;color:var(--muted);display:none;"></span>
+            <span id="editor-source-badge" class="badge" style="background:var(--surface3);color:var(--muted);">Manual</span>
           </div>
         </div>
         <div class="btn-row">
@@ -895,22 +822,6 @@ input[type=number] { font-family: var(--mono); }
 
           <!-- NUTRITION CORE tab -->
           <div class="sub-panel active" id="sub-edit-nutrition">
-            <!-- Dual column + auto DV controls -->
-            <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap;">
-              <div style="display:flex;align-items:center;gap:8px;">
-                <label style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);">Column Mode</label>
-                <div style="display:flex;background:var(--surface2);border:1px solid var(--border2);border-radius:4px;overflow:hidden;">
-                  <button id="col-single-btn" onclick="setColumnMode('single')" style="padding:5px 12px;font-size:10px;font-weight:700;background:var(--accent);color:#111;border:none;cursor:pointer;letter-spacing:.06em;">Single</button>
-                  <button id="col-dual-btn" onclick="setColumnMode('dual')" style="padding:5px 12px;font-size:10px;font-weight:700;background:transparent;color:var(--muted);border:none;cursor:pointer;letter-spacing:.06em;">Dual Column</button>
-                </div>
-              </div>
-              <div style="display:flex;align-items:center;gap:6px;">
-                <div style="width:7px;height:7px;border-radius:50%;background:var(--green);"></div>
-                <span style="font-size:10px;color:var(--muted);">= Auto-calculated %DV</span>
-                <div style="width:7px;height:7px;border-radius:50%;background:var(--orange);margin-left:6px;"></div>
-                <span style="font-size:10px;color:var(--muted);">= Manual override</span>
-              </div>
-            </div>
             <div class="section-label">Serving</div>
             <div class="grid-2" style="gap:14px;margin-bottom:20px;">
               <div class="fi"><label>Serving Size (household)</label><input type="text" id="e-ss" placeholder="5 pieces (40g)" oninput="editorUpdate()"/></div>
@@ -929,23 +840,23 @@ input[type=number] { font-family: var(--mono); }
                     </tr>
                   </thead>
                   <tbody>
-                    <tr><td class="td-name bold">Calories</td><td><input class="nri" type="number" id="n-cal" placeholder="0" min="0" oninput="editorUpdate()"/></td><td class="td-unit" id="n-cal-pkg-cell"></td></tr>
-                    <tr><td colspan="3" style="padding:5px 3px 2px;"><div class="section-label" style="margin:0;font-size:9px;">% Daily Value → <span style="font-size:8px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">auto-calculated from declared amounts</span></div></td></tr>
-                    <tr><td class="td-name bold">Total Fat</td><td><input class="nri" type="number" id="n-tf" placeholder="0" oninput="autoDV('tf');editorUpdate()"/><span class="td-unit">g</span></td><td><input class="nri pct" type="number" id="p-tf" placeholder="auto" oninput="markDVOverride('tf')"/><span class="td-unit">%</span><span id="dv-dot-tf" class="dv-auto-dot" title="Auto-calculated"></span></td></tr>
-                    <tr><td class="td-name sub">Saturated Fat</td><td><input class="nri" type="number" id="n-sf" placeholder="0" oninput="autoDV('sf');editorUpdate()"/><span class="td-unit">g</span></td><td><input class="nri pct" type="number" id="p-sf" placeholder="auto" oninput="markDVOverride('sf')"/><span class="td-unit">%</span><span id="dv-dot-sf" class="dv-auto-dot"></span></td></tr>
+                    <tr><td class="td-name bold">Calories</td><td><input class="nri" type="number" id="n-cal" placeholder="0" min="0" oninput="editorUpdate()"/></td><td class="td-unit"></td></tr>
+                    <tr><td colspan="3" style="padding:5px 3px 2px;"><div class="section-label" style="margin:0;font-size:9px;">% Daily Value →</div></td></tr>
+                    <tr><td class="td-name bold">Total Fat</td><td><input class="nri" type="number" id="n-tf" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td><input class="nri pct" type="number" id="p-tf" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name sub">Saturated Fat</td><td><input class="nri" type="number" id="n-sf" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td><input class="nri pct" type="number" id="p-sf" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
                     <tr><td class="td-name sub"><em>Trans</em> Fat</td><td><input class="nri" type="number" id="n-xf" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td></td></tr>
-                    <tr><td class="td-name bold">Cholesterol</td><td><input class="nri" type="number" id="n-ch" placeholder="0" oninput="autoDV('ch');editorUpdate()"/><span class="td-unit">mg</span></td><td><input class="nri pct" type="number" id="p-ch" placeholder="auto" oninput="markDVOverride('ch')"/><span class="td-unit">%</span><span id="dv-dot-ch" class="dv-auto-dot"></span></td></tr>
-                    <tr><td class="td-name bold">Sodium</td><td><input class="nri" type="number" id="n-na" placeholder="0" oninput="autoDV('na');editorUpdate()"/><span class="td-unit">mg</span></td><td><input class="nri pct" type="number" id="p-na" placeholder="auto" oninput="markDVOverride('na')"/><span class="td-unit">%</span><span id="dv-dot-na" class="dv-auto-dot"></span></td></tr>
-                    <tr><td class="td-name bold">Total Carbohydrate</td><td><input class="nri" type="number" id="n-tc" placeholder="0" oninput="autoDV('tc');editorUpdate()"/><span class="td-unit">g</span></td><td><input class="nri pct" type="number" id="p-tc" placeholder="auto" oninput="markDVOverride('tc')"/><span class="td-unit">%</span><span id="dv-dot-tc" class="dv-auto-dot"></span></td></tr>
-                    <tr><td class="td-name sub">Dietary Fiber</td><td><input class="nri" type="number" id="n-df" placeholder="0" oninput="autoDV('df');editorUpdate()"/><span class="td-unit">g</span></td><td><input class="nri pct" type="number" id="p-df" placeholder="auto" oninput="markDVOverride('df')"/><span class="td-unit">%</span><span id="dv-dot-df" class="dv-auto-dot"></span></td></tr>
+                    <tr><td class="td-name bold">Cholesterol</td><td><input class="nri" type="number" id="n-ch" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">mg</span></td><td><input class="nri pct" type="number" id="p-ch" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name bold">Sodium</td><td><input class="nri" type="number" id="n-na" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">mg</span></td><td><input class="nri pct" type="number" id="p-na" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name bold">Total Carbohydrate</td><td><input class="nri" type="number" id="n-tc" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td><input class="nri pct" type="number" id="p-tc" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name sub">Dietary Fiber</td><td><input class="nri" type="number" id="n-df" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td><input class="nri pct" type="number" id="p-df" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
                     <tr><td class="td-name sub">Total Sugars</td><td><input class="nri" type="number" id="n-su" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td></td></tr>
-                    <tr><td class="td-name subsub">Incl. Added Sugars</td><td><input class="nri" type="number" id="n-as" placeholder="0" oninput="autoDV('as');editorUpdate()"/><span class="td-unit">g</span></td><td><input class="nri pct" type="number" id="p-as" placeholder="auto" oninput="markDVOverride('as')"/><span class="td-unit">%</span><span id="dv-dot-as" class="dv-auto-dot"></span></td></tr>
+                    <tr><td class="td-name subsub">Incl. Added Sugars</td><td><input class="nri" type="number" id="n-as" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td><input class="nri pct" type="number" id="p-as" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
                     <tr><td class="td-name bold">Protein</td><td><input class="nri" type="number" id="n-pr" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">g</span></td><td></td></tr>
                     <tr><td colspan="3" style="padding:5px 3px 2px;"><div class="section-label" style="margin:0;font-size:9px;">Micronutrients</div></td></tr>
-                    <tr><td class="td-name">Vitamin D</td><td><input class="nri" type="number" id="n-vd" placeholder="0" oninput="autoDV('vd');editorUpdate()"/><span class="td-unit">mcg</span></td><td><input class="nri pct" type="number" id="p-vd" placeholder="auto" oninput="markDVOverride('vd')"/><span class="td-unit">%</span><span id="dv-dot-vd" class="dv-auto-dot"></span></td></tr>
-                    <tr><td class="td-name">Calcium</td><td><input class="nri" type="number" id="n-ca" placeholder="0" oninput="autoDV('ca');editorUpdate()"/><span class="td-unit">mg</span></td><td><input class="nri pct" type="number" id="p-ca" placeholder="auto" oninput="markDVOverride('ca')"/><span class="td-unit">%</span><span id="dv-dot-ca" class="dv-auto-dot"></span></td></tr>
-                    <tr><td class="td-name">Iron</td><td><input class="nri" type="number" id="n-fe" placeholder="0" oninput="autoDV('fe');editorUpdate()"/><span class="td-unit">mg</span></td><td><input class="nri pct" type="number" id="p-fe" placeholder="auto" oninput="markDVOverride('fe')"/><span class="td-unit">%</span><span id="dv-dot-fe" class="dv-auto-dot"></span></td></tr>
-                    <tr><td class="td-name">Potassium</td><td><input class="nri" type="number" id="n-k" placeholder="0" oninput="autoDV('k');editorUpdate()"/><span class="td-unit">mg</span></td><td><input class="nri pct" type="number" id="p-k" placeholder="auto" oninput="markDVOverride('k')"/><span class="td-unit">%</span><span id="dv-dot-k" class="dv-auto-dot"></span></td></tr>
+                    <tr><td class="td-name">Vitamin D</td><td><input class="nri" type="number" id="n-vd" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">mcg</span></td><td><input class="nri pct" type="number" id="p-vd" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name">Calcium</td><td><input class="nri" type="number" id="n-ca" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">mg</span></td><td><input class="nri pct" type="number" id="p-ca" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name">Iron</td><td><input class="nri" type="number" id="n-fe" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">mg</span></td><td><input class="nri pct" type="number" id="p-fe" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
+                    <tr><td class="td-name">Potassium</td><td><input class="nri" type="number" id="n-k" placeholder="0" oninput="editorUpdate()"/><span class="td-unit">mg</span></td><td><input class="nri pct" type="number" id="p-k" placeholder="%" oninput="editorUpdate()"/><span class="td-unit">%</span></td></tr>
                   </tbody>
                 </table>
               </div>
@@ -1088,17 +999,14 @@ input[type=number] { font-family: var(--mono); }
           <div style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Live Preview</div>
 
           <!-- Template selector -->
-          <div class="fi" style="margin-bottom:8px;">
+          <div class="fi" style="margin-bottom:14px;">
             <label>Format Template</label>
             <select id="preview-template" onchange="editorUpdate()">
               <option value="standard">Standard Vertical (260px)</option>
               <option value="narrow">Narrow Vertical (200px)</option>
               <option value="wide">Wide / Relaxed (320px)</option>
-              <option value="dual">Dual Column (340px)</option>
             </select>
           </div>
-          <!-- Dimension badge -->
-          <div id="preview-dim-info" style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:10px;padding:4px 8px;background:var(--surface2);border-radius:3px;display:none;"></div>
 
           <!-- The actual label -->
           <div style="background:#fff;padding:14px;border-radius:4px;border:1px solid #e0e0e0;overflow:hidden;" id="label-preview-wrap">
@@ -1127,21 +1035,6 @@ input[type=number] { font-family: var(--mono); }
               <div class="nf-all" id="lp-all"></div>
               <div class="nf-wt" id="lp-wt"></div>
               <div class="nf-dist" id="lp-dist"></div>
-            </div>
-          </div>
-
-          <!-- Dual column preview (shown when dual mode active) -->
-          <div id="dual-preview-wrap" style="display:none;background:#fff;padding:14px;border-radius:4px;border:1px solid #e0e0e0;overflow:hidden;margin-top:10px;">
-            <div class="nf-label nf-dual" id="nf-label-dual">
-              <div class="nf-title">Nutrition Facts</div>
-              <div class="nf-dual-cols">
-                <div class="nf-dual-col-hdr">Per Serving<br/><span id="dc-ss">—</span></div>
-                <div class="nf-dual-col-hdr">Per Package<br/><span id="dc-pkg">—</span></div>
-              </div>
-              <div class="nf-cal-row"><div class="nf-cal-lbl">Calories</div><div style="display:flex;gap:12px;"><div class="nf-cal-num" id="dc-cal-srv">0</div><div class="nf-cal-num" id="dc-cal-pkg" style="color:#555;">0</div></div></div>
-              <div class="nf-pct-hdr">% Daily Value*</div>
-              <div id="dc-nutrient-rows"></div>
-              <div class="nf-foot">*The % Daily Value tells you how much a nutrient in a serving contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.</div>
             </div>
           </div>
 
@@ -1339,27 +1232,7 @@ input[type=number] { font-family: var(--mono); }
           </div>
         </div>
 
-        <div id="tpl-note" style="font-size:12px;color:var(--dim);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:none;margin-bottom:20px;"></div>
-
-        <!-- Physical Dimensions Override -->
-        <div class="section-label">Custom Dimensions (optional override)</div>
-        <div class="card" style="margin-bottom:20px;">
-          <div class="card-body">
-            <div class="grid-4" style="gap:14px;align-items:end;">
-              <div class="fi"><label>Width</label><input type="number" id="dim-w" placeholder="2.5" step="0.01" oninput="dimUpdate()"/></div>
-              <div class="fi"><label>Height</label><input type="number" id="dim-h" placeholder="4.0" step="0.01" oninput="dimUpdate()"/></div>
-              <div class="fi"><label>Unit</label>
-                <select id="dim-unit" onchange="dimUpdate()">
-                  <option value="in">Inches</option>
-                  <option value="mm">mm</option>
-                </select>
-              </div>
-              <div class="fi"><label>Safe Margin (mm)</label><input type="number" id="dim-margin" placeholder="3" step="0.5" oninput="dimUpdate()"/></div>
-            </div>
-            <div id="dim-summary" style="margin-top:12px;font-size:11px;color:var(--muted);font-family:var(--mono);display:none;"></div>
-          </div>
-        </div>
-
+        <div id="tpl-note" style="font-size:12px;color:var(--dim);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:none;"></div>
       </div>
     </div><!-- /templates -->
 
@@ -1502,109 +1375,6 @@ input[type=number] { font-family: var(--mono); }
       </div>
     </div><!-- /export -->
 
-    <!-- ====================================================
-         VIEW: FORMULA CALCULATOR
-         ==================================================== -->
-    <div class="view" id="view-formula">
-      <div class="page-head">
-        <div class="page-eyebrow">Tools</div>
-        <div class="page-title">Formula Calculator</div>
-        <div class="page-sub">Structure your formula sheet — ingredient percentages or batch weights. Output is clearly marked <strong>Formula Estimated</strong>. Not a substitute for lab analysis.</div>
-      </div>
-      <div class="content-area narrow">
-
-        <!-- Disclaimer -->
-        <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:var(--radius);padding:12px 16px;margin-bottom:20px;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-            <span class="trust-badge tb-formula">⚗ Formula Estimated</span>
-            <span style="font-size:11px;color:var(--muted);">Values derived from formula composition — not lab tested</span>
-          </div>
-          <p style="font-size:11px;color:var(--dim);line-height:1.5;">Use this tool to structure your formula and capture ingredient data. If supplier nutrition per 100g is available, you can link it per ingredient. Output carries "Formula Estimated" source mode — never exports as Manufacturer Ready without explicit upgrade.</p>
-        </div>
-
-        <!-- Batch setup -->
-        <div class="card" style="margin-bottom:20px;">
-          <div class="card-hdr"><span class="card-title">Batch Setup</span></div>
-          <div class="card-body">
-            <div class="grid-3" style="gap:14px;">
-              <div class="fi"><label>Product Name</label><input type="text" id="fc-name" placeholder="e.g. Juice Bomb Astronauts"/></div>
-              <div class="fi"><label>Total Batch Weight (g)</label><input type="number" id="fc-batch-g" placeholder="1000" oninput="fcUpdate()"/></div>
-              <div class="fi"><label>Serving Size (g)</label><input type="number" id="fc-serving-g" placeholder="40" oninput="fcUpdate()"/></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Ingredient rows -->
-        <div class="card" style="margin-bottom:20px;">
-          <div class="card-hdr">
-            <span class="card-title">Formula Ingredients</span>
-            <button class="btn btn-sm btn-secondary" onclick="fcAddRow()">+ Add Ingredient</button>
-          </div>
-          <div class="card-body" style="padding:0 16px 12px;">
-            <div class="formula-hdr">
-              <span>Ingredient</span><span>% of Formula</span><span>Weight (g)</span><span>Allergens / Notes</span><span></span>
-            </div>
-            <div id="fc-rows">
-              <!-- rows injected by fcAddRow() -->
-            </div>
-            <div class="formula-total-row" id="fc-total-row" style="display:none;">
-              <span style="color:var(--dim);">TOTAL</span>
-              <span id="fc-total-pct" style="color:var(--accent);">0%</span>
-              <span id="fc-total-g" style="color:var(--accent);">0g</span>
-              <span></span><span></span>
-            </div>
-            <div id="fc-pct-warning" style="display:none;margin-top:8px;padding:8px 12px;background:var(--orange-bg);border:1px solid var(--orange);border-radius:4px;font-size:11px;color:var(--orange);">
-              ⚠ Ingredient percentages do not add up to 100%. Please verify your formula composition.
-            </div>
-          </div>
-        </div>
-
-        <!-- Derived estimate (if supply per-100g data entered) -->
-        <div class="card" style="margin-bottom:20px;">
-          <div class="card-hdr">
-            <span class="card-title">Nutrient Estimate (Optional)</span>
-            <span style="font-size:10px;color:var(--muted);">Enter known per-100g values for the finished formula below</span>
-          </div>
-          <div class="card-body">
-            <p style="font-size:11px;color:var(--dim);margin-bottom:14px;line-height:1.5;">If your manufacturer provided per-100g nutrition data for the finished formula, enter it here. The app will convert to your serving size and mark output as <strong style="color:var(--purple);">Formula Estimated</strong>. If no data is available, skip this section and enter values manually in the editor after export.</p>
-            <div class="grid-3" style="gap:14px;margin-bottom:12px;">
-              <div class="fi"><label>Calories /100g</label><input class="nri" type="number" id="fc-n-cal" placeholder="0" style="width:100%;" oninput="fcEstimate()"/></div>
-              <div class="fi"><label>Total Fat /100g (g)</label><input class="nri" type="number" id="fc-n-tf" placeholder="0" style="width:100%;" oninput="fcEstimate()"/></div>
-              <div class="fi"><label>Sat Fat /100g (g)</label><input class="nri" type="number" id="fc-n-sf" placeholder="0" style="width:100%;" oninput="fcEstimate()"/></div>
-              <div class="fi"><label>Sodium /100g (mg)</label><input class="nri" type="number" id="fc-n-na" placeholder="0" style="width:100%;" oninput="fcEstimate()"/></div>
-              <div class="fi"><label>Total Carbs /100g (g)</label><input class="nri" type="number" id="fc-n-tc" placeholder="0" style="width:100%;" oninput="fcEstimate()"/></div>
-              <div class="fi"><label>Total Sugars /100g (g)</label><input class="nri" type="number" id="fc-n-su" placeholder="0" style="width:100%;" oninput="fcEstimate()"/></div>
-              <div class="fi"><label>Added Sugars /100g (g)</label><input class="nri" type="number" id="fc-n-as" placeholder="0" style="width:100%;" oninput="fcEstimate()"/></div>
-              <div class="fi"><label>Protein /100g (g)</label><input class="nri" type="number" id="fc-n-pr" placeholder="0" style="width:100%;" oninput="fcEstimate()"/></div>
-              <div class="fi"><label>Dietary Fiber /100g (g)</label><input class="nri" type="number" id="fc-n-df" placeholder="0" style="width:100%;" oninput="fcEstimate()"/></div>
-            </div>
-            <div id="fc-estimate-result" style="display:none;">
-              <div class="section-label">Estimated Per-Serving Values</div>
-              <div id="fc-estimate-table" style="background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.2);border-radius:4px;padding:12px;font-family:var(--mono);font-size:11px;color:var(--text);line-height:1.8;"></div>
-              <p style="font-size:10px;color:var(--muted);margin-top:8px;font-style:italic;">These are formula estimates, not lab values. All values carry "Formula Estimated" source mode.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Notes + export -->
-        <div class="card" style="margin-bottom:20px;">
-          <div class="card-hdr"><span class="card-title">Formula Notes</span></div>
-          <div class="card-body">
-            <div class="fi">
-              <label>Notes (source, version, provenance)</label>
-              <textarea id="fc-notes" rows="3" placeholder="e.g. Based on Weihua factory formula v3, April 2026. Serving size TBD pending final packaging spec."></textarea>
-            </div>
-          </div>
-        </div>
-
-        <div class="btn-row">
-          <button class="btn btn-lg btn-primary" onclick="fcExportToEditor()">Export to Label Editor →</button>
-          <span style="font-size:11px;color:var(--purple);">Will create a new label project with Formula Estimated source mode</span>
-        </div>
-
-      </div>
-    </div><!-- /formula -->
-
   </main>
 </div><!-- /app-shell -->
 
@@ -1735,13 +1505,12 @@ function nfsNav(viewId) {
   if (viewId === 'compliance') updateComplianceView();
   if (viewId === 'export') updateExportView();
   if (viewId === 'converter') saInit();
-  if (viewId === 'formula') { if (fcRows.length === 0) { fcAddRow(); fcAddRow(); } }
 }
 
 // Hash routing on load
 (function() {
   const hash = window.location.hash.replace('#','');
-  const validViews = ['dashboard','projects','new-label','editor','converter','importer','templates','compliance','export','formula'];
+  const validViews = ['dashboard','projects','new-label','editor','converter','importer','templates','compliance','export'];
   if (hash && validViews.includes(hash)) {
     setTimeout(() => nfsNav(hash), 50);
   }
@@ -1909,16 +1678,6 @@ function populateEditorFromProject() {
   document.getElementById('editor-source-badge').textContent = modeName(nfsCurrent.sourceMode);
   if (nfsCurrent.sourceMode === 'convert') populateEditorConversionFromProject();
   editorUpdate();
-  autoAllDV();
-  // Restore column mode
-  if (nfsCurrent.columnMode) setColumnMode(nfsCurrent.columnMode);
-  // Restore dimensions
-  if (nfsCurrent.dimensions) {
-    const d = nfsCurrent.dimensions;
-    const sv = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
-    sv('dim-w', d.w); sv('dim-h', d.h); sv('dim-unit', d.unit); sv('dim-margin', d.margin);
-    dimUpdate();
-  }
 }
 
 function populateEditorConversionFromProject() {
@@ -1985,29 +1744,14 @@ function editorUpdate() {
   const distParts = [gv('e-dist'), gv('e-origin')].filter(Boolean);
   document.getElementById('lp-dist').textContent = distParts.join(' | ');
 
-  // Template width + dual-column sync
+  // Template width
   const tpl = document.getElementById('preview-template')?.value;
   const lbl = document.getElementById('nf-label-preview');
   if (lbl) {
     if (tpl === 'narrow') lbl.style.width = '200px';
     else if (tpl === 'wide') lbl.style.width = '320px';
-    else if (tpl === 'dual') { lbl.style.width = '340px'; setColumnMode('dual'); }
     else lbl.style.width = '260px';
   }
-
-  // Dual column preview
-  if (columnMode === 'dual') updateDualPreview();
-
-  // Update source badge color
-  const srcBadge = document.getElementById('editor-source-badge');
-  if (srcBadge && nfsCurrent) {
-    const modeClass = { manual:'tb-manual', convert:'tb-convert', import:'tb-import', formula:'tb-formula' }[nfsCurrent.sourceMode] || 'tb-manual';
-    srcBadge.className = 'trust-badge ' + modeClass;
-  }
-
-  // Formula estimated badge
-  const estBadge = document.getElementById('editor-estimated-badge');
-  if (estBadge) estBadge.style.display = (nfsCurrent?.sourceMode === 'formula') ? 'inline-flex' : 'none';
 }
 
 function editorTab(btn, panelId) {
@@ -2710,534 +2454,6 @@ function toast(title, body, dur=2800) {
 }
 
 // ============================================================
-//  AUTO %DV ENGINE  (v2)
-// ============================================================
-const DV_REF = {
-  tf:  { dv: 78,   unit: 'g'   },
-  sf:  { dv: 20,   unit: 'g'   },
-  ch:  { dv: 300,  unit: 'mg'  },
-  na:  { dv: 2300, unit: 'mg'  },
-  tc:  { dv: 275,  unit: 'g'   },
-  df:  { dv: 28,   unit: 'g'   },
-  as:  { dv: 50,   unit: 'g'   },
-  vd:  { dv: 20,   unit: 'mcg' },
-  ca:  { dv: 1300, unit: 'mg'  },
-  fe:  { dv: 18,   unit: 'mg'  },
-  k:   { dv: 4700, unit: 'mg'  },
-};
-
-// Tracks which %DV fields have been manually overridden
-const dvOverrides = {};
-
-function autoDV(key) {
-  if (dvOverrides[key]) return; // don't clobber manual entry
-  const ref = DV_REF[key];
-  if (!ref) return;
-  const inputKey = key === 'as' ? 'as' : key;
-  const amt = parseFloat(document.getElementById('n-' + inputKey)?.value) || 0;
-  const pct = amt > 0 ? Math.round((amt / ref.dv) * 100) : '';
-  const pctEl = document.getElementById('p-' + inputKey);
-  if (pctEl && pct !== '') pctEl.value = pct;
-  // Update dot color
-  const dot = document.getElementById('dv-dot-' + (key === 'as_' ? 'as' : key));
-  if (dot) {
-    dot.className = dvOverrides[key] ? 'dv-override-dot' : 'dv-auto-dot';
-    dot.title = dvOverrides[key] ? 'Manual override' : 'Auto-calculated from ' + ref.dv + ref.unit + ' DV';
-  }
-  editorUpdate();
-}
-
-function markDVOverride(key) {
-  dvOverrides[key] = true;
-  const dot = document.getElementById('dv-dot-' + key);
-  if (dot) { dot.className = 'dv-override-dot'; dot.title = 'Manual override'; }
-  editorUpdate();
-}
-
-function clearDVOverride(key) {
-  delete dvOverrides[key];
-  autoDV(key);
-}
-
-// Run auto-DV for all fields (called on project load)
-function autoAllDV() {
-  Object.keys(DV_REF).forEach(k => {
-    if (!dvOverrides[k]) autoDV(k);
-  });
-}
-
-// ============================================================
-//  COLUMN MODE (single / dual)
-// ============================================================
-let columnMode = 'single';
-
-function setColumnMode(mode) {
-  columnMode = mode;
-  const sBtn = document.getElementById('col-single-btn');
-  const dBtn = document.getElementById('col-dual-btn');
-  if (sBtn) { sBtn.style.background = mode === 'single' ? 'var(--accent)' : 'transparent'; sBtn.style.color = mode === 'single' ? '#111' : 'var(--muted)'; }
-  if (dBtn) { dBtn.style.background = mode === 'dual' ? 'var(--accent)' : 'transparent'; dBtn.style.color = mode === 'dual' ? '#111' : 'var(--muted)'; }
-
-  const singleWrap = document.getElementById('label-preview-wrap');
-  const dualWrap = document.getElementById('dual-preview-wrap');
-  if (singleWrap) singleWrap.style.display = mode === 'single' ? 'block' : 'none';
-  if (dualWrap) dualWrap.style.display = mode === 'dual' ? 'block' : 'none';
-
-  // Also update preview-template select
-  const tplSel = document.getElementById('preview-template');
-  if (tplSel && mode === 'dual') tplSel.value = 'dual';
-  else if (tplSel && mode === 'single' && tplSel.value === 'dual') tplSel.value = 'standard';
-
-  if (nfsCurrent) nfsCurrent.columnMode = mode;
-  editorUpdate();
-}
-
-function updateDualPreview() {
-  const spc_str = (document.getElementById('e-spc')?.value || '').trim();
-  const spcNum = parseFloat(spc_str) || 1;
-  const ss = document.getElementById('e-ss')?.value || '—';
-  document.getElementById('dc-ss').textContent = ss;
-
-  // Approximate package
-  const servGEl = document.getElementById('e-g');
-  const servingG = parseFloat(document.getElementById('n-cal')?.closest('tr')?.querySelector('input')?.value) || 0;
-  document.getElementById('dc-pkg').textContent = spcNum > 1 ? spcNum + ' servings' : 'entire package';
-
-  const cal = parseFloat(document.getElementById('n-cal')?.value) || 0;
-  document.getElementById('dc-cal-srv').textContent = cal;
-  document.getElementById('dc-cal-pkg').textContent = Math.round(cal * spcNum);
-
-  const dcRows = document.getElementById('dc-nutrient-rows');
-  if (!dcRows) return;
-  const nutrients = [
-    { label:'<b>Total Fat</b>', key:'tf', unit:'g', bold:true },
-    { label:'Saturated Fat', key:'sf', unit:'g', sub:true },
-    { label:'<em>Trans</em> Fat', key:'xf', unit:'g', sub:true, noDV:true },
-    { label:'<b>Cholesterol</b>', key:'ch', unit:'mg', bold:true },
-    { label:'<b>Sodium</b>', key:'na', unit:'mg', bold:true },
-    { label:'<b>Total Carbohydrate</b>', key:'tc', unit:'g', bold:true },
-    { label:'Dietary Fiber', key:'df', unit:'g', sub:true },
-    { label:'Total Sugars', key:'su', unit:'g', sub:true, noDV:true },
-    { label:'Protein', key:'pr', unit:'g', bold:true, noDV:true },
-  ];
-  dcRows.innerHTML = nutrients.map(n => {
-    const srv = parseFloat(document.getElementById('n-' + n.key)?.value) || 0;
-    const pkg = parseFloat(fdaRound(srv * spcNum, n.unit === 'mg' ? 'mg' : (n.key === 'cal' ? 'cal' : 'g')));
-    const pct = document.getElementById('p-' + n.key)?.value;
-    const pctPkg = pct && spcNum ? Math.round(parseFloat(pct) * spcNum) : '';
-    return `<div class="nf-dual-nr${n.bold?' bld':''}${n.sub?' sub':''}">
-      <span>${n.label}</span>
-      <span class="col-val">${srv}${n.unit}${pct && !n.noDV ? ' <span class="pct">'+pct+'%</span>' : ''}</span>
-      <span class="col-val">${pkg}${n.unit}${pctPkg && !n.noDV ? ' <span class="pct">'+pctPkg+'%</span>' : ''}</span>
-    </div>`;
-  }).join('');
-}
-
-// ============================================================
-//  PHYSICAL DIMENSIONS
-// ============================================================
-const PROFILE_DIMS = {
-  'stand-up-pouch-right-rail': { w: 2.5,  h: 4.0,  margin: 3,  unit: 'in', orient: 'right-rail' },
-  'narrow-pouch-rail':          { w: 1.75, h: 3.5,  margin: 2,  unit: 'in', orient: 'right-rail' },
-  'blister-card-back':          { w: 3.0,  h: 4.5,  margin: 3,  unit: 'in', orient: 'full-back' },
-  'box-side-panel':             { w: 3.0,  h: 2.0,  margin: 3,  unit: 'in', orient: 'side-panel' },
-  'bottle-side':                { w: 2.0,  h: 3.0,  margin: 2,  unit: 'in', orient: 'side-panel' },
-};
-
-let currentDims = null;
-
-function applyProfile(id) {
-  const profiles = {
-    'stand-up-pouch-right-rail': { tpl:'standard-vertical', note:'Stand-Up Pouch Right Rail — 2.5" × 4" · 3mm margin. Standard vertical panel.' },
-    'narrow-pouch-rail':          { tpl:'narrow-vertical',   note:'Narrow Pouch Compliance Rail — 1.75" × 3.5" · 2mm margin. Compressed column.' },
-    'blister-card-back':          { tpl:'standard-vertical', note:'Blister Card Back — 3" × 4.5" · 3mm margin. Standard vertical in back-panel position.' },
-    'box-side-panel':             { tpl:'wide',              note:'Box Side Panel — 3" × 2" · 3mm margin. Wide layout; may support dual-column.' },
-    'bottle-side':                { tpl:'standard-vertical', note:'Bottle Side — 2" × 3" · 2mm margin. Narrow, consider constrained format.' },
-  };
-  const p = profiles[id];
-  if (!p) return;
-  if (nfsCurrent) { nfsCurrent.profileTemplate = id; }
-
-  // Apply dims
-  const dims = PROFILE_DIMS[id];
-  if (dims) {
-    currentDims = dims;
-    const sv = (elId, v) => { const el = document.getElementById(elId); if (el) el.value = v; };
-    sv('dim-w', dims.w); sv('dim-h', dims.h); sv('dim-unit', dims.unit); sv('dim-margin', dims.margin);
-    dimUpdate();
-  }
-
-  const noteEl = document.getElementById('tpl-note');
-  if (noteEl) { noteEl.style.display = 'block'; noteEl.textContent = p.note; }
-  toast('Profile Applied', id.replace(/-/g,' '));
-}
-
-function dimUpdate() {
-  const w = parseFloat(document.getElementById('dim-w')?.value);
-  const h = parseFloat(document.getElementById('dim-h')?.value);
-  const unit = document.getElementById('dim-unit')?.value || 'in';
-  const margin = parseFloat(document.getElementById('dim-margin')?.value) || 0;
-  if (!w || !h) { document.getElementById('dim-summary').style.display = 'none'; return; }
-
-  const uLabel = unit === 'in' ? '"' : 'mm';
-  const safeW = unit === 'in' ? (w - (margin * 2 / 25.4)).toFixed(2) : (w - margin * 2).toFixed(1);
-  const safeH = unit === 'in' ? (h - (margin * 2 / 25.4)).toFixed(2) : (h - margin * 2).toFixed(1);
-  const sumEl = document.getElementById('dim-summary');
-  sumEl.style.display = 'block';
-  sumEl.innerHTML = `Panel: <strong>${w}${uLabel} × ${h}${uLabel}</strong> · Margin: ${margin}mm · Safe zone: <strong style="color:var(--green);">${safeW}${uLabel} × ${safeH}${uLabel}</strong>`;
-
-  // Update editor dim badge
-  const badge = document.getElementById('editor-dim-badge');
-  if (badge) { badge.textContent = `${w}×${h}${uLabel}`; badge.style.display = 'inline'; }
-  const prevDim = document.getElementById('preview-dim-info');
-  if (prevDim) { prevDim.style.display = 'block'; prevDim.textContent = `${w}×${h}${uLabel} · safe zone ${safeW}×${safeH}${uLabel}`; }
-
-  if (nfsCurrent) nfsCurrent.dimensions = { w, h, unit, margin, safeW: parseFloat(safeW), safeH: parseFloat(safeH) };
-}
-
-// ============================================================
-//  FORMULA CALCULATOR
-// ============================================================
-let fcRows = [];
-let fcRowId = 0;
-
-function fcAddRow() {
-  const id = ++fcRowId;
-  const row = { id, ingredient: '', pct: '', wt: '', allergens: '', notes: '' };
-  fcRows.push(row);
-  renderFcRows();
-}
-
-function renderFcRows() {
-  const container = document.getElementById('fc-rows');
-  if (!container) return;
-  container.innerHTML = '';
-  fcRows.forEach(row => {
-    const div = document.createElement('div');
-    div.className = 'formula-row';
-    div.innerHTML = `
-      <input type="text" placeholder="Ingredient name" value="${row.ingredient}" oninput="fcRows.find(r=>r.id==${row.id}).ingredient=this.value" style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;padding:5px 8px;"/>
-      <input type="number" placeholder="%" min="0" max="100" value="${row.pct}" oninput="fcRows.find(r=>r.id==${row.id}).pct=this.value;fcUpdate()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 6px;text-align:right;"/>
-      <input type="number" placeholder="g" min="0" value="${row.wt}" oninput="fcRows.find(r=>r.id==${row.id}).wt=this.value;fcUpdate()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 6px;text-align:right;"/>
-      <input type="text" placeholder="e.g. Wheat, Soy" value="${row.allergens}" oninput="fcRows.find(r=>r.id==${row.id}).allergens=this.value" style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:11px;padding:5px 8px;"/>
-      <button onclick="fcDeleteRow(${row.id})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 4px;">✕</button>
-    `;
-    container.appendChild(div);
-  });
-  fcUpdate();
-}
-
-function fcDeleteRow(id) {
-  fcRows = fcRows.filter(r => r.id !== id);
-  renderFcRows();
-}
-
-function fcUpdate() {
-  const totalRow = document.getElementById('fc-total-row');
-  const warning = document.getElementById('fc-pct-warning');
-  if (!totalRow) return;
-
-  const batchG = parseFloat(document.getElementById('fc-batch-g')?.value) || 0;
-  let totalPct = 0, totalWt = 0;
-  fcRows.forEach(r => {
-    const pct = parseFloat(r.pct) || 0;
-    totalPct += pct;
-    if (batchG > 0) totalWt += (pct / 100) * batchG;
-    else totalWt += parseFloat(r.wt) || 0;
-  });
-
-  if (fcRows.length > 0) {
-    totalRow.style.display = 'grid';
-    document.getElementById('fc-total-pct').textContent = totalPct.toFixed(1) + '%';
-    document.getElementById('fc-total-g').textContent = totalWt.toFixed(1) + 'g';
-    if (warning) warning.style.display = (totalPct > 0 && Math.abs(totalPct - 100) > 0.5) ? 'block' : 'none';
-  } else {
-    totalRow.style.display = 'none';
-  }
-  fcEstimate();
-}
-
-function fcEstimate() {
-  const servG = parseFloat(document.getElementById('fc-serving-g')?.value) || 0;
-  const resultEl = document.getElementById('fc-estimate-result');
-  const tableEl = document.getElementById('fc-estimate-table');
-  if (!resultEl || !tableEl) return;
-
-  const nutrients = ['cal','tf','sf','na','tc','su','as','pr','df'];
-  const hasData = nutrients.some(k => parseFloat(document.getElementById('fc-n-' + k)?.value) > 0);
-
-  if (!hasData || !servG) { resultEl.style.display = 'none'; return; }
-  resultEl.style.display = 'block';
-
-  const factor = servG / 100;
-  const lines = [
-    { label: 'Calories',           key: 'cal', unit: '' },
-    { label: 'Total Fat',          key: 'tf',  unit: 'g' },
-    { label: 'Saturated Fat',      key: 'sf',  unit: 'g' },
-    { label: 'Sodium',             key: 'na',  unit: 'mg' },
-    { label: 'Total Carbohydrate', key: 'tc',  unit: 'g' },
-    { label: 'Total Sugars',       key: 'su',  unit: 'g' },
-    { label: 'Added Sugars',       key: 'as',  unit: 'g' },
-    { label: 'Protein',            key: 'pr',  unit: 'g' },
-    { label: 'Dietary Fiber',      key: 'df',  unit: 'g' },
-  ];
-  tableEl.innerHTML = `<div style="color:var(--muted);font-size:9px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">Per ${servG}g serving (estimated)</div>` +
-    lines.map(l => {
-      const raw100 = parseFloat(document.getElementById('fc-n-' + l.key)?.value) || 0;
-      if (!raw100) return '';
-      const perServ = fdaRound(raw100 * factor, l.unit === '' ? 'cal' : l.unit);
-      return `<div style="display:flex;justify-content:space-between;"><span style="color:var(--dim);">${l.label}</span><span style="color:var(--purple);">${perServ} ${l.unit}</span></div>`;
-    }).filter(Boolean).join('');
-}
-
-function fcExportToEditor() {
-  const name = document.getElementById('fc-name')?.value?.trim() || 'Formula Label';
-  const servG = parseFloat(document.getElementById('fc-serving-g')?.value) || 0;
-  const notes = document.getElementById('fc-notes')?.value || '';
-
-  const proj = emptyProject();
-  proj.name = name;
-  proj.sourceMode = 'formula';
-  proj.notes = notes + '\n[Formula Calculator export — ' + new Date().toLocaleDateString() + ']';
-  proj.formulaRows = fcRows.map(r => ({ ...r }));
-
-  if (servG) {
-    const factor = servG / 100;
-    const map = [
-      { fcKey: 'cal', eKey: 'cal', unit: '' },
-      { fcKey: 'tf',  eKey: 'tf',  unit: 'g' },
-      { fcKey: 'sf',  eKey: 'sf',  unit: 'g' },
-      { fcKey: 'na',  eKey: 'na',  unit: 'mg' },
-      { fcKey: 'tc',  eKey: 'tc',  unit: 'g' },
-      { fcKey: 'su',  eKey: 'su',  unit: 'g' },
-      { fcKey: 'as',  eKey: 'as_', unit: 'g' },
-      { fcKey: 'pr',  eKey: 'pr',  unit: 'g' },
-      { fcKey: 'df',  eKey: 'df',  unit: 'g' },
-    ];
-    map.forEach(m => {
-      const raw = parseFloat(document.getElementById('fc-n-' + m.fcKey)?.value) || 0;
-      if (!raw) return;
-      const declared = fdaRound(raw * factor, m.unit === '' ? 'cal' : m.unit);
-      if (!proj.nutrients[m.eKey]) proj.nutrients[m.eKey] = { raw: '', converted: '', declared: '' };
-      proj.nutrients[m.eKey].raw = String(raw);
-      proj.nutrients[m.eKey].converted = String((raw * factor).toFixed(2));
-      proj.nutrients[m.eKey].declared = declared;
-    });
-  }
-
-  nfsCurrent = proj;
-  nfsCurrentId = proj.id;
-  nfsAllergens = new Set();
-  populateEditorFromProject();
-  document.getElementById('lnav-editor').style.display = 'flex';
-  document.getElementById('lnav-formula-badge').style.display = 'inline-block';
-  updateHeaderProject();
-  nfsSaveProject(false);
-  nfsNav('editor');
-  toast('Formula Exported', 'Loaded into editor as Formula Estimated. Verify all values before exporting.');
-}
-
-// ============================================================
-//  STRONGER PREFLIGHT  (v2 — replaces / extends v1)
-// ============================================================
-function runPreflight() {
-  if (!nfsCurrent) {
-    nfsCurrent = emptyProject();
-    nfsCurrent.name = gv('e-ss') ? 'Current Editor' : 'Untitled';
-    nfsSaveProject(false);
-  }
-  nfsSaveProject(false);
-  const checks = [];
-
-  const ss   = nfsCurrent.servingSize;
-  const spc  = nfsCurrent.servingsPerContainer;
-  const cal  = parseFloat(nfsCurrent.nutrients?.cal?.declared)  || 0;
-  const tf   = parseFloat(nfsCurrent.nutrients?.tf?.declared);
-  const sf   = parseFloat(nfsCurrent.nutrients?.sf?.declared);
-  const xf   = parseFloat(nfsCurrent.nutrients?.xf?.declared);
-  const tc   = parseFloat(nfsCurrent.nutrients?.tc?.declared);
-  const df   = parseFloat(nfsCurrent.nutrients?.df?.declared);
-  const su   = parseFloat(nfsCurrent.nutrients?.su?.declared);
-  const as_  = parseFloat(nfsCurrent.nutrients?.as_?.declared);
-  const pr   = parseFloat(nfsCurrent.nutrients?.pr?.declared)   || 0;
-
-  // ---------- HARD BLOCKS ----------
-  if (!ss) checks.push({ sev:'block', icon:'🔴', title:'Missing Serving Size', desc:'A serving size is required on all nutrition labels.' });
-  if (!spc) checks.push({ sev:'block', icon:'🔴', title:'Missing Servings Per Container', desc:'Number of servings per container is required.' });
-  if (nfsCurrent.nutrients?.cal?.declared === '' || nfsCurrent.nutrients?.cal?.declared === null || nfsCurrent.nutrients?.cal?.declared === undefined) {
-    checks.push({ sev:'block', icon:'🔴', title:'Missing Calories', desc:'Calorie declaration is required.' });
-  }
-  if (!isNaN(as_) && !isNaN(su) && as_ > su) checks.push({ sev:'block', icon:'🔴', title:'Added Sugars > Total Sugars', desc:`Added Sugars (${as_}g) cannot exceed Total Sugars (${su}g).` });
-  if (!isNaN(df) && !isNaN(tc) && df > tc) checks.push({ sev:'block', icon:'🔴', title:'Dietary Fiber > Total Carbohydrate', desc:`Dietary Fiber (${df}g) cannot exceed Total Carbohydrate (${tc}g).` });
-  if (!isNaN(sf) && !isNaN(tf) && sf > tf) checks.push({ sev:'block', icon:'🔴', title:'Saturated Fat > Total Fat', desc:`Saturated Fat (${sf}g) cannot exceed Total Fat (${tf}g).` });
-  if (!nfsCurrent.ingredients && cal > 0) checks.push({ sev:'block', icon:'🔴', title:'Missing Ingredients', desc:'Multi-ingredient products require an ingredient statement.' });
-  if (!nfsCurrent.distributor) checks.push({ sev:'block', icon:'🔴', title:'Missing Distributor Block', desc:'A distributor name and address is required for retail products.' });
-
-  // Trans fat + sat fat sanity (warn if combined > total fat)
-  if (!isNaN(xf) && !isNaN(sf) && !isNaN(tf) && (xf + sf) > tf) {
-    checks.push({ sev:'block', icon:'🔴', title:'Trans + Saturated Fat > Total Fat', desc:`Trans fat (${xf}g) + Saturated fat (${sf}g) = ${xf+sf}g exceeds Total Fat (${tf}g).` });
-  }
-
-  // ---------- ERRORS ----------
-  if (nfsCurrent.distributor && !nfsCurrent.distributor.match(/\d{5}/)) checks.push({ sev:'error', icon:'🟠', title:'Distributor ZIP Missing/Invalid', desc:'The distributor address appears to be missing a 5-digit ZIP code.' });
-  if (!nfsCurrent.origin) checks.push({ sev:'error', icon:'🟠', title:'Missing Country of Origin', desc:'A country of origin or manufacturer statement is typically required.' });
-
-  // Calorie / macro math check
-  if (cal > 0 && !isNaN(tf) && !isNaN(tc)) {
-    const expectedCal = (tf * 9) + (tc * 4) + (pr * 4);
-    const calDiff = Math.abs(cal - expectedCal);
-    const threshold = Math.max(cal * 0.2, 10);
-    if (calDiff > threshold) {
-      checks.push({ sev:'error', icon:'🟠', title:'Calorie / Macro Math Mismatch', desc:`Declared calories: ${cal}. Estimated from fat(${tf}g×9) + carbs(${tc}g×4) + protein(${pr}g×4) = ${Math.round(expectedCal)}. Difference: ${Math.round(calDiff)} cal. Verify all macro values.` });
-    }
-  }
-
-  if (nfsCurrent.sourceMode === 'formula') {
-    checks.push({ sev:'error', icon:'🟠', title:'Formula-Estimated Values', desc:'Label values are based on formula estimates, not lab analysis. Confirm with lab testing before final label use.' });
-  }
-  if (nfsCurrent.sourceMode === 'import') {
-    checks.push({ sev:'error', icon:'🟠', title:'Imported Values — Verification Needed', desc:'Values were parsed from an uploaded file. All fields must be manually verified before use.' });
-  }
-
-  // %DV override mismatches
-  Object.keys(DV_REF).forEach(k => {
-    if (!dvOverrides[k]) return;
-    const inputKey = k;
-    const amt = parseFloat(document.getElementById('n-' + inputKey)?.value) || 0;
-    if (!amt) return;
-    const calcPct = Math.round((amt / DV_REF[k].dv) * 100);
-    const displayedPct = parseFloat(document.getElementById('p-' + inputKey)?.value);
-    if (!isNaN(displayedPct) && Math.abs(displayedPct - calcPct) > 2) {
-      checks.push({ sev:'error', icon:'🟠', title:`%DV Override: ${k.toUpperCase()}`, desc:`Declared ${k} %DV is ${displayedPct}% but calculated from declared amount (${amt}) is ${calcPct}%. Verify override is intentional.` });
-    }
-  });
-
-  // ---------- WARNINGS ----------
-  if (ss && !ss.match(/\d/)) checks.push({ sev:'warn', icon:'🟡', title:'Serving Size Format Review', desc:'Serving size does not contain a numeric weight. Expected format: "5 pieces (40g)".' });
-  if (ss && !ss.match(/\(?\d+g\)?/i)) checks.push({ sev:'warn', icon:'🟡', title:'Serving Size Missing Gram Weight', desc:'FDA requires gram weight in serving size, e.g. "5 pieces (40g)".' });
-  if (!nfsCurrent.netOz && !nfsCurrent.netG) checks.push({ sev:'warn', icon:'🟡', title:'Net Weight Not Set', desc:'Net weight (oz / g) is not entered. Required on packaged food labels.' });
-
-  // Allergen detection in ingredients
-  const ingUpper = (nfsCurrent.ingredients || '').toUpperCase();
-  const ALLERGEN_SIGNALS = { Wheat:['WHEAT','FLOUR'], Milk:['MILK','CREAM','BUTTER','LACTOSE','WHEY'], Eggs:['EGG'], 'Tree Nuts':['ALMOND','CASHEW','WALNUT','PECAN','HAZELNUT','MACADAMIA'], Peanuts:['PEANUT'], Soybeans:['SOY','SOYBEAN'], Fish:['COD','SALMON','TUNA','TILAPIA','BASS','FLOUNDER','HADDOCK'], Shellfish:['CRAB','LOBSTER','SHRIMP','CLAM','OYSTER'], Sesame:['SESAME','TAHINI'] };
-  Object.entries(ALLERGEN_SIGNALS).forEach(([allergen, signals]) => {
-    const found = signals.some(s => ingUpper.includes(s));
-    if (found && !nfsCurrent.allergens?.includes(allergen)) {
-      checks.push({ sev:'warn', icon:'🟡', title:`Possible ${allergen} Allergen Not Declared`, desc:`Ingredients contain "${signals.find(s => ingUpper.includes(s))}" but ${allergen} is not declared in the allergen section.` });
-    }
-  });
-
-  // Dimension / density check
-  const dims = nfsCurrent.dimensions;
-  if (dims && columnMode === 'dual') {
-    const wIn = dims.unit === 'in' ? dims.w : dims.w / 25.4;
-    if (wIn < 2.8) checks.push({ sev:'warn', icon:'🟡', title:'Dual Column on Narrow Panel', desc:`Dual-column format selected but panel width is ${dims.w}${dims.unit}. Dual-column typically requires at least 2.8" width. Consider single-column or narrow format.` });
-  }
-
-  // ---------- PASSES ----------
-  if (ss && spc) checks.push({ sev:'pass', icon:'🟢', title:'Serving Info Present', desc:'Serving size and servings per container are both set.' });
-  if (nfsCurrent.ingredients) checks.push({ sev:'pass', icon:'🟢', title:'Ingredients Statement Present', desc:'Ingredient list has been provided.' });
-  if (nfsCurrent.distributor) checks.push({ sev:'pass', icon:'🟢', title:'Distributor Block Present', desc:'Distributor information is set.' });
-  if (nfsCurrent.origin) checks.push({ sev:'pass', icon:'🟢', title:'Origin Statement Present', desc:'Country of origin / manufacturer statement is set.' });
-  if (Object.keys(dvOverrides).length === 0) {
-    const hasDV = ['tf','sf','ch','na','tc','df','as','vd','ca','fe','k'].some(k => parseFloat(document.getElementById('p-' + k)?.value) > 0);
-    if (hasDV) checks.push({ sev:'pass', icon:'🟢', title:'%DV Auto-Calculated', desc:'All %DV values are system-calculated. No manual overrides detected.' });
-  }
-  if (!isNaN(as_) && !isNaN(su) && as_ <= su) checks.push({ sev:'pass', icon:'🟢', title:'Sugar Math Valid', desc:'Added Sugars ≤ Total Sugars.' });
-  if (!isNaN(sf) && !isNaN(tf) && sf <= tf) checks.push({ sev:'pass', icon:'🟢', title:'Fat Math Valid', desc:'Saturated Fat ≤ Total Fat.' });
-  if (!isNaN(df) && !isNaN(tc) && df <= tc) checks.push({ sev:'pass', icon:'🟢', title:'Fiber Math Valid', desc:'Dietary Fiber ≤ Total Carbohydrate.' });
-
-  nfsPreflight = { checks, ts: new Date().toISOString() };
-  if (nfsCurrent) nfsCurrent.preflight = nfsPreflight;
-
-  // Update trust badges
-  const blocks = checks.filter(c => c.sev === 'block').length;
-  const errors = checks.filter(c => c.sev === 'error').length;
-  const pfBadge = document.getElementById('editor-preflight-badge');
-  const rdyBadge = document.getElementById('editor-ready-badge');
-  if (pfBadge) pfBadge.style.display = (blocks === 0 && errors === 0) ? 'inline-flex' : 'none';
-  if (rdyBadge) rdyBadge.style.display = (blocks === 0 && errors === 0) ? 'inline-flex' : 'none';
-
-  renderPreflightResults(checks);
-  updateComplianceView();
-  updateExportView();
-  updateLnavBadge(checks);
-  nfsNav('compliance');
-}
-
-// ============================================================
-//  EXTENDED EXPORT METADATA (v2)
-// ============================================================
-function buildExportMetadata(tier) {
-  const pf = nfsPreflight;
-  const pfSummary = pf ? {
-    run: pf.ts,
-    blocks: pf.checks.filter(c => c.sev === 'block').length,
-    errors: pf.checks.filter(c => c.sev === 'error').length,
-    warnings: pf.checks.filter(c => c.sev === 'warn').length,
-    passing: pf.checks.filter(c => c.sev === 'pass').length,
-  } : null;
-  return {
-    exportedAt: new Date().toISOString(),
-    exportTier: tier,
-    projectId: nfsCurrent?.id,
-    projectName: nfsCurrent?.name,
-    brand: nfsCurrent?.brand,
-    sourceMode: nfsCurrent?.sourceMode,
-    columnMode: columnMode,
-    template: document.getElementById('preview-template')?.value,
-    profile: nfsCurrent?.profileTemplate || null,
-    dimensions: nfsCurrent?.dimensions || null,
-    preflight: pfSummary,
-    dvOverrides: Object.keys(dvOverrides),
-    formulaEstimated: nfsCurrent?.sourceMode === 'formula',
-  };
-}
-
-function exportPackagingStudio() {
-  if (!nfsCurrent) { toast('No Project', 'Create and save a project first.'); return; }
-  nfsSaveProject(false);
-  const payload = {
-    source: 'nutrition-facts-studio-v2',
-    version: '2.0',
-    metadata: buildExportMetadata('packaging-studio'),
-    product_name: nfsCurrent.name,
-    brand: nfsCurrent.brand,
-    format: nfsCurrent.format,
-    sku: nfsCurrent.sku,
-    serving_size: nfsCurrent.servingSize,
-    servings_per_container: nfsCurrent.servingsPerContainer,
-    column_mode: columnMode,
-    label_html: getLabelHTML(),
-    label_css: getLabelCSS(),
-    nutrients_declared: Object.fromEntries(
-      Object.entries(nfsCurrent.nutrients).map(([k,v]) => [k, v.declared])
-    ),
-    dv_values: nfsCurrent.dv,
-    ingredients: nfsCurrent.ingredients,
-    allergens: nfsCurrent.allergens,
-    distributor: nfsCurrent.distributor,
-    origin: nfsCurrent.origin,
-    net_oz: nfsCurrent.netOz,
-    net_g: nfsCurrent.netG,
-    dimensions: nfsCurrent.dimensions || null,
-    profile: nfsCurrent.profileTemplate || null,
-    preflight: nfsCurrent.preflight,
-  };
-  navigator.clipboard.writeText(JSON.stringify(payload, null, 2))
-    .then(() => toast('Copied for Packaging Studio', 'v2 payload JSON copied to clipboard.'));
-}
-
-function exportJSON() {
-  if (!nfsCurrent) { toast('No Project', 'Save a project first.'); return; }
-  nfsSaveProject(false);
-  const name = (nfsCurrent.name || 'label').toLowerCase().replace(/\s+/g,'-');
-  const output = { ...nfsCurrent, _exportMetadata: buildExportMetadata('json') };
-  downloadFile(JSON.stringify(output, null, 2), `nf_${name}.json`, 'application/json');
-  toast('Exported', 'Structured JSON downloaded.');
-}
-
-// ============================================================
 //  BOOT
 // ============================================================
 window.addEventListener('DOMContentLoaded', () => {
@@ -3258,8 +2474,6 @@ window.addEventListener('DOMContentLoaded', () => {
   // Build editor conversion table (empty)
   buildConvTable('conv-tbody', 1);
   editorUpdate();
-  // Run auto %DV if project loaded
-  if (nfsCurrent) autoAllDV();
 });
 </script>
 </body>
