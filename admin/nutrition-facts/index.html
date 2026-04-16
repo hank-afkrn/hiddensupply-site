@@ -1785,46 +1785,69 @@ input:focus, textarea:focus, select:focus {
             </div>
 
             <!-- ── v5.5 MFG → U.S. Translator ─────────────────────────────── -->
-            <div class="card" id="ii-translator-card" style="display:none;border-color:rgba(124,111,255,.35);">
-              <div class="card-hdr" style="background:rgba(124,111,255,.08);">
-                <span class="card-title" style="color:var(--accent);">🌐 MFG → U.S. Translation</span>
+            <div class="card" id="ii-translator-card" style="display:none;border-color:rgba(124,111,255,.45);">
+              <div class="card-hdr" style="background:rgba(124,111,255,.1);">
+                <span class="card-title" style="color:var(--accent);">🌐 U.S. Packaging Draft</span>
+                <span style="font-size:10px;color:var(--dim);margin-left:8px;">MFG → U.S. Declaration Engine</span>
               </div>
-              <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
+              <div class="card-body" style="display:flex;flex-direction:column;gap:16px;">
 
-                <!-- Raw panel -->
+                <!-- ① HERO: U.S. Packaging Draft -->
                 <div>
-                  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">Raw Input</div>
-                  <div id="ii-tr-raw" style="font-size:11px;line-height:1.6;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:8px 12px;min-height:36px;font-family:var(--mono);white-space:pre-wrap;">—</div>
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">U.S. Packaging Draft</div>
+                  <div id="ii-tr-packaging" style="font-size:13px;line-height:1.7;color:var(--text);background:rgba(124,111,255,.07);border:1.5px solid rgba(124,111,255,.35);border-radius:6px;padding:12px 14px;min-height:52px;font-family:var(--mono);white-space:pre-wrap;font-weight:500;letter-spacing:.01em;">—</div>
+                  <div class="btn-row" style="margin-top:10px;">
+                    <button class="btn btn-lg btn-primary" id="ii-tr-use-btn" onclick="iiUseTranslation('packaging')" style="display:none;">✓ Use Packaging Draft → Ingredients Field</button>
+                  </div>
                 </div>
 
-                <!-- Cleaned panel -->
-                <div>
-                  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">Cleaned</div>
-                  <div id="ii-tr-cleaned" style="font-size:11px;line-height:1.6;color:var(--text);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:8px 12px;min-height:36px;font-family:var(--mono);white-space:pre-wrap;">—</div>
-                </div>
-
-                <!-- U.S. Draft panel -->
-                <div>
-                  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">U.S. Draft</div>
-                  <div id="ii-tr-usdraft" style="font-size:11px;line-height:1.6;color:var(--text);background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.25);border-radius:4px;padding:8px 12px;min-height:36px;font-family:var(--mono);white-space:pre-wrap;">—</div>
-                </div>
-
-                <!-- Mappings panel -->
-                <div id="ii-tr-mappings-wrap" style="display:none;">
-                  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">Mappings Applied</div>
-                  <div id="ii-tr-mappings" style="display:flex;flex-direction:column;gap:4px;"></div>
-                </div>
-
-                <!-- Warnings panel -->
+                <!-- ② WARNINGS — shown immediately if present -->
                 <div id="ii-tr-warnings-wrap" style="display:none;">
-                  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);margin-bottom:6px;">⚠ Warnings</div>
-                  <div id="ii-tr-warnings" style="display:flex;flex-direction:column;gap:4px;"></div>
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);margin-bottom:6px;">⚠ Review Required</div>
+                  <div id="ii-tr-warnings" style="display:flex;flex-direction:column;gap:5px;"></div>
                 </div>
 
-                <!-- Use This button -->
-                <div class="btn-row" style="margin-top:4px;">
-                  <button class="btn btn-lg btn-primary" id="ii-tr-use-btn" onclick="iiUseTranslation()" style="display:none;">✓ Use This → Send to Ingredients Field</button>
-                </div>
+                <!-- ③ SECONDARY: collapsible detail section -->
+                <div id="ii-tr-details" style="display:none;border-top:1px solid var(--border2);padding-top:14px;display:flex;flex-direction:column;gap:12px;">
+
+                  <!-- Mappings -->
+                  <div id="ii-tr-mappings-wrap" style="display:none;">
+                    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">Mappings Applied</div>
+                    <div id="ii-tr-mappings" style="display:flex;flex-direction:column;gap:3px;"></div>
+                  </div>
+
+                  <!-- Normalized version -->
+                  <div id="ii-tr-cleandraft-wrap" style="display:none;">
+                    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">Normalized Version</div>
+                    <div id="ii-tr-cleandraft" style="font-size:11px;line-height:1.6;color:var(--dim);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:8px 12px;font-family:var(--mono);white-space:pre-wrap;">—</div>
+                  </div>
+
+                  <!-- Review Draft (with [VERIFY] markers) -->
+                  <div id="ii-tr-reviewdraft-wrap" style="display:none;">
+                    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">Review Draft <span style="color:var(--orange);font-size:9px;">(with ⚠ markers)</span></div>
+                    <div id="ii-tr-reviewdraft" style="font-size:11px;line-height:1.6;color:var(--dim);background:var(--surface2);border:1px solid rgba(251,146,60,.25);border-radius:4px;padding:8px 12px;font-family:var(--mono);white-space:pre-wrap;">—</div>
+                    <div class="btn-row" style="margin-top:8px;">
+                      <button class="btn btn-sm btn-secondary" id="ii-tr-use-review-btn" onclick="iiUseTranslation('review')" style="display:none;">Use Review Draft</button>
+                    </div>
+                  </div>
+
+                  <!-- Original source -->
+                  <div>
+                    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">Original Source</div>
+                    <div id="ii-tr-raw" style="font-size:10px;line-height:1.5;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:8px 12px;font-family:var(--mono);white-space:pre-wrap;max-height:80px;overflow-y:auto;">—</div>
+                  </div>
+
+                  <!-- Excluded tokens -->
+                  <div id="ii-tr-excluded-wrap" style="display:none;">
+                    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:4px;">Removed by Filter</div>
+                    <div id="ii-tr-excluded" style="font-size:11px;color:var(--muted);font-family:var(--mono);"></div>
+                  </div>
+
+                </div><!-- /details -->
+
+                <!-- Show/hide details toggle -->
+                <button id="ii-tr-toggle" onclick="iiToggleTranslatorDetails()" style="display:none;background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;text-align:left;padding:0;margin-top:-6px;">▸ Show mappings, source &amp; details</button>
+
               </div>
             </div>
             <!-- ── /v5.5 translator ─────────────────────────────────────────── -->
@@ -4697,7 +4720,9 @@ function iiReset() {
   });
   document.getElementById('ii-final-ing').textContent = '—';
   document.getElementById('ii-final-al').textContent = '—';
-  if (window.iiState) window.iiState._translatorDraft = null;
+  const pkgEl = document.getElementById('ii-tr-packaging');
+  if (pkgEl) pkgEl.textContent = '—';
+  if (window.iiState) { window.iiState._translatorDraft = null; window.iiState._translatorResult = null; }
 }
 
 function iiAnalyze() {
@@ -4786,31 +4811,50 @@ function iiAnalyze() {
 }
 
 // ── v5.5: MFG → U.S. Translator ─────────────────────────────────────────────
-// Runs after iiAnalyze(). Uses NFSIngredientIntel module if available.
-// Does NOT modify iiState — purely additive output pass.
 function iiRunTranslator(rawText) {
   const card = document.getElementById('ii-translator-card');
   if (!card) return;
-
-  // Module must be loaded; fail silently if not
   if (!window.NFSIngredientIntel || typeof window.NFSIngredientIntel.getMappings !== 'function') {
-    card.style.display = 'none';
-    return;
+    card.style.display = 'none'; return;
   }
 
   const result = window.NFSIngredientIntel.getMappings(rawText || '');
 
-  // Raw
-  const rawEl = document.getElementById('ii-tr-raw');
-  if (rawEl) rawEl.textContent = result.raw || '—';
+  // ① Hero: Packaging Draft
+  const packEl = document.getElementById('ii-tr-packaging');
+  if (packEl) packEl.textContent = result.packagingDraft || '—';
 
-  // Cleaned
-  const cleanedEl = document.getElementById('ii-tr-cleaned');
-  if (cleanedEl) cleanedEl.textContent = result.cleaned || '—';
+  // Use Packaging Draft button
+  const useBtn = document.getElementById('ii-tr-use-btn');
+  if (useBtn) useBtn.style.display = result.packagingDraft ? '' : 'none';
 
-  // U.S. Draft
-  const draftEl = document.getElementById('ii-tr-usdraft');
-  if (draftEl) draftEl.textContent = result.usDraft || '—';
+  // ② Warnings — directly below hero
+  const warningsWrap = document.getElementById('ii-tr-warnings-wrap');
+  const warningsEl   = document.getElementById('ii-tr-warnings');
+  if (warningsWrap && warningsEl) {
+    warningsEl.innerHTML = '';
+    if (result.warnings.length > 0) {
+      result.warnings.forEach(w => {
+        const row = document.createElement('div');
+        const isConflict = w.type === 'conflict';
+        const isFlag     = w.type === 'flag';
+        const isInfo     = w.type === 'info';
+        row.style.cssText = `font-size:11px;padding:5px 10px;border-radius:4px;line-height:1.5;
+          background:${isInfo ? 'rgba(100,100,100,.08)' : isConflict ? 'rgba(248,113,113,.1)' : 'var(--orange-bg)'};
+          border-left:3px solid ${isInfo ? 'var(--dim)' : isConflict ? 'var(--red)' : 'var(--orange)'};
+          color:${isInfo ? 'var(--dim)' : isConflict ? 'var(--red)' : 'var(--orange)'};`;
+        row.innerHTML = `<span style="font-weight:700;">${w.text}</span>` +
+          (w.note ? `<br><span style="font-size:10px;opacity:.8;">${w.note}</span>` : '');
+        warningsEl.appendChild(row);
+      });
+      warningsWrap.style.display = '';
+    } else {
+      warningsWrap.style.display = 'none';
+    }
+  }
+
+  // ③ Detail section (mappings, clean draft, review draft, source, excluded)
+  const detailsEl = document.getElementById('ii-tr-details');
 
   // Mappings
   const mappingsWrap = document.getElementById('ii-tr-mappings-wrap');
@@ -4820,8 +4864,9 @@ function iiRunTranslator(rawText) {
     if (result.mappings.length > 0) {
       result.mappings.forEach(m => {
         const row = document.createElement('div');
-        row.style.cssText = 'font-size:11px;font-family:var(--mono);padding:3px 8px;background:rgba(74,222,128,.07);border-left:3px solid rgba(74,222,128,.4);border-radius:0 3px 3px 0;';
-        row.textContent = `${m.mfg}  →  ${m.us}`;
+        row.style.cssText = 'font-size:11px;font-family:var(--mono);padding:3px 8px;' +
+          'background:rgba(74,222,128,.07);border-left:3px solid rgba(74,222,128,.35);border-radius:0 3px 3px 0;';
+        row.textContent = `${m.original}  →  ${m.resolved}`;
         mappingsEl.appendChild(row);
       });
       mappingsWrap.style.display = '';
@@ -4830,48 +4875,84 @@ function iiRunTranslator(rawText) {
     }
   }
 
-  // Warnings
-  const warningsWrap = document.getElementById('ii-tr-warnings-wrap');
-  const warningsEl   = document.getElementById('ii-tr-warnings');
-  if (warningsWrap && warningsEl) {
-    warningsEl.innerHTML = '';
-    if (result.warnings.length > 0) {
-      result.warnings.forEach(w => {
-        const row = document.createElement('div');
-        row.style.cssText = 'font-size:11px;font-family:var(--mono);padding:3px 8px;background:var(--orange-bg);border-left:3px solid var(--orange);border-radius:0 3px 3px 0;color:var(--orange);';
-        row.textContent = w;
-        warningsEl.appendChild(row);
-      });
-      warningsWrap.style.display = '';
+  // Normalized (clean) draft
+  const cleanWrap = document.getElementById('ii-tr-cleandraft-wrap');
+  const cleanEl2  = document.getElementById('ii-tr-cleandraft');
+  if (cleanWrap && cleanEl2) {
+    cleanEl2.textContent = result.cleanDraft || '—';
+    cleanWrap.style.display = '';
+  }
+
+  // Review draft
+  const reviewWrap = document.getElementById('ii-tr-reviewdraft-wrap');
+  const reviewEl   = document.getElementById('ii-tr-reviewdraft');
+  const useReviewBtn = document.getElementById('ii-tr-use-review-btn');
+  if (reviewWrap && reviewEl) {
+    if (result.reviewDraft && result.reviewDraft !== result.packagingDraft) {
+      reviewEl.textContent = result.reviewDraft;
+      if (useReviewBtn) useReviewBtn.style.display = '';
+      reviewWrap.style.display = '';
     } else {
-      warningsWrap.style.display = 'none';
+      reviewWrap.style.display = 'none';
     }
   }
 
-  // Store draft on iiState for iiUseTranslation()
-  if (!window.iiState) window.iiState = {};
-  window.iiState._translatorDraft = result.usDraft;
+  // Original source
+  const rawEl = document.getElementById('ii-tr-raw');
+  if (rawEl) rawEl.textContent = result.raw || '—';
 
-  // Show "Use This" button only if draft differs from cleaned input
-  const useBtn = document.getElementById('ii-tr-use-btn');
-  if (useBtn) useBtn.style.display = result.mappings.length > 0 ? '' : 'none';
+  // Excluded tokens
+  const excludedWrap = document.getElementById('ii-tr-excluded-wrap');
+  const excludedEl   = document.getElementById('ii-tr-excluded');
+  if (excludedWrap && excludedEl) {
+    if (result.excluded && result.excluded.length > 0) {
+      excludedEl.textContent = result.excluded.map(e => `${e.token} — ${e.reason}`).join('\n');
+      excludedWrap.style.display = '';
+    } else {
+      excludedWrap.style.display = 'none';
+    }
+  }
+
+  // Show details section + toggle button
+  if (detailsEl) detailsEl.style.display = 'flex';
+  const toggleBtn = document.getElementById('ii-tr-toggle');
+  if (toggleBtn) {
+    toggleBtn.style.display = '';
+    toggleBtn._open = false;
+    detailsEl.style.display = 'none';   // collapsed by default
+    toggleBtn.textContent = '▸ Show mappings, source & details';
+  }
+
+  // Store for iiUseTranslation
+  if (!window.iiState) window.iiState = {};
+  window.iiState._translatorResult = result;
 
   // Reveal card
   card.style.display = '';
 }
 
-// "Use This" → push U.S. draft into the ii-clean textarea (feeds into iiPushToEditor)
-function iiUseTranslation() {
-  const draft = window.iiState?._translatorDraft;
-  if (!draft) { toast('Nothing to use', 'Run analysis first.'); return; }
+function iiToggleTranslatorDetails() {
+  const details = document.getElementById('ii-tr-details');
+  const btn     = document.getElementById('ii-tr-toggle');
+  if (!details || !btn) return;
+  btn._open = !btn._open;
+  details.style.display = btn._open ? 'flex' : 'none';
+  btn.textContent = btn._open ? '▾ Hide details' : '▸ Show mappings, source & details';
+}
+
+function iiUseTranslation(mode) {
+  const result = window.iiState?._translatorResult;
+  if (!result) { toast('Nothing to use', 'Run analysis first.'); return; }
+  const draft = mode === 'review' ? result.reviewDraft : result.packagingDraft;
+  if (!draft) { toast('No draft', 'Run analysis first.'); return; }
   const cleanEl = document.getElementById('ii-clean');
   if (cleanEl) {
     cleanEl.value = draft;
-    cleanEl.dispatchEvent(new Event('input')); // trigger iiUpdateOutput
+    cleanEl.dispatchEvent(new Event('input'));
   }
   const cleanCard = document.getElementById('ii-clean-card');
   if (cleanCard) cleanCard.style.display = '';
-  toast('Applied', 'U.S. draft sent to Ingredients field. Review then Push to Editor.');
+  toast('Applied', mode === 'review' ? 'Review draft sent to Ingredients field.' : 'U.S. Packaging Draft sent to Ingredients field. Review then Push to Editor.');
 }
 // ── /v5.5 translator ─────────────────────────────────────────────────────────
 
