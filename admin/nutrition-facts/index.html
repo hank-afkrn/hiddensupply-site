@@ -1783,6 +1783,52 @@ input:focus, textarea:focus, select:focus {
               <div class="card-hdr"><span class="card-title">Analysis Summary</span></div>
               <div class="card-body" id="ii-stats-body" style="font-size:12px;color:var(--dim);line-height:1.8;"></div>
             </div>
+
+            <!-- ── v5.5 MFG → U.S. Translator ─────────────────────────────── -->
+            <div class="card" id="ii-translator-card" style="display:none;border-color:rgba(124,111,255,.35);">
+              <div class="card-hdr" style="background:rgba(124,111,255,.08);">
+                <span class="card-title" style="color:var(--accent);">🌐 MFG → U.S. Translation</span>
+              </div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
+
+                <!-- Raw panel -->
+                <div>
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">Raw Input</div>
+                  <div id="ii-tr-raw" style="font-size:11px;line-height:1.6;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:8px 12px;min-height:36px;font-family:var(--mono);white-space:pre-wrap;">—</div>
+                </div>
+
+                <!-- Cleaned panel -->
+                <div>
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">Cleaned</div>
+                  <div id="ii-tr-cleaned" style="font-size:11px;line-height:1.6;color:var(--text);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:8px 12px;min-height:36px;font-family:var(--mono);white-space:pre-wrap;">—</div>
+                </div>
+
+                <!-- U.S. Draft panel -->
+                <div>
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">U.S. Draft</div>
+                  <div id="ii-tr-usdraft" style="font-size:11px;line-height:1.6;color:var(--text);background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.25);border-radius:4px;padding:8px 12px;min-height:36px;font-family:var(--mono);white-space:pre-wrap;">—</div>
+                </div>
+
+                <!-- Mappings panel -->
+                <div id="ii-tr-mappings-wrap" style="display:none;">
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">Mappings Applied</div>
+                  <div id="ii-tr-mappings" style="display:flex;flex-direction:column;gap:4px;"></div>
+                </div>
+
+                <!-- Warnings panel -->
+                <div id="ii-tr-warnings-wrap" style="display:none;">
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);margin-bottom:6px;">⚠ Warnings</div>
+                  <div id="ii-tr-warnings" style="display:flex;flex-direction:column;gap:4px;"></div>
+                </div>
+
+                <!-- Use This button -->
+                <div class="btn-row" style="margin-top:4px;">
+                  <button class="btn btn-lg btn-primary" id="ii-tr-use-btn" onclick="iiUseTranslation()" style="display:none;">✓ Use This → Send to Ingredients Field</button>
+                </div>
+              </div>
+            </div>
+            <!-- ── /v5.5 translator ─────────────────────────────────────────── -->
+
           </div>
         </div>
       </div>
@@ -4645,12 +4691,13 @@ function iiReset() {
   iiState = { clean:'', detectedAllergens:[], selectedAllergens: new Set(), detectedColors:[], dupes:[] };
   const cleanEl = document.getElementById('ii-clean');
   if (cleanEl) cleanEl.value = '';
-  ['ii-clean-card','ii-allergen-card','ii-color-card','ii-dupe-card','ii-stats-card'].forEach(id => {
+  ['ii-clean-card','ii-allergen-card','ii-color-card','ii-dupe-card','ii-stats-card','ii-translator-card'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
   document.getElementById('ii-final-ing').textContent = '—';
   document.getElementById('ii-final-al').textContent = '—';
+  if (window.iiState) window.iiState._translatorDraft = null;
 }
 
 function iiAnalyze() {
@@ -4734,8 +4781,99 @@ function iiAnalyze() {
   if (dupes.length) document.getElementById('ii-dupe-card').style.display = '';
 
   renderIIOutput();
+  iiRunTranslator(raw);   // v5.5: MFG→US translation pass (non-destructive)
   toast('Analyzed', `${detectedAllergens.length} allergen(s), ${detectedColors.length} color(s)${dupes.length ? ', ' + dupes.length + ' dupe(s)' : ''}.`);
 }
+
+// ── v5.5: MFG → U.S. Translator ─────────────────────────────────────────────
+// Runs after iiAnalyze(). Uses NFSIngredientIntel module if available.
+// Does NOT modify iiState — purely additive output pass.
+function iiRunTranslator(rawText) {
+  const card = document.getElementById('ii-translator-card');
+  if (!card) return;
+
+  // Module must be loaded; fail silently if not
+  if (!window.NFSIngredientIntel || typeof window.NFSIngredientIntel.getMappings !== 'function') {
+    card.style.display = 'none';
+    return;
+  }
+
+  const result = window.NFSIngredientIntel.getMappings(rawText || '');
+
+  // Raw
+  const rawEl = document.getElementById('ii-tr-raw');
+  if (rawEl) rawEl.textContent = result.raw || '—';
+
+  // Cleaned
+  const cleanedEl = document.getElementById('ii-tr-cleaned');
+  if (cleanedEl) cleanedEl.textContent = result.cleaned || '—';
+
+  // U.S. Draft
+  const draftEl = document.getElementById('ii-tr-usdraft');
+  if (draftEl) draftEl.textContent = result.usDraft || '—';
+
+  // Mappings
+  const mappingsWrap = document.getElementById('ii-tr-mappings-wrap');
+  const mappingsEl   = document.getElementById('ii-tr-mappings');
+  if (mappingsWrap && mappingsEl) {
+    mappingsEl.innerHTML = '';
+    if (result.mappings.length > 0) {
+      result.mappings.forEach(m => {
+        const row = document.createElement('div');
+        row.style.cssText = 'font-size:11px;font-family:var(--mono);padding:3px 8px;background:rgba(74,222,128,.07);border-left:3px solid rgba(74,222,128,.4);border-radius:0 3px 3px 0;';
+        row.textContent = `${m.mfg}  →  ${m.us}`;
+        mappingsEl.appendChild(row);
+      });
+      mappingsWrap.style.display = '';
+    } else {
+      mappingsWrap.style.display = 'none';
+    }
+  }
+
+  // Warnings
+  const warningsWrap = document.getElementById('ii-tr-warnings-wrap');
+  const warningsEl   = document.getElementById('ii-tr-warnings');
+  if (warningsWrap && warningsEl) {
+    warningsEl.innerHTML = '';
+    if (result.warnings.length > 0) {
+      result.warnings.forEach(w => {
+        const row = document.createElement('div');
+        row.style.cssText = 'font-size:11px;font-family:var(--mono);padding:3px 8px;background:var(--orange-bg);border-left:3px solid var(--orange);border-radius:0 3px 3px 0;color:var(--orange);';
+        row.textContent = w;
+        warningsEl.appendChild(row);
+      });
+      warningsWrap.style.display = '';
+    } else {
+      warningsWrap.style.display = 'none';
+    }
+  }
+
+  // Store draft on iiState for iiUseTranslation()
+  if (!window.iiState) window.iiState = {};
+  window.iiState._translatorDraft = result.usDraft;
+
+  // Show "Use This" button only if draft differs from cleaned input
+  const useBtn = document.getElementById('ii-tr-use-btn');
+  if (useBtn) useBtn.style.display = result.mappings.length > 0 ? '' : 'none';
+
+  // Reveal card
+  card.style.display = '';
+}
+
+// "Use This" → push U.S. draft into the ii-clean textarea (feeds into iiPushToEditor)
+function iiUseTranslation() {
+  const draft = window.iiState?._translatorDraft;
+  if (!draft) { toast('Nothing to use', 'Run analysis first.'); return; }
+  const cleanEl = document.getElementById('ii-clean');
+  if (cleanEl) {
+    cleanEl.value = draft;
+    cleanEl.dispatchEvent(new Event('input')); // trigger iiUpdateOutput
+  }
+  const cleanCard = document.getElementById('ii-clean-card');
+  if (cleanCard) cleanCard.style.display = '';
+  toast('Applied', 'U.S. draft sent to Ingredients field. Review then Push to Editor.');
+}
+// ── /v5.5 translator ─────────────────────────────────────────────────────────
 
 function renderIIOutput() {
   // Allergen chips
