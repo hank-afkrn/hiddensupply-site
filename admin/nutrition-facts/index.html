@@ -243,6 +243,277 @@ input[type=number] { font-family: var(--mono); }
 .btn-ghost:hover { color: var(--text); }
 .btn-danger { background: transparent; border: 1px solid var(--border2); color: var(--red); }
 .btn-danger:hover { border-color: var(--red); background: var(--red-bg); }
+
+/* ============================================================
+   V5 — PREMIUM POLISH + SEAM CLOSURE CSS
+   ============================================================ */
+
+/* --- Autosave indicator --- */
+#autosave-indicator {
+  font-size: 10px; font-family: var(--mono); color: var(--muted);
+  display: flex; align-items: center; gap: 5px;
+  transition: opacity 0.4s;
+  letter-spacing: 0.08em;
+}
+#autosave-indicator.saving { color: var(--accent); }
+#autosave-indicator.saved { color: var(--green); }
+#autosave-indicator::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; }
+
+/* --- Premium preview rail (FIXES CLIPPING) --- */
+#preview-rail {
+  width: 340px; flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  position: sticky; top: 84px; max-height: calc(100vh - 84px);
+  overflow-y: auto;
+}
+#preview-rail-inner {
+  padding: 20px 18px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.preview-frame {
+  background: #f7f7f5;
+  border: 1px solid #d8d8d0;
+  border-radius: 8px;
+  padding: 18px 16px;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 12px;
+  min-height: 200px;
+  position: relative;
+  overflow: visible; /* FIX: was hidden */
+}
+.preview-frame-label {
+  font-family: var(--mono); font-size: 8px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: #999; position: absolute; top: -9px; left: 12px;
+  background: #f7f7f5; padding: 0 4px;
+}
+#label-preview-wrap {
+  background: #fff;
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid #e8e8e0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  overflow: visible; /* FIXED: was overflow:hidden causing clipping */
+  width: 100%; max-width: 300px;
+}
+.preview-zoom-controls {
+  display: flex; gap: 4px; align-items: center;
+  justify-content: center;
+}
+.preview-zoom-btn {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 4px; color: var(--dim); cursor: pointer;
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  padding: 3px 9px; transition: all 0.12s;
+}
+.preview-zoom-btn:hover, .preview-zoom-btn.active { border-color: var(--accent); color: var(--accent); }
+
+/* --- Premium confidence badges (inside preview rail) --- */
+.trust-badge-row {
+  display: flex; flex-wrap: wrap; gap: 5px;
+}
+.trust-badge {
+  font-family: var(--mono); font-size: 8px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 3px;
+}
+
+/* --- Smoother card transitions --- */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color 0.15s;
+}
+.card:focus-within { border-color: var(--border2); }
+
+/* --- Inputs premium focus --- */
+.fi input:focus, .fi textarea:focus, .fi select:focus,
+input:focus, textarea:focus, select:focus {
+  border-color: rgba(240,224,64,0.4);
+  box-shadow: 0 0 0 2px rgba(240,224,64,0.06);
+}
+
+/* --- Btn micro animation improvement --- */
+.btn:active { transform: scale(0.98); }
+
+/* --- Section label spacing rhythm --- */
+.section-label {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+  margin-bottom: 12px; margin-top: 4px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* --- Export tier polished --- */
+.export-tier {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px 18px; display: flex; flex-direction: column; gap: 10px;
+  background: var(--surface); transition: border-color 0.15s;
+}
+.export-tier:hover { border-color: var(--border2); }
+.export-tier-name { font-size: 13px; font-weight: 700; letter-spacing: -0.01em; }
+.export-tier-desc { font-size: 11px; color: var(--dim); line-height: 1.5; }
+
+/* --- Compliance status bar in preview --- */
+.preview-pf-bar {
+  font-size: 10px; font-family: var(--mono);
+  border-radius: 4px; padding: 6px 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.preview-pf-bar.clean { background: rgba(74,222,128,0.08); color: var(--green); }
+.preview-pf-bar.issues { background: rgba(248,113,113,0.08); color: var(--red); }
+.preview-pf-bar.warn { background: rgba(251,146,60,0.08); color: var(--orange); }
+.preview-pf-bar.none { background: var(--surface2); color: var(--muted); }
+
+/* --- Nav v5 improvements --- */
+.lnav-group-label {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  padding: 16px 18px 6px;
+  display: flex; align-items: center; gap: 6px;
+}
+.lnav-group-label::before { content: ''; height: 1px; width: 8px; background: var(--border2); }
+
+/* --- Approval timeline polish --- */
+.appr-timeline-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.appr-timeline-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border2); flex-shrink: 0; margin-top: 3px;
+}
+.appr-timeline-dot.active { background: var(--green); }
+.appr-timeline-dot.warn { background: var(--orange); }
+
+/* --- Keyboard shortcut hint --- */
+.kbd {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  background: var(--surface3); border: 1px solid var(--border2);
+  border-radius: 3px; padding: 1px 5px; color: var(--dim);
+}
+
+/* --- Style preset DEEP TOKENS --- */
+/* These apply inside .nf-label when a preset class is active */
+.nf-label.preset-commercial-standard .nf-title { font-size: 28px; letter-spacing: -.6px; }
+.nf-label.preset-commercial-standard .nf-cal-num { font-size: 38px; }
+.nf-label.preset-commercial-standard .nf-nr { font-size: 11px; padding: 1.5px 0; }
+.nf-label.preset-commercial-standard { padding: 6px 8px; width: 270px; }
+
+.nf-label.preset-compact-rail .nf-title { font-size: 20px; }
+.nf-label.preset-compact-rail .nf-cal-num { font-size: 28px; }
+.nf-label.preset-compact-rail .nf-nr { font-size: 9px; padding: 1px 0; }
+.nf-label.preset-compact-rail { padding: 4px 6px; width: 210px; font-size: 9px; }
+
+.nf-label.preset-wide-panel .nf-title { font-size: 30px; }
+.nf-label.preset-wide-panel .nf-cal-num { font-size: 42px; }
+.nf-label.preset-wide-panel .nf-nr { font-size: 12px; padding: 2px 0; }
+.nf-label.preset-wide-panel { padding: 8px 10px; width: 340px; }
+
+.nf-label.preset-small-package .nf-title { font-size: 18px; }
+.nf-label.preset-small-package .nf-cal-num { font-size: 26px; }
+.nf-label.preset-small-package .nf-nr { font-size: 8.5px; padding: 0.8px 0; }
+.nf-label.preset-small-package { padding: 4px 6px; width: 200px; font-size: 8.5px; }
+
+/* --- Barcode inline in label preview --- */
+.nf-barcode-zone {
+  margin-top: 6px; padding-top: 5px;
+  border-top: 1px solid #ccc;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 2px;
+}
+.nf-barcode-zone svg { max-width: 100%; }
+.nf-barcode-demo {
+  background: repeating-linear-gradient(90deg,#000 0,#000 2px,#fff 2px,#fff 5px);
+  height: 50px; width: 120px; opacity: 0.15; border-radius: 1px;
+}
+.nf-barcode-demo-label {
+  font-size: 7px; font-weight: 700; color: #b97700;
+  letter-spacing: .1em; text-transform: uppercase;
+}
+
+/* --- Icons inline in label support area --- */
+.nf-icons-row {
+  margin-top: 5px; display: flex; gap: 8px; align-items: center;
+  flex-wrap: wrap;
+}
+.nf-icon-item { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.nf-icon-item svg { width: 12px; height: 12px; color: #333; }
+.nf-icon-item span { font-size: 6px; color: #555; }
+
+/* --- Responsive breakpoints --- */
+@media (max-width: 1200px) {
+  #preview-rail { width: 300px; }
+}
+@media (max-width: 1024px) {
+  #preview-rail { width: 280px; }
+  #label-preview-wrap { max-width: 240px; }
+}
+@media (max-width: 860px) {
+  #left-nav { transform: translateX(-220px); }
+  #main-content { margin-left: 0; }
+  .content-area { padding: 16px; }
+}
+
+/* ============================================================
+   V3 ADDITIONS — CSS
+   ============================================================ */
+/* ============================================================
+   V4 ADDITIONS — CSS
+   ============================================================ */
+/* Barcode zone */
+.barcode-zone { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;background:#fff;border:1px solid #ccc;border-radius:3px;width:fit-content; }
+.barcode-zone canvas, .barcode-zone svg { display:block; }
+.barcode-placeholder { background:repeating-linear-gradient(90deg,#000 0,#000 2px,#fff 2px,#fff 4px);height:60px;width:130px;opacity:0.12;border-radius:2px; }
+.barcode-number { font-family:'Courier New',monospace;font-size:10px;text-align:center;margin-top:3px;color:#000;letter-spacing:.08em; }
+.barcode-placeholder-badge { font-size:9px;font-weight:700;color:var(--orange);letter-spacing:.15em;text-transform:uppercase;text-align:center;margin-top:3px; }
+
+/* Support copy in label preview */
+.nf-support-block { font-family:Arial,Helvetica,sans-serif;font-size:7px;line-height:1.5;color:#222;margin-top:5px;border-top:1px solid #000;padding-top:4px; }
+.nf-support-block .nf-dist-line { display:block; }
+.nf-support-block .nf-origin-line { display:block;font-weight:700; }
+
+/* Style preset cards */
+.style-preset-card { cursor:pointer;transition:all .15s;border:2px solid var(--border); }
+.style-preset-card.selected { border-color:var(--accent);background:var(--accent-bg); }
+
+/* Freeze/lock badge */
+.badge-frozen { background:rgba(96,165,250,0.12);color:#60a5fa;border:1px solid rgba(96,165,250,0.3); }
+.badge-locked { background:rgba(248,113,113,0.1);color:var(--red); }
+
+/* Icon picker */
+.icon-chip { display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:11px;cursor:pointer;transition:all .15s;user-select:none; }
+.icon-chip.on { border-color:var(--accent);background:var(--accent-bg);color:var(--text); }
+.icon-chip:hover { border-color:var(--accent); }
+.icon-chip svg { width:14px;height:14px;flex-shrink:0; }
+
+/* Small package mode indicator */
+.split-mode-badge { display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(167,139,250,0.12);color:var(--purple);border:1px solid rgba(167,139,250,0.3); }
+
+/* Approval row */
+.approval-row { display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);gap:12px; }
+
+/* Net weight inline display in label */
+.nf-net-wt { font-size:8px;margin-top:3px;color:#444;font-family:Arial; }
+/* Tab bar (import modes) */
+.tab-bar { display:flex; gap:4px; border-bottom:1px solid var(--border); padding-bottom:0; }
+.tab-btn { background:transparent; border:none; border-bottom:2px solid transparent; color:var(--muted); font-size:12px; font-weight:600; padding:8px 14px; cursor:pointer; margin-bottom:-1px; transition:all .15s; }
+.tab-btn:hover { color:var(--text); }
+.tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+/* Sub-panels (import mode content) */
+.sub-panel { display:none; margin-top:16px; }
+.sub-panel.active { display:block; }
+
+/* Allergen chips */
+.allergen-grid { display:flex; flex-wrap:wrap; gap:6px; }
+.ag-chip { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:10px; font-size:11px; font-weight:600; cursor:pointer; border:1px solid var(--border2); background:var(--surface2); color:var(--muted); transition:all .15s; user-select:none; }
+.ag-chip.on { background:rgba(248,113,113,0.12); border-color:rgba(248,113,113,0.4); color:var(--red); }
+.ag-chip:hover { border-color:var(--accent); }
 .btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none !important; }
 
 /* Row */
@@ -609,9 +880,13 @@ input[type=number] { font-family: var(--mono); }
   </div>
   <div class="header-actions">
     <span id="hdr-project-name" style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.1em;display:none;">No project open</span>
+    <span id="hdr-autosave" style="font-family:var(--mono);font-size:10px;display:none;align-items:center;gap:5px;letter-spacing:.06em;">
+      <span id="hdr-autosave-dot" style="width:5px;height:5px;border-radius:50%;background:var(--muted);flex-shrink:0;"></span>
+      <span id="hdr-autosave-text" style="color:var(--muted);">Saved</span>
+    </span>
     <button class="hdr-btn" onclick="nfsNewProject()">+ New Label</button>
     <button class="hdr-btn" onclick="nfsNav('projects')">&#128196; All Labels</button>
-    <button class="hdr-btn accent" id="hdr-save-btn" onclick="nfsSaveProject()" style="display:none;">Save</button>
+    <button class="hdr-btn accent" id="hdr-save-btn" onclick="nfsSaveProject()" style="display:none;">Save <span class="kbd">⌘S</span></button>
   </div>
 </header>
 
@@ -659,6 +934,24 @@ input[type=number] { font-family: var(--mono); }
     <div class="lnav-item" data-view="export" onclick="nfsNav('export')">
       <span class="lnav-icon">&#128228;</span> Export Center
     </div>
+    <div class="lnav-item" data-view="ingredient-intel" onclick="nfsNav('ingredient-intel')">
+      <span class="lnav-icon">&#129516;</span> Ingredient Intel
+    </div>
+    <div class="lnav-group-label" style="margin-top:8px;">v4</div>
+    <div class="lnav-item" data-view="support-composer" onclick="nfsNav('support-composer')">
+      <span class="lnav-icon">&#128196;</span> Support Composer
+    </div>
+    <div class="lnav-item" data-view="barcode" onclick="nfsNav('barcode')">
+      <span class="lnav-icon">&#9641;</span> Barcode Module
+      <span class="lnav-badge" id="lnav-barcode-badge" style="background:rgba(248,113,113,0.15);color:var(--red);display:none;">!</span>
+    </div>
+    <div class="lnav-item" data-view="label-style" onclick="nfsNav('label-style')">
+      <span class="lnav-icon">&#127912;</span> Label Style
+    </div>
+    <div class="lnav-item" data-view="approval" onclick="nfsNav('approval')">
+      <span class="lnav-icon">&#9989;</span> Approval / Freeze
+      <span class="lnav-badge" id="lnav-approval-badge" style="background:rgba(74,222,128,0.15);color:var(--green);display:none;"></span>
+    </div>
   </nav>
 
   <!-- MAIN CONTENT -->
@@ -674,38 +967,57 @@ input[type=number] { font-family: var(--mono); }
         <div class="page-sub">Build, convert, and verify FDA-style nutrition labels for Hidden Supply packaging. Built with FDA-style formatting and compliance preflight checks — final legal responsibility remains with manufacturer/importer.</div>
       </div>
       <div class="content-area wide">
-        <!-- Quick stats -->
-        <div class="grid-4" style="margin-bottom:24px;">
-          <div class="card"><div class="card-body" style="text-align:center;padding:20px;">
+        <!-- Quick stats — v3: 6 metrics -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">
+          <div class="card"><div class="card-body" style="text-align:center;padding:18px;">
             <div style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--accent);" id="db-count-total">0</div>
             <div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px;">Total Labels</div>
           </div></div>
-          <div class="card"><div class="card-body" style="text-align:center;padding:20px;">
+          <div class="card"><div class="card-body" style="text-align:center;padding:18px;">
             <div style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--green);" id="db-count-ready">0</div>
             <div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px;">Mfr Ready</div>
           </div></div>
-          <div class="card"><div class="card-body" style="text-align:center;padding:20px;">
+          <div class="card"><div class="card-body" style="text-align:center;padding:18px;">
             <div style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--orange);" id="db-count-draft">0</div>
             <div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px;">In Draft</div>
           </div></div>
-          <div class="card"><div class="card-body" style="text-align:center;padding:20px;">
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
+          <div class="card"><div class="card-body" style="text-align:center;padding:18px;">
             <div style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--red);" id="db-count-issues">0</div>
             <div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px;">Flagged Issues</div>
+          </div></div>
+          <div class="card"><div class="card-body" style="text-align:center;padding:18px;">
+            <div style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--purple);" id="db-count-formula">0</div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px;">Formula Est.</div>
+          </div></div>
+          <div class="card"><div class="card-body" style="text-align:center;padding:18px;">
+            <div style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--blue);" id="db-count-imports">0</div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px;">Imports Pending</div>
           </div></div>
         </div>
 
         <div class="grid-2" style="gap:24px;align-items:start;">
           <!-- Recent labels -->
-          <div class="card">
-            <div class="card-hdr">
-              <span class="card-title">Recent Labels</span>
-              <button class="btn btn-sm btn-secondary" onclick="nfsNav('projects')">View All</button>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="card">
+              <div class="card-hdr">
+                <span class="card-title">Recent Labels</span>
+                <button class="btn btn-sm btn-secondary" onclick="nfsNav('projects')">View All</button>
+              </div>
+              <div id="db-recent-list">
+                <div style="padding:28px 16px;text-align:center;font-size:12px;color:var(--muted);">No labels yet. Start by creating a new one.</div>
+              </div>
             </div>
-            <div id="db-recent-list">
-              <div style="padding:28px 16px;text-align:center;font-size:12px;color:var(--muted);">No labels yet. Start by creating a new one.</div>
+            <!-- Ops Alerts -->
+            <div class="card" id="db-ops-alerts-card">
+              <div class="card-hdr"><span class="card-title" style="color:var(--orange);">&#9888; Ops Alerts</span></div>
+              <div id="db-ops-alerts-list">
+                <div style="padding:20px 16px;text-align:center;font-size:12px;color:var(--muted);">No alerts.</div>
+              </div>
             </div>
           </div>
-          <!-- Quick actions -->
+          <!-- Quick actions + Quick stats -->
           <div style="display:flex;flex-direction:column;gap:14px;">
             <div class="card">
               <div class="card-hdr"><span class="card-title">Quick Start</span></div>
@@ -713,6 +1025,15 @@ input[type=number] { font-family: var(--mono); }
                 <button class="btn btn-lg btn-primary" style="justify-content:center;" onclick="nfsNewProject()">&#43; Build New Label</button>
                 <button class="btn btn-md btn-secondary" style="justify-content:center;" onclick="nfsNav('converter')">&#128296; Convert Supplier Data</button>
                 <button class="btn btn-md btn-secondary" style="justify-content:center;" onclick="nfsNav('importer')">&#128229; Import Existing Label</button>
+                <button class="btn btn-md btn-secondary" style="justify-content:center;" onclick="nfsNav('ingredient-intel')">&#129516; Ingredient Intelligence</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hdr"><span class="card-title">Session Stats</span></div>
+              <div class="card-body" style="font-size:12px;color:var(--dim);line-height:1.9;">
+                <div style="display:flex;justify-content:space-between;"><span>Exports this session</span><span id="db-session-exports" style="color:var(--accent);font-family:var(--mono);font-weight:700;">0</span></div>
+                <div style="display:flex;justify-content:space-between;"><span>Most used profile</span><span id="db-top-profile" style="color:var(--text);font-family:var(--mono);font-size:11px;">—</span></div>
+                <div style="display:flex;justify-content:space-between;"><span>Last Mfr Ready</span><span id="db-last-mfr" style="color:var(--green);font-size:11px;text-align:right;max-width:160px;">—</span></div>
               </div>
             </div>
             <div class="card">
@@ -1083,74 +1404,114 @@ input[type=number] { font-family: var(--mono); }
 
         </div><!-- /left edit area -->
 
-        <!-- Right: live preview -->
-        <div style="width:310px;flex-shrink:0;border-left:1px solid var(--border);overflow-y:auto;padding:20px;background:var(--surface);">
-          <div style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Live Preview</div>
+        <!-- Right: premium preview rail (v5 — fixed clipping) -->
+        <div id="preview-rail">
+          <div id="preview-rail-inner">
 
-          <!-- Template selector -->
-          <div class="fi" style="margin-bottom:8px;">
-            <label>Format Template</label>
-            <select id="preview-template" onchange="editorUpdate()">
-              <option value="standard">Standard Vertical (260px)</option>
-              <option value="narrow">Narrow Vertical (200px)</option>
-              <option value="wide">Wide / Relaxed (320px)</option>
-              <option value="dual">Dual Column (340px)</option>
-            </select>
-          </div>
-          <!-- Dimension badge -->
-          <div id="preview-dim-info" style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:10px;padding:4px 8px;background:var(--surface2);border-radius:3px;display:none;"></div>
-
-          <!-- The actual label -->
-          <div style="background:#fff;padding:14px;border-radius:4px;border:1px solid #e0e0e0;overflow:hidden;" id="label-preview-wrap">
-            <div class="nf-label" id="nf-label-preview">
-              <div class="nf-title">Nutrition Facts</div>
-              <div class="nf-ss">Serving size <span id="lp-ss">—</span></div>
-              <div class="nf-spc"><span id="lp-spc">—</span> servings per container</div>
-              <div class="nf-cal-row"><div class="nf-cal-lbl">Calories</div><div class="nf-cal-num" id="lp-cal">0</div></div>
-              <div class="nf-pct-hdr">% Daily Value*</div>
-              <div class="nf-nr bld"><span><b>Total Fat</b> <span id="lp-tf">0</span>g</span><span class="pct" id="lp-ptf">0%</span></div>
-              <div class="nf-nr sub"><span>Saturated Fat <span id="lp-sf">0</span>g</span><span class="pct" id="lp-psf">0%</span></div>
-              <div class="nf-nr sub"><span><em>Trans</em> Fat <span id="lp-xf">0</span>g</span><span></span></div>
-              <div class="nf-nr bld"><span><b>Cholesterol</b> <span id="lp-ch">0</span>mg</span><span class="pct" id="lp-pch">0%</span></div>
-              <div class="nf-nr bld"><span><b>Sodium</b> <span id="lp-na">0</span>mg</span><span class="pct" id="lp-pna">0%</span></div>
-              <div class="nf-nr bld"><span><b>Total Carbohydrate</b> <span id="lp-tc">0</span>g</span><span class="pct" id="lp-ptc">0%</span></div>
-              <div class="nf-nr sub"><span>Dietary Fiber <span id="lp-df">0</span>g</span><span class="pct" id="lp-pdf">0%</span></div>
-              <div class="nf-nr sub"><span>Total Sugars <span id="lp-su">0</span>g</span><span></span></div>
-              <div class="nf-nr subsub"><span>Includes <span id="lp-as">0</span>g Added Sugars</span><span class="pct" id="lp-pas">0%</span></div>
-              <div class="nf-nr bld" style="border-bottom:4px solid #000"><span><b>Protein</b> <span id="lp-pr">0</span>g</span><span></span></div>
-              <div class="nf-nr" style="border-top:1px solid #000;padding-top:2px"><span>Vitamin D <span id="lp-vd">0</span>mcg</span><span class="pct" id="lp-pvd">0%</span></div>
-              <div class="nf-nr"><span>Calcium <span id="lp-ca">0</span>mg</span><span class="pct" id="lp-pca">0%</span></div>
-              <div class="nf-nr"><span>Iron <span id="lp-fe">0</span>mg</span><span class="pct" id="lp-pfe">0%</span></div>
-              <div class="nf-nr"><span>Potassium <span id="lp-k">0</span>mg</span><span class="pct" id="lp-pk">0%</span></div>
-              <div class="nf-foot">*The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.</div>
-              <div class="nf-ing" id="lp-ing-block" style="display:none;"><strong>INGREDIENTS:</strong> <span id="lp-ing">—</span></div>
-              <div class="nf-all" id="lp-all"></div>
-              <div class="nf-wt" id="lp-wt"></div>
-              <div class="nf-dist" id="lp-dist"></div>
+            <!-- Rail header -->
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);">Live Preview</span>
+              <div id="autosave-indicator">Saved</div>
             </div>
-          </div>
 
-          <!-- Dual column preview (shown when dual mode active) -->
-          <div id="dual-preview-wrap" style="display:none;background:#fff;padding:14px;border-radius:4px;border:1px solid #e0e0e0;overflow:hidden;margin-top:10px;">
-            <div class="nf-label nf-dual" id="nf-label-dual">
-              <div class="nf-title">Nutrition Facts</div>
-              <div class="nf-dual-cols">
-                <div class="nf-dual-col-hdr">Per Serving<br/><span id="dc-ss">—</span></div>
-                <div class="nf-dual-col-hdr">Per Package<br/><span id="dc-pkg">—</span></div>
+            <!-- Template selector -->
+            <div class="fi">
+              <label>Format Template</label>
+              <select id="preview-template" onchange="editorUpdate()">
+                <option value="standard">Standard Vertical</option>
+                <option value="narrow">Narrow Vertical</option>
+                <option value="wide">Wide / Relaxed</option>
+                <option value="dual">Dual Column</option>
+              </select>
+            </div>
+
+            <!-- Dimension badge -->
+            <div id="preview-dim-info" style="font-size:10px;color:var(--muted);font-family:var(--mono);padding:4px 8px;background:var(--surface2);border-radius:3px;display:none;"></div>
+
+            <!-- Zoom controls -->
+            <div class="preview-zoom-controls">
+              <button class="preview-zoom-btn" onclick="setPreviewZoom(0.75)">75%</button>
+              <button class="preview-zoom-btn active" id="zoom-100" onclick="setPreviewZoom(1)">100%</button>
+              <button class="preview-zoom-btn" onclick="setPreviewZoom(1.25)">125%</button>
+              <button class="preview-zoom-btn" onclick="setPreviewZoom('fit')">Fit</button>
+            </div>
+
+            <!-- Compliance status bar -->
+            <div id="preview-pf-status" class="preview-pf-bar none">&#11044; Run preflight for status</div>
+
+            <!-- Trust badges -->
+            <div class="trust-badge-row" id="preview-trust-badges"></div>
+
+            <!-- The actual label — premium framed -->
+            <div class="preview-frame">
+              <div class="preview-frame-label">PREVIEW</div>
+              <div id="label-preview-wrap">
+                <div id="preview-zoom-inner" style="transform-origin:top left; transition:transform 0.2s;">
+                  <div class="nf-label" id="nf-label-preview">
+                    <div class="nf-title">Nutrition Facts</div>
+                    <div class="nf-ss">Serving size <span id="lp-ss">—</span></div>
+                    <div class="nf-spc"><span id="lp-spc">—</span> servings per container</div>
+                    <div class="nf-cal-row"><div class="nf-cal-lbl">Calories</div><div class="nf-cal-num" id="lp-cal">0</div></div>
+                    <div class="nf-pct-hdr">% Daily Value*</div>
+                    <div class="nf-nr bld"><span><b>Total Fat</b> <span id="lp-tf">0</span>g</span><span class="pct" id="lp-ptf">0%</span></div>
+                    <div class="nf-nr sub"><span>Saturated Fat <span id="lp-sf">0</span>g</span><span class="pct" id="lp-psf">0%</span></div>
+                    <div class="nf-nr sub"><span><em>Trans</em> Fat <span id="lp-xf">0</span>g</span><span></span></div>
+                    <div class="nf-nr bld"><span><b>Cholesterol</b> <span id="lp-ch">0</span>mg</span><span class="pct" id="lp-pch">0%</span></div>
+                    <div class="nf-nr bld"><span><b>Sodium</b> <span id="lp-na">0</span>mg</span><span class="pct" id="lp-pna">0%</span></div>
+                    <div class="nf-nr bld"><span><b>Total Carbohydrate</b> <span id="lp-tc">0</span>g</span><span class="pct" id="lp-ptc">0%</span></div>
+                    <div class="nf-nr sub"><span>Dietary Fiber <span id="lp-df">0</span>g</span><span class="pct" id="lp-pdf">0%</span></div>
+                    <div class="nf-nr sub"><span>Total Sugars <span id="lp-su">0</span>g</span><span></span></div>
+                    <div class="nf-nr subsub"><span>Includes <span id="lp-as">0</span>g Added Sugars</span><span class="pct" id="lp-pas">0%</span></div>
+                    <div class="nf-nr bld" style="border-bottom:4px solid #000"><span><b>Protein</b> <span id="lp-pr">0</span>g</span><span></span></div>
+                    <div class="nf-nr" style="border-top:1px solid #000;padding-top:2px"><span>Vitamin D <span id="lp-vd">0</span>mcg</span><span class="pct" id="lp-pvd">0%</span></div>
+                    <div class="nf-nr"><span>Calcium <span id="lp-ca">0</span>mg</span><span class="pct" id="lp-pca">0%</span></div>
+                    <div class="nf-nr"><span>Iron <span id="lp-fe">0</span>mg</span><span class="pct" id="lp-pfe">0%</span></div>
+                    <div class="nf-nr"><span>Potassium <span id="lp-k">0</span>mg</span><span class="pct" id="lp-pk">0%</span></div>
+                    <div class="nf-foot">*The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.</div>
+                    <div class="nf-ing" id="lp-ing-block" style="display:none;"><strong>INGREDIENTS:</strong> <span id="lp-ing">—</span></div>
+                    <div class="nf-all" id="lp-all"></div>
+                    <div class="nf-wt" id="lp-wt"></div>
+                    <div class="nf-dist" id="lp-dist"></div>
+                    <!-- v5: barcode zone (populated by editorUpdate) -->
+                    <div id="lp-barcode-zone" class="nf-barcode-zone" style="display:none;"></div>
+                    <!-- v5: icons row (populated by editorUpdate) -->
+                    <div id="lp-icons-row" class="nf-icons-row" style="display:none;"></div>
+                  </div>
+                </div>
               </div>
-              <div class="nf-cal-row"><div class="nf-cal-lbl">Calories</div><div style="display:flex;gap:12px;"><div class="nf-cal-num" id="dc-cal-srv">0</div><div class="nf-cal-num" id="dc-cal-pkg" style="color:#555;">0</div></div></div>
-              <div class="nf-pct-hdr">% Daily Value*</div>
-              <div id="dc-nutrient-rows"></div>
-              <div class="nf-foot">*The % Daily Value tells you how much a nutrient in a serving contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.</div>
+            </div>
+
+            <!-- Dual column preview -->
+            <div id="dual-preview-wrap" style="display:none;">
+              <div class="preview-frame">
+                <div class="preview-frame-label">DUAL COLUMN</div>
+                <div style="background:#fff;padding:10px;border-radius:4px;border:1px solid #e8e8e0;">
+                  <div class="nf-label nf-dual" id="nf-label-dual">
+                    <div class="nf-title">Nutrition Facts</div>
+                    <div class="nf-dual-cols">
+                      <div class="nf-dual-col-hdr">Per Serving<br/><span id="dc-ss">—</span></div>
+                      <div class="nf-dual-col-hdr">Per Package<br/><span id="dc-pkg">—</span></div>
+                    </div>
+                    <div class="nf-cal-row"><div class="nf-cal-lbl">Calories</div><div style="display:flex;gap:12px;"><div class="nf-cal-num" id="dc-cal-srv">0</div><div class="nf-cal-num" id="dc-cal-pkg" style="color:#555;">0</div></div></div>
+                    <div class="nf-pct-hdr">% Daily Value*</div>
+                    <div id="dc-nutrient-rows"></div>
+                    <div class="nf-foot">*The % Daily Value tells you how much a nutrient in a serving contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Export actions (grouped, sticky feel) -->
+            <div style="display:flex;flex-direction:column;gap:7px;padding-top:4px;border-top:1px solid var(--border);">
+              <div style="font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">Quick Export</div>
+              <button class="btn btn-sm btn-primary" style="justify-content:center;" onclick="nfsSaveProject()">&#128190; Save <span class="kbd" style="margin-left:4px;">⌘S</span></button>
+              <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="printLabel('draft')">&#128438; Print PDF</button>
+              <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="exportPNG(3)">&#128247; Export PNG</button>
+              <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="nfsNav('compliance')">&#9989; Run Preflight</button>
+              <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="nfsNav('export')">&#128228; Export Center →</button>
             </div>
           </div>
-
-          <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px;">
-            <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="previewPrint()">Print Preview</button>
-            <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="previewDownload()">Download HTML</button>
-            <button class="btn btn-sm btn-primary" style="justify-content:center;" onclick="nfsSaveProject()">Save Project</button>
-          </div>
-        </div><!-- /right preview -->
+        </div><!-- /preview-rail -->
       </div><!-- /editor row -->
     </div><!-- /editor -->
 
@@ -1230,46 +1591,202 @@ input[type=number] { font-family: var(--mono); }
       <div class="page-head">
         <div class="page-eyebrow">Tools</div>
         <div class="page-title">Import / Read Existing Label</div>
-        <div class="page-sub">Upload a photo, screenshot, or PDF of an existing nutrition label. We'll attempt to parse the data and map it into a new project for you to review and edit.</div>
+        <div class="page-sub">Upload a file or paste raw text from a supplier sheet. Smart parser extracts structured data — review all fields before accepting.</div>
       </div>
       <div class="content-area narrow">
-        <div class="drop-zone" id="import-dz" onclick="document.getElementById('import-file').click()"
-             ondragover="dzOver(event,'import-dz')" ondragleave="dzLeave('import-dz')" ondrop="dzDrop(event,'import')">
-          <div class="dz-icon">&#128229;</div>
-          <div class="dz-title">Drop label image or PDF here</div>
-          <div class="dz-sub">PNG, JPG, WEBP, PDF — or click to browse</div>
-        </div>
-        <input type="file" id="import-file" accept="image/*,.pdf" style="display:none;" onchange="importFileChosen(event)"/>
 
-        <div id="import-preview-area" style="display:none;margin-top:24px;">
+        <!-- Input mode tabs -->
+        <div class="tab-bar" style="margin-bottom:20px;">
+          <button class="tab-btn active" data-tab="imp-file" onclick="importModeTab(this,'imp-file')">&#128229; Upload File</button>
+          <button class="tab-btn" data-tab="imp-paste" onclick="importModeTab(this,'imp-paste')">&#128203; Paste Raw Text</button>
+        </div>
+
+        <!-- File upload mode -->
+        <div class="sub-panel active" id="sub-imp-file">
+          <div class="drop-zone" id="import-dz" onclick="document.getElementById('import-file').click()"
+               ondragover="dzOver(event,'import-dz')" ondragleave="dzLeave('import-dz')" ondrop="dzDrop(event,'import')">
+            <div class="dz-icon">&#128229;</div>
+            <div class="dz-title">Drop label image or PDF here</div>
+            <div class="dz-sub">PNG, JPG, WEBP, PDF — or click to browse</div>
+          </div>
+          <input type="file" id="import-file" accept="image/*,.pdf" style="display:none;" onchange="importFileChosen(event)"/>
+          <div id="import-pdf-paste-area" style="display:none;margin-top:16px;">
+            <div class="card" style="border-color:var(--blue);">
+              <div class="card-hdr" style="background:var(--blue-bg);"><span class="card-title" style="color:var(--blue);">PDF Detected — Paste Text Content</span></div>
+              <div class="card-body">
+                <p style="font-size:11px;color:var(--dim);margin-bottom:10px;">PDFs can't be read directly. Open the PDF, select all text (Ctrl+A), copy, then paste below.</p>
+                <div class="fi"><textarea id="import-pdf-text" rows="8" placeholder="Paste PDF text content here..."></textarea></div>
+                <div class="btn-row" style="margin-top:10px;">
+                  <button class="btn btn-md btn-primary" onclick="importParseFromPaste('import-pdf-text')">Parse Text →</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="import-image-preview" style="display:none;margin-top:12px;text-align:center;">
+            <img id="import-img-el" src="" style="max-width:100%;max-height:300px;border-radius:4px;border:1px solid var(--border);" />
+            <p style="font-size:11px;color:var(--muted);margin-top:6px;">Image uploaded. Use "Paste Raw Text" tab to paste OCR output from this image for parsing.</p>
+          </div>
+        </div>
+
+        <!-- Paste text mode -->
+        <div class="sub-panel" id="sub-imp-paste">
           <div class="card" style="margin-bottom:16px;">
-            <div class="card-hdr"><span class="card-title">Uploaded File</span></div>
+            <div class="card-hdr"><span class="card-title">Raw Text Input</span></div>
+            <div class="card-body">
+              <p style="font-size:11px;color:var(--dim);margin-bottom:10px;">Paste OCR output, supplier nutrition sheet text, or copied label content. The parser handles messy formatting, inconsistent spacing, and variant field names.</p>
+              <div class="fi" style="margin-bottom:12px;"><textarea id="import-raw-text" rows="10" placeholder="Paste supplier text here — e.g.:&#10;Serving Size: 5 pieces (40g)&#10;About 3 Servings Per Container&#10;Calories 150&#10;Total Fat 2g&#10;Sodium 120mg&#10;Total Carbohydrate 32g&#10;Total Sugars 28g&#10;Protein 0g&#10;INGREDIENTS: SUGAR, CORN SYRUP...&#10;Distributed by: Company Inc., Los Angeles, CA 90210"></textarea></div>
+              <div class="btn-row">
+                <button class="btn btn-md btn-primary" onclick="importParseFromPaste('import-raw-text')">&#128269; Parse Text →</button>
+                <button class="btn btn-sm btn-ghost" onclick="document.getElementById('import-raw-text').value=''">Clear</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Merge mode + trust controls -->
+        <div id="import-merge-controls" style="display:none;margin-top:16px;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+            <div class="fi" style="flex-direction:row;align-items:center;gap:8px;">
+              <label style="white-space:nowrap;">Merge Mode:</label>
+              <select id="import-merge-mode" style="width:200px;padding:6px 10px;">
+                <option value="fill-empty">Fill empty fields only</option>
+                <option value="overwrite">Overwrite all</option>
+                <option value="ask">Ask on conflict</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results area -->
+        <div id="import-preview-area" style="display:none;margin-top:16px;">
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-hdr"><span class="card-title">Uploaded / Parsed Source</span></div>
             <div class="card-body" id="import-file-info" style="font-size:12px;color:var(--dim);"></div>
           </div>
 
           <div class="card" style="margin-bottom:16px;border-color:var(--orange);">
             <div class="card-hdr" style="background:var(--orange-bg);">
-              <span class="card-title" style="color:var(--orange);">&#9888; Important — Review Required</span>
+              <span class="card-title" style="color:var(--orange);">&#9888; Review Required — Verify All Fields Before Accepting</span>
             </div>
             <div class="card-body">
-              <p style="font-size:12px;color:var(--dim);line-height:1.5;">Image parsing is an approximation. All extracted values must be reviewed and verified before use. Low-confidence fields are flagged. Manual correction is always available.</p>
+              <p style="font-size:12px;color:var(--dim);line-height:1.5;">Parsed values are estimates. Low-confidence fields (below 80%) are flagged in orange. Verify every value before use on a label.</p>
             </div>
           </div>
 
-          <div class="section-label">Extracted Fields</div>
-          <div class="card" style="margin-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+            <span style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;">Extracted Fields</span>
+            <button class="btn btn-sm btn-secondary" onclick="importAcceptHighConf()">✓ Accept High Confidence (≥80%)</button>
+            <button class="btn btn-sm btn-secondary" onclick="importAcceptAll()">✓ Accept All</button>
+          </div>
+
+          <div class="card" style="margin-bottom:16px;">
+            <div style="display:grid;grid-template-columns:160px 1fr 90px 1fr 60px;gap:0;padding:8px 14px;background:var(--surface2);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">
+              <span>Field</span><span>Parsed Value</span><span>Confidence</span><span>Source Snippet</span><span>Accept</span>
+            </div>
             <div id="import-field-map" style="padding:0;">
-              <!-- Populated by importParseSimulated() -->
+              <!-- Populated by renderImportFields() -->
             </div>
           </div>
 
-          <div class="btn-row">
-            <button class="btn btn-md btn-primary" id="import-accept-btn" onclick="importAccept()">Accept Fields → Create Label</button>
-            <button class="btn btn-md btn-secondary" onclick="importReset()">Clear &amp; Start Over</button>
+          <div class="btn-row" style="margin-bottom:16px;">
+            <button class="btn btn-md btn-primary" id="import-accept-btn" onclick="importAccept()">Merge Into Project →</button>
+            <button class="btn btn-md btn-secondary" onclick="importMarkVerified()" id="import-verify-btn" style="display:none;">&#10003; Mark as Verified</button>
+            <button class="btn btn-md btn-ghost" onclick="importReset()">Clear &amp; Start Over</button>
           </div>
         </div>
       </div>
     </div><!-- /importer -->
+
+    <!-- ====================================================
+         VIEW: INGREDIENT INTELLIGENCE (v3 new)
+         ==================================================== -->
+    <div class="view" id="view-ingredient-intel">
+      <div class="page-head">
+        <div class="page-eyebrow">Tools · v3</div>
+        <div class="page-title">Ingredient Intelligence</div>
+        <div class="page-sub">Paste messy supplier ingredient copy. Normalize casing, clean punctuation, detect allergens, fix color additives, flag duplicates — then push clean output directly to the editor.</div>
+      </div>
+      <div class="content-area wide">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
+
+          <!-- LEFT: Input + controls -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="card">
+              <div class="card-hdr"><span class="card-title">Raw Supplier Text</span></div>
+              <div class="card-body">
+                <div class="fi" style="margin-bottom:12px;">
+                  <textarea id="ii-raw" rows="8" placeholder="Paste messy supplier ingredient copy here...&#10;&#10;e.g: sugar,corn syrup;carnauba wax/natural flavors.citric acid red40 blue 1&#10;contains milk soy"></textarea>
+                </div>
+                <div class="btn-row">
+                  <button class="btn btn-lg btn-primary" onclick="iiAnalyze()">&#129516; Normalize &amp; Analyze</button>
+                  <button class="btn btn-sm btn-ghost" onclick="document.getElementById('ii-raw').value='';iiReset()">Clear</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" id="ii-clean-card" style="display:none;">
+              <div class="card-hdr"><span class="card-title" style="color:var(--green);">&#10003; Clean Draft</span></div>
+              <div class="card-body">
+                <div class="fi" style="margin-bottom:10px;">
+                  <label>Normalized (editable)</label>
+                  <textarea id="ii-clean" rows="6" oninput="iiUpdateOutput()"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" id="ii-allergen-card" style="display:none;">
+              <div class="card-hdr"><span class="card-title">Allergen Detection</span></div>
+              <div class="card-body">
+                <div id="ii-allergen-chips" class="allergen-grid" style="margin-bottom:12px;"></div>
+                <div style="font-size:11px;color:var(--dim);margin-bottom:6px;">Suggested statement:</div>
+                <div id="ii-allergen-preview" style="font-size:12px;font-weight:700;color:var(--red);font-family:var(--mono);padding:8px 10px;background:var(--red-bg);border-radius:4px;min-height:32px;"></div>
+              </div>
+            </div>
+
+            <div class="card" id="ii-color-card" style="display:none;">
+              <div class="card-hdr"><span class="card-title">Color Additives Normalized</span></div>
+              <div class="card-body">
+                <div id="ii-color-chips" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+              </div>
+            </div>
+
+            <div class="card" id="ii-dupe-card" style="display:none;border-color:var(--orange);">
+              <div class="card-hdr" style="background:var(--orange-bg);"><span class="card-title" style="color:var(--orange);">&#9888; Duplicate Ingredients</span></div>
+              <div class="card-body">
+                <div id="ii-dupe-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Output -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="card" id="ii-output-card">
+              <div class="card-hdr"><span class="card-title">Final Output</span></div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
+                <div>
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">Ingredients Statement</div>
+                  <div id="ii-final-ing" style="font-size:11px;line-height:1.6;color:var(--text);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:10px 12px;min-height:60px;">—</div>
+                </div>
+                <div>
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">Allergen Statement</div>
+                  <div id="ii-final-al" style="font-size:11px;font-weight:700;color:var(--red);background:var(--red-bg);border:1px solid rgba(248,113,113,0.2);border-radius:4px;padding:8px 12px;min-height:32px;">—</div>
+                </div>
+                <div class="btn-row" style="margin-top:4px;">
+                  <button class="btn btn-lg btn-primary" onclick="iiPushToEditor()">&#9997;&#65039; Push to Editor</button>
+                  <button class="btn btn-md btn-secondary" onclick="iiSaveToProject()">&#128190; Save to Project</button>
+                </div>
+                <p style="font-size:10px;color:var(--muted);font-style:italic;">Push to Editor will set the ingredients and allergen fields in the current open project.</p>
+              </div>
+            </div>
+
+            <div class="card" id="ii-stats-card" style="display:none;">
+              <div class="card-hdr"><span class="card-title">Analysis Summary</span></div>
+              <div class="card-body" id="ii-stats-body" style="font-size:12px;color:var(--dim);line-height:1.8;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /ingredient-intel -->
 
     <!-- ====================================================
          VIEW: TEMPLATES
@@ -1444,6 +1961,31 @@ input[type=number] { font-family: var(--mono); }
           &#9888; Preflight has unresolved issues. Manufacturer Ready export is locked. <a href="#" style="color:var(--orange);text-decoration:underline;" onclick="nfsNav('compliance');return false;">Run Preflight →</a>
         </div>
 
+        <!-- Print Settings (v3) -->
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-hdr"><span class="card-title">Print / Export Settings</span></div>
+          <div class="card-body">
+            <div class="grid-3" style="gap:14px;align-items:end;">
+              <div class="fi"><label>DPI (informational)</label>
+                <select id="exp-dpi">
+                  <option value="72">72 dpi (screen)</option>
+                  <option value="96">96 dpi</option>
+                  <option value="150" selected>150 dpi</option>
+                  <option value="300">300 dpi (print)</option>
+                </select>
+              </div>
+              <div class="fi" style="flex-direction:row;align-items:center;gap:8px;padding-top:18px;">
+                <input type="checkbox" id="exp-meta-page" style="width:auto;margin:0;"/>
+                <label style="font-size:11px;text-transform:none;letter-spacing:0;color:var(--dim);">Include metadata page</label>
+              </div>
+              <div class="fi" style="flex-direction:row;align-items:center;gap:8px;padding-top:18px;">
+                <input type="checkbox" id="exp-draft-watermark" checked style="width:auto;margin:0;"/>
+                <label style="font-size:11px;text-transform:none;letter-spacing:0;color:var(--dim);">Draft watermark</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div style="display:flex;flex-direction:column;gap:14px;">
           <!-- Draft -->
           <div class="export-tier">
@@ -1458,6 +2000,8 @@ input[type=number] { font-family: var(--mono); }
               <button class="btn btn-sm btn-secondary" onclick="exportDraftHTML()">HTML Label</button>
               <button class="btn btn-sm btn-secondary" onclick="exportJSON()">Structured JSON</button>
               <button class="btn btn-sm btn-secondary" onclick="exportCopyBlock()">Copy Block Only</button>
+              <button class="btn btn-sm btn-secondary" onclick="printLabel('draft')">&#128438; Print PDF</button>
+              <button class="btn btn-sm btn-secondary" onclick="exportPNG(3)">&#128247; PNG</button>
             </div>
           </div>
 
@@ -1472,6 +2016,7 @@ input[type=number] { font-family: var(--mono); }
             </div>
             <div class="btn-row">
               <button class="btn btn-sm btn-secondary" id="exp-review-btn" onclick="exportReview()">Export for Review</button>
+              <button class="btn btn-sm btn-secondary" onclick="printLabel('review')">&#128438; Print PDF</button>
             </div>
           </div>
 
@@ -1486,21 +2031,487 @@ input[type=number] { font-family: var(--mono); }
             </div>
             <div class="btn-row">
               <button class="btn btn-sm btn-secondary" id="exp-mfr-btn" onclick="exportManufacturerReady()" disabled>Export Manufacturer Ready</button>
+              <button class="btn btn-sm btn-secondary" onclick="printLabel('ready')">&#128438; Print PDF (Clean)</button>
+              <button class="btn btn-sm btn-secondary" onclick="exportPNG(4)">&#128247; PNG Hi-Res</button>
+              <button class="btn btn-sm btn-secondary" onclick="exportCleanPanelAsset()">Panel Asset</button>
             </div>
             <div style="font-size:10px;color:var(--muted);font-style:italic;margin-top:4px;">Final label accuracy and compliance responsibility rests with manufacturer/importer of record.</div>
           </div>
         </div>
 
-        <!-- Packaging Studio hook -->
-        <div class="card" style="margin-top:24px;">
-          <div class="card-hdr"><span class="card-title">Packaging Studio Integration</span></div>
+        <!-- Packaging Handoff (v3) -->
+        <div class="section-label" style="margin-top:24px;">Packaging Handoff</div>
+        <div class="card">
+          <div class="card-hdr"><span class="card-title" style="color:var(--blue);">&#128230; Packaging Studio Integration · v3</span></div>
           <div class="card-body">
-            <p style="font-size:12px;color:var(--dim);margin-bottom:12px;">Export a structured payload compatible with the Hidden Supply Packaging Studio for direct placement in pouch back-panel templates.</p>
-            <button class="btn btn-md btn-secondary" onclick="exportPackagingStudio()">Export for Packaging Studio →</button>
+            <p style="font-size:12px;color:var(--dim);margin-bottom:14px;">Export structured payloads for direct integration with the Hidden Supply Packaging Studio. Includes all declared values, layout specs, support copy, and trust metadata.</p>
+            <div class="btn-row" style="flex-wrap:wrap;gap:8px;">
+              <button class="btn btn-md btn-primary" onclick="exportPackagingPayloadV3()">&#128229; Send to Packaging Studio</button>
+              <button class="btn btn-md btn-secondary" onclick="exportCleanPanelAsset()">&#128196; Export Panel Asset</button>
+              <button class="btn btn-md btn-secondary" onclick="openRightRailModal()">&#128065; Right Rail Preview</button>
+              <button class="btn btn-md btn-secondary" onclick="exportSupportCopyTxt()">&#128203; Export Support Copy</button>
+            </div>
           </div>
         </div>
       </div>
     </div><!-- /export -->
+
+    <!-- ====================================================
+         VIEW: SUPPORT COMPOSER (v4)
+         ==================================================== -->
+    <div class="view" id="view-support-composer">
+      <div class="page-head">
+        <div class="page-eyebrow">v4 · Tools</div>
+        <div class="page-title">Support Copy Composer</div>
+        <div class="page-sub">Build structured distributor, origin, and contact blocks — the way real retail packaging looks. Stacked commercial format. Pushes to label preview and export.</div>
+      </div>
+      <div class="content-area wide">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
+          <!-- LEFT: Fields -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+
+            <!-- Distributor block -->
+            <div class="card">
+              <div class="card-hdr"><span class="card-title">Distributor / Importer Block</span></div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+                <div class="fi">
+                  <label>Label Prefix</label>
+                  <select id="sc-dist-prefix" onchange="scUpdate()">
+                    <option value="DISTRIBUTED BY:">DISTRIBUTED BY:</option>
+                    <option value="IMPORTED BY:">IMPORTED BY:</option>
+                    <option value="MARKETED BY:">MARKETED BY:</option>
+                    <option value="MANUFACTURED BY:">MANUFACTURED BY:</option>
+                    <option value="PACKED FOR:">PACKED FOR:</option>
+                  </select>
+                </div>
+                <div class="fi"><label>Company / Legal Name</label><input type="text" id="sc-dist-name" placeholder="HIDDEN SUPPLY" oninput="scUpdate()"/></div>
+                <div class="fi"><label>Street Address</label><input type="text" id="sc-dist-addr1" placeholder="123 Main Street" oninput="scUpdate()"/></div>
+                <div class="fi"><label>City, State ZIP</label><input type="text" id="sc-dist-addr2" placeholder="LOS ANGELES, CA 90210" oninput="scUpdate()"/></div>
+                <div class="fi"><label>Country (if not USA)</label><input type="text" id="sc-dist-country" placeholder="Leave blank for domestic" oninput="scUpdate()"/></div>
+                <div class="fi"><label>Website</label><input type="text" id="sc-dist-website" placeholder="HIDDENSUPPLY.CO" oninput="scUpdate()"/></div>
+                <div class="fi"><label>Phone (optional)</label><input type="text" id="sc-dist-phone" placeholder="1-800-XXX-XXXX" oninput="scUpdate()"/></div>
+              </div>
+            </div>
+
+            <!-- Origin block -->
+            <div class="card">
+              <div class="card-hdr"><span class="card-title">Manufactured In / Origin</span></div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+                <div class="fi">
+                  <label>Label Prefix</label>
+                  <select id="sc-origin-prefix" onchange="scUpdate()">
+                    <option value="PRODUCT OF">PRODUCT OF</option>
+                    <option value="MANUFACTURED IN">MANUFACTURED IN</option>
+                    <option value="MADE IN">MADE IN</option>
+                    <option value="IMPORTED FROM">IMPORTED FROM</option>
+                  </select>
+                </div>
+                <div class="fi"><label>Country</label><input type="text" id="sc-origin-country" placeholder="CHINA" oninput="scUpdate()"/></div>
+                <div class="fi" style="flex-direction:row;align-items:center;gap:8px;padding-top:4px;">
+                  <input type="checkbox" id="sc-origin-show" checked style="width:auto;margin:0;" onchange="scUpdate()"/>
+                  <label style="font-size:11px;text-transform:none;letter-spacing:0;">Include on label</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Display style -->
+            <div class="card">
+              <div class="card-hdr"><span class="card-title">Rendering Style</span></div>
+              <div class="card-body">
+                <div class="fi">
+                  <label>Layout Preset</label>
+                  <select id="sc-layout" onchange="scUpdate()">
+                    <option value="stacked-commercial">Stacked Commercial (Hidden Supply Standard)</option>
+                    <option value="compact-stacked">Compact Stacked</option>
+                    <option value="inline-compact">Inline Compact</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Icons -->
+            <div class="card">
+              <div class="card-hdr"><span class="card-title">Packaging Icons (Support Area Only)</span></div>
+              <div class="card-body">
+                <p style="font-size:11px;color:var(--muted);margin-bottom:12px;">Icons appear in the support/utility area — never inside the regulated Nutrition Facts panel.</p>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;" id="sc-icon-picker">
+                  <!-- Populated by JS -->
+                </div>
+                <div class="fi" style="margin-top:12px;">
+                  <label>Icon Arrangement</label>
+                  <select id="sc-icon-layout" onchange="scUpdate()">
+                    <option value="none">None</option>
+                    <option value="inline-row">Inline Row (bottom of support area)</option>
+                    <option value="stacked-right">Stacked Right</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn-lg btn-primary" onclick="scPushToProject()">&#9997;&#65039; Push to Project</button>
+              <button class="btn btn-md btn-secondary" onclick="scLoadFromProject()">&#8635; Load from Project</button>
+            </div>
+          </div>
+
+          <!-- RIGHT: Live preview -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="card">
+              <div class="card-hdr"><span class="card-title">Support Copy Preview</span></div>
+              <div class="card-body">
+                <div id="sc-preview-block" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.7;color:#111;background:#fff;padding:14px;border:1px solid #ccc;border-radius:4px;min-height:80px;white-space:pre-line;"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hdr"><span class="card-title">Icons Preview</span></div>
+              <div class="card-body">
+                <div id="sc-icon-preview" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;min-height:36px;"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hdr"><span class="card-title">Net Weight</span></div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+                <div class="grid-3" style="gap:12px;align-items:end;">
+                  <div class="fi"><label>Oz Amount</label><input type="number" id="nw-oz" placeholder="5" step="0.01" oninput="nwUpdate()"/></div>
+                  <div class="fi"><label>Gram (auto)</label><input type="number" id="nw-g" placeholder="141" step="1" oninput="nwManual()"/></div>
+                  <div class="fi"><label>Display Format</label>
+                    <select id="nw-format" onchange="nwUpdate()">
+                      <option value="oz-g">5 oz (141g)</option>
+                      <option value="g-only">141g</option>
+                      <option value="oz-only">5 oz</option>
+                      <option value="floz-ml">fl oz / mL</option>
+                    </select>
+                  </div>
+                </div>
+                <div id="nw-preview" style="font-size:12px;font-family:var(--mono);color:var(--accent);padding:6px 10px;background:var(--surface2);border-radius:4px;"></div>
+                <div id="nw-warn" style="font-size:11px;color:var(--red);display:none;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /support-composer -->
+
+    <!-- ====================================================
+         VIEW: BARCODE MODULE (v4)
+         ==================================================== -->
+    <div class="view" id="view-barcode">
+      <div class="page-head">
+        <div class="page-eyebrow">v4 · Tools</div>
+        <div class="page-title">Barcode Module</div>
+        <div class="page-sub">Generate or validate a barcode for your label. Enter a UPC-A or EAN-13 code you own — or use placeholder mode for mockups. Placeholder barcodes are clearly marked and blocked from Manufacturer Ready exports.</div>
+      </div>
+      <div class="content-area narrow">
+
+        <!-- Honesty notice -->
+        <div style="background:var(--blue-bg,rgba(96,165,250,0.08));border:1px solid rgba(96,165,250,0.3);border-radius:var(--radius);padding:12px 16px;margin-bottom:20px;">
+          <div style="font-size:11px;font-weight:700;color:#60a5fa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">&#9432; Barcode Ownership Notice</div>
+          <p style="font-size:11px;color:var(--dim);line-height:1.6;">This tool renders barcode images from codes you provide. It does <strong style="color:var(--text);">not</strong> mint GS1-registered barcodes or grant retail ownership. To sell in U.S. retail, you need a GS1 Company Prefix and properly assigned UPC codes. Placeholder/Demo mode is for mockups only — clearly marked and export-blocked.</p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
+          <!-- Controls -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="card">
+              <div class="card-hdr"><span class="card-title">Barcode Settings</span></div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+                <div class="fi">
+                  <label>Mode</label>
+                  <select id="bc-mode" onchange="bcModeChange()">
+                    <option value="real">Real Code (user-owned UPC/EAN)</option>
+                    <option value="placeholder">Placeholder / Demo Mockup</option>
+                  </select>
+                </div>
+                <div id="bc-real-fields">
+                  <div class="fi" style="margin-bottom:10px;">
+                    <label>Barcode Type</label>
+                    <select id="bc-type" onchange="bcUpdate()">
+                      <option value="UPC">UPC-A (12 digits — U.S. retail standard)</option>
+                      <option value="EAN13">EAN-13 (13 digits — international)</option>
+                    </select>
+                  </div>
+                  <div class="fi" style="margin-bottom:10px;">
+                    <label>Code Value</label>
+                    <input type="text" id="bc-value" placeholder="619364850086" oninput="bcUpdate()" style="font-family:var(--mono);letter-spacing:.1em;"/>
+                  </div>
+                  <div id="bc-validation-row" style="font-size:11px;font-family:var(--mono);padding:6px 10px;border-radius:4px;background:var(--surface2);min-height:28px;"></div>
+                </div>
+                <div id="bc-placeholder-fields" style="display:none;">
+                  <div style="background:var(--orange-bg);border:1px solid var(--orange);border-radius:4px;padding:10px 12px;margin-bottom:10px;">
+                    <div style="font-size:11px;font-weight:700;color:var(--orange);letter-spacing:.1em;text-transform:uppercase;">Placeholder Mode Active</div>
+                    <div style="font-size:11px;color:var(--dim);margin-top:3px;">Output will be visibly watermarked as DEMO. Manufacturer Ready export will be blocked while this mode is active.</div>
+                  </div>
+                  <div class="fi">
+                    <label>Demo Code (optional custom)</label>
+                    <input type="text" id="bc-placeholder-val" placeholder="000000000000" oninput="bcUpdate()" style="font-family:var(--mono);"/>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;padding-top:4px;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="checkbox" id="bc-show-text" checked style="width:auto;margin:0;" onchange="bcUpdate()"/>
+                    <label style="font-size:11px;text-transform:none;letter-spacing:0;">Show human-readable number</label>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="checkbox" id="bc-include-on-label" checked style="width:auto;margin:0;" onchange="bcUpdate()"/>
+                    <label style="font-size:11px;text-transform:none;letter-spacing:0;">Include barcode on label export</label>
+                  </div>
+                </div>
+                <div class="grid-2" style="gap:12px;">
+                  <div class="fi"><label>Width (px)</label><input type="number" id="bc-width" value="2" min="1" max="4" step="0.5" oninput="bcUpdate()"/></div>
+                  <div class="fi"><label>Height (px)</label><input type="number" id="bc-height" value="60" min="40" max="120" step="5" oninput="bcUpdate()"/></div>
+                </div>
+                <div class="btn-row">
+                  <button class="btn btn-md btn-primary" onclick="bcSaveToProject()">&#128190; Save Barcode to Project</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="card">
+              <div class="card-hdr"><span class="card-title">Barcode Preview</span></div>
+              <div class="card-body" style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+                <div id="bc-preview-zone" style="padding:16px;background:#fff;border:1px solid #ccc;border-radius:4px;min-width:180px;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                  <svg id="bc-svg" style="display:none;"></svg>
+                  <div id="bc-placeholder-visual" style="display:none;flex-direction:column;align-items:center;gap:4px;">
+                    <div class="barcode-placeholder"></div>
+                    <div class="barcode-number">0 00000 00000 0</div>
+                    <div class="barcode-placeholder-badge">DEMO / PLACEHOLDER</div>
+                  </div>
+                  <div id="bc-empty-hint" style="font-size:11px;color:var(--muted);text-align:center;">Enter a code above to preview</div>
+                </div>
+                <div id="bc-export-zone" style="display:none;">
+                  <button class="btn btn-sm btn-secondary" onclick="bcExportPNG()">&#128247; Export Barcode PNG</button>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hdr"><span class="card-title">Retail Checklist</span></div>
+              <div class="card-body" id="bc-checklist" style="font-size:11px;color:var(--dim);line-height:1.8;">
+                <div>&#10003; UPC-A is the U.S. retail standard (12 digits)</div>
+                <div>&#10003; You need a GS1 Company Prefix to own UPCs</div>
+                <div>&#10003; Check digit is auto-validated above</div>
+                <div>&#10003; Minimum quiet zone: 9× bar width each side</div>
+                <div>&#10003; Minimum bar height: 0.69" for retail scan</div>
+                <div style="margin-top:8px;color:var(--muted);font-size:10px;font-style:italic;">Apply for GS1 US: gs1us.org</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /barcode -->
+
+    <!-- ====================================================
+         VIEW: LABEL STYLE (v4)
+         ==================================================== -->
+    <div class="view" id="view-label-style">
+      <div class="page-head">
+        <div class="page-eyebrow">v4 · Tools</div>
+        <div class="page-title">Label Style &amp; Serving Size Composer</div>
+        <div class="page-sub">Set commercial style preset, structured serving size, and small package mode. Changes apply immediately to the label preview.</div>
+      </div>
+      <div class="content-area narrow">
+
+        <!-- Style Presets -->
+        <div class="section-label">Style Preset</div>
+        <div class="grid-3" style="margin-bottom:24px;gap:12px;">
+          <div class="card style-preset-card selected" id="sp-hidden-supply" onclick="setStylePreset('hidden-supply')">
+            <div class="card-body" style="text-align:center;padding:16px;">
+              <div style="font-size:20px;margin-bottom:6px;">&#127381;</div>
+              <div style="font-size:12px;font-weight:700;">Hidden Supply Standard</div>
+              <div style="font-size:10px;color:var(--dim);margin-top:3px;">Current house style</div>
+            </div>
+          </div>
+          <div class="card style-preset-card" id="sp-commercial-standard" onclick="setStylePreset('commercial-standard')">
+            <div class="card-body" style="text-align:center;padding:16px;">
+              <div style="font-size:20px;margin-bottom:6px;">&#128450;</div>
+              <div style="font-size:12px;font-weight:700;">Commercial Standard</div>
+              <div style="font-size:10px;color:var(--dim);margin-top:3px;">Recipal-grade spacing/weight</div>
+            </div>
+          </div>
+          <div class="card style-preset-card" id="sp-compact-rail" onclick="setStylePreset('compact-rail')">
+            <div class="card-body" style="text-align:center;padding:16px;">
+              <div style="font-size:20px;margin-bottom:6px;">&#9644;</div>
+              <div style="font-size:12px;font-weight:700;">Compact Rail</div>
+              <div style="font-size:10px;color:var(--dim);margin-top:3px;">Narrow pouch, tight spacing</div>
+            </div>
+          </div>
+          <div class="card style-preset-card" id="sp-small-package" onclick="setStylePreset('small-package')">
+            <div class="card-body" style="text-align:center;padding:16px;">
+              <div style="font-size:20px;margin-bottom:6px;">&#128196;</div>
+              <div style="font-size:12px;font-weight:700;">Small Package / Split</div>
+              <div style="font-size:10px;color:var(--dim);margin-top:3px;">PeelPals / blister card mode</div>
+              <div style="margin-top:6px;"><span class="split-mode-badge">SPLIT MODE</span></div>
+            </div>
+          </div>
+          <div class="card style-preset-card" id="sp-wide-panel" onclick="setStylePreset('wide-panel')">
+            <div class="card-body" style="text-align:center;padding:16px;">
+              <div style="font-size:20px;margin-bottom:6px;">&#9645;</div>
+              <div style="font-size:12px;font-weight:700;">Wide Commercial Panel</div>
+              <div style="font-size:10px;color:var(--dim);margin-top:3px;">Box side / tray insert</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Structured Serving Size Composer -->
+        <div class="section-label">Serving Size Composer</div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-hdr"><span class="card-title">Build Serving Size String</span></div>
+          <div class="card-body">
+            <div class="grid-4" style="gap:12px;align-items:end;margin-bottom:14px;">
+              <div class="fi">
+                <label>Qualifier</label>
+                <select id="ss-qualifier" onchange="ssCompose()">
+                  <option value="">— none —</option>
+                  <option value="About">About</option>
+                  <option value="Approx.">Approx.</option>
+                </select>
+              </div>
+              <div class="fi"><label>Quantity</label><input type="text" id="ss-qty" placeholder="3" oninput="ssCompose()"/></div>
+              <div class="fi">
+                <label>Unit / Descriptor</label>
+                <select id="ss-unit" onchange="ssCompose()">
+                  <option value="Pieces">Pieces</option>
+                  <option value="Piece">Piece</option>
+                  <option value="Gummies">Gummies</option>
+                  <option value="Gummy">Gummy</option>
+                  <option value="Bottle">Bottle</option>
+                  <option value="Pouch">Pouch</option>
+                  <option value="Stick">Stick</option>
+                  <option value="Can">Can</option>
+                  <option value="Tablet">Tablet</option>
+                  <option value="Scoop">Scoop</option>
+                  <option value="Serving">Serving</option>
+                  <option value="custom">Custom...</option>
+                </select>
+              </div>
+              <div class="fi"><label>Custom Unit</label><input type="text" id="ss-unit-custom" placeholder="Wax Bottles" oninput="ssCompose()" style="display:none;"/></div>
+            </div>
+            <div class="grid-3" style="gap:12px;align-items:end;margin-bottom:14px;">
+              <div class="fi">
+                <label>Common Unit (optional)</label>
+                <select id="ss-common-unit" onchange="ssCompose()">
+                  <option value="">— none —</option>
+                  <option value="oz">oz</option>
+                  <option value="fl oz">fl oz</option>
+                  <option value="lb">lb</option>
+                </select>
+              </div>
+              <div class="fi"><label>Common Amount</label><input type="number" id="ss-common-amt" placeholder="1" step="0.01" oninput="ssCompose()"/></div>
+              <div class="fi"><label>Metric (g or mL)</label><input type="number" id="ss-metric-g" placeholder="28" step="1" oninput="ssCompose()"/></div>
+            </div>
+            <div id="ss-composed-preview" style="font-size:13px;font-weight:700;font-family:Arial,Helvetica,sans-serif;color:var(--text);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:10px 14px;margin-bottom:12px;min-height:32px;"></div>
+            <div id="ss-warn" style="font-size:11px;color:var(--orange);display:none;margin-bottom:8px;"></div>
+            <div class="btn-row">
+              <button class="btn btn-md btn-primary" onclick="ssPushToEditor()">Push to Editor →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Small Package Mode -->
+        <div class="section-label">Small Package / Split Compliance Mode</div>
+        <div class="card" style="margin-bottom:20px;" id="split-mode-card">
+          <div class="card-hdr">
+            <span class="card-title">Split Compliance Mode</span>
+            <span class="split-mode-badge" id="split-mode-indicator" style="display:none;">ACTIVE</span>
+          </div>
+          <div class="card-body">
+            <p style="font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:14px;">For small packages like PeelPals blister cards where the nutrition panel, ingredients, support copy, and barcode must fit in separate constrained zones. Exports produce separate block assets for each zone.</p>
+            <div class="fi" style="margin-bottom:12px;">
+              <label>Small Package Profile</label>
+              <select id="sp-small-profile">
+                <option value="">— Standard (split mode off) —</option>
+                <option value="peel-card-back">Peel Card Back (4.13" × 5.91")</option>
+                <option value="mini-blister">Mini Blister / Hanging Card</option>
+                <option value="constrained-box">Constrained Back Box Panel</option>
+                <option value="split-compliance-card">Split Compliance Card</option>
+              </select>
+            </div>
+            <div class="grid-2" style="gap:12px;margin-bottom:12px;">
+              <div class="fi"><label>Card Width (in)</label><input type="number" id="sp-card-w" placeholder="4.13" step="0.01"/></div>
+              <div class="fi"><label>Card Height (in)</label><input type="number" id="sp-card-h" placeholder="5.91" step="0.01"/></div>
+            </div>
+            <div id="sp-small-profile-desc" style="font-size:11px;color:var(--dim);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:10px 12px;margin-bottom:12px;display:none;"></div>
+            <div class="btn-row">
+              <button class="btn btn-md btn-secondary" onclick="exportSplitComplianceBundle()">&#128229; Export Split Bundle (All Zones)</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /label-style -->
+
+    <!-- ====================================================
+         VIEW: APPROVAL / FREEZE (v4)
+         ==================================================== -->
+    <div class="view" id="view-approval">
+      <div class="page-head">
+        <div class="page-eyebrow">v4 · Workflow</div>
+        <div class="page-title">Approval &amp; Freeze</div>
+        <div class="page-sub">Finalize labels for production. Frozen labels require an explicit unlock to edit. Manufacturer Ready export requires clean preflight and no placeholder barcode.</div>
+      </div>
+      <div class="content-area narrow">
+        <div id="approval-no-project" style="padding:40px;text-align:center;font-size:12px;color:var(--muted);">No project open. Open or create a label first.</div>
+        <div id="approval-content" style="display:none;flex-direction:column;gap:16px;">
+
+          <!-- Status card -->
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Current Status</span></div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                <div style="font-size:24px;font-weight:900;font-family:var(--mono);" id="appr-status-display">—</div>
+                <div>
+                  <div style="font-size:12px;color:var(--dim);" id="appr-meta-line">—</div>
+                  <div style="font-size:11px;color:var(--muted);" id="appr-version-line">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Workflow steps -->
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Workflow Actions</span></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:8px;">
+              <div class="approval-row">
+                <div><div style="font-size:12px;font-weight:700;">Mark as Review Ready</div><div style="font-size:11px;color:var(--dim);">Ready for internal stakeholder review</div></div>
+                <button class="btn btn-sm btn-secondary" onclick="apprSetStatus('review')">Set Review Ready</button>
+              </div>
+              <div class="approval-row">
+                <div><div style="font-size:12px;font-weight:700;">Mark as Ops Approved</div><div style="font-size:11px;color:var(--dim);">Internal approval — values confirmed</div></div>
+                <button class="btn btn-sm btn-secondary" onclick="apprSetStatus('approved')">Set Approved</button>
+              </div>
+              <div class="approval-row">
+                <div><div style="font-size:12px;font-weight:700;">Promote to Manufacturer Ready</div><div style="font-size:11px;color:var(--dim);">Requires clean preflight + no placeholder barcode</div></div>
+                <button class="btn btn-sm btn-primary" onclick="apprPromoteToReady()">Promote to Mfr Ready</button>
+              </div>
+              <div class="approval-row" style="border-bottom:none;">
+                <div><div style="font-size:12px;font-weight:700;color:var(--blue);">&#10052; Freeze / Lock Version</div><div style="font-size:11px;color:var(--dim);">Locks label — requires unlock reason to edit</div></div>
+                <button class="btn btn-sm btn-secondary" onclick="apprFreeze()" id="appr-freeze-btn">Freeze Version</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Freeze controls -->
+          <div class="card" id="appr-unlock-card" style="display:none;border-color:var(--blue);">
+            <div class="card-hdr" style="background:var(--blue-bg,rgba(96,165,250,0.08));"><span class="card-title" style="color:#60a5fa;">&#10052; Label Frozen</span></div>
+            <div class="card-body">
+              <p style="font-size:12px;color:var(--dim);margin-bottom:12px;">This label is frozen. Provide a reason to unlock for editing.</p>
+              <div class="fi" style="margin-bottom:10px;"><label>Unlock Reason</label><input type="text" id="appr-unlock-reason" placeholder="e.g. Ingredient update from supplier"/></div>
+              <button class="btn btn-md btn-secondary" onclick="apprUnlock()">Unlock for Editing</button>
+            </div>
+          </div>
+
+          <!-- Approval log -->
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Approval History</span></div>
+            <div id="appr-log-list" style="padding:0;">
+              <div style="padding:16px;font-size:12px;color:var(--muted);">No history yet.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /approval -->
 
     <!-- ====================================================
          VIEW: FORMULA CALCULATOR
@@ -1628,6 +2639,54 @@ input[type=number] { font-family: var(--mono); }
     <div class="modal-body" id="math-modal-body"></div>
     <div class="modal-foot">
       <button class="btn btn-sm btn-secondary" onclick="document.getElementById('math-modal').classList.remove('open')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Right Rail Preview Modal (v3) -->
+<div class="modal-bg" id="right-rail-modal">
+  <div class="modal" style="width:680px;max-width:96vw;">
+    <div class="modal-hdr">
+      <div class="modal-title">Right Rail Context Preview</div>
+      <button class="modal-close" onclick="document.getElementById('right-rail-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <label style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;">Pouch Width:</label>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm btn-secondary" id="rr-wide-btn" onclick="setRRMode('wide')" style="background:var(--accent);color:#111;border-color:var(--accent);">Standard</button>
+          <button class="btn btn-sm btn-secondary" id="rr-narrow-btn" onclick="setRRMode('narrow')">Narrow</button>
+        </div>
+        <span style="font-size:10px;color:var(--muted);" id="rr-dim-note">5.75" × 7.5" stand-up pouch</span>
+      </div>
+      <!-- Pouch silhouette -->
+      <div style="display:flex;justify-content:center;">
+        <div id="rr-pouch-wrap" style="position:relative;width:300px;height:440px;background:linear-gradient(160deg,#2a2a2a,#1a1a1a);border-radius:18px 18px 28px 28px;border:2px solid #3a3a3a;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
+          <!-- Gusset hint at bottom -->
+          <div style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.4));border-radius:0 0 26px 26px;"></div>
+          <!-- Zipper hint at top -->
+          <div style="position:absolute;top:12px;left:20px;right:20px;height:6px;background:#3a3a3a;border-radius:3px;"></div>
+          <!-- Seal line top -->
+          <div style="position:absolute;top:24px;left:0;right:0;height:2px;background:#2a2a2a;"></div>
+          <!-- Label zone label -->
+          <div style="position:absolute;top:40px;left:8px;font-size:8px;font-family:var(--mono);color:#444;letter-spacing:.12em;text-transform:uppercase;">Back Panel</div>
+          <!-- Label positioned right-rail -->
+          <div id="rr-label-zone" style="position:absolute;top:40px;right:8px;bottom:70px;width:45%;overflow:hidden;display:flex;align-items:flex-start;justify-content:center;padding-top:4px;">
+            <div style="transform:scale(0.52);transform-origin:top right;width:260px;" id="rr-label-inner"></div>
+          </div>
+          <!-- Left zone (brand area) -->
+          <div style="position:absolute;top:40px;left:8px;right:47%;bottom:70px;display:flex;align-items:center;justify-content:center;">
+            <div style="text-align:center;">
+              <div style="font-size:10px;font-family:var(--mono);color:#333;text-transform:uppercase;letter-spacing:.14em;">Brand</div>
+              <div style="font-size:8px;color:#2a2a2a;margin-top:4px;">How-to / flavor</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:10px;color:var(--muted);text-align:center;font-style:italic;">Schematic preview — not to print scale. For dimensional reference use the Templates view.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sm btn-secondary" onclick="document.getElementById('right-rail-modal').classList.remove('open')">Close</button>
     </div>
   </div>
 </div>
@@ -2619,7 +3678,7 @@ function previewPrint() {
   const label = getLabelHTML();
   const name = nfsCurrent?.name || 'Label';
   const w = window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html><head><title>${name}</title><style>body{margin:30px;background:#fff;}${getLabelCSS()}</style></head><body>${label}<script>window.print();window.close();<\/script></body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head><title>${name}</title><style>body{margin:30px;background:#fff;}${getLabelCSS()}</style></head><body>${label}<${'script'}>window.print();window.close();</${'script'}></body></html>`);
   w.document.close();
 }
 
@@ -3261,6 +4320,2163 @@ window.addEventListener('DOMContentLoaded', () => {
   // Run auto %DV if project loaded
   if (nfsCurrent) autoAllDV();
 });
+
+// ============================================================
+//  V3 ADDITIONS
+// ============================================================
+
+// Session stats (in-memory only)
+const sessionStats = { exportsThisSession: 0, lastExportTier: null, lastExportTs: null, lastExportName: null };
+
+function trackExport(tier, name) {
+  sessionStats.exportsThisSession++;
+  sessionStats.lastExportTier = tier;
+  sessionStats.lastExportTs = new Date().toISOString();
+  sessionStats.lastExportName = name || nfsCurrent?.name || '';
+}
+
+// ============================================================
+//  V3 SCHEMA EXTENSION — patch emptyProject output
+// ============================================================
+const _origEmptyProject = emptyProject;
+// Monkey-patch to add v3 fields to new projects
+// (existing projects load fine since we default via ??)
+function emptyProjectV3() {
+  const p = _origEmptyProject();
+  p.importSession = null;
+  p.ingredientIntel = null;
+  p.preflightModifiedTs = null;
+  p.exportHistory = [];
+  return p;
+}
+// Override emptyProject globally
+window.emptyProject = emptyProjectV3;
+
+// Patch nfsSaveProject to update preflightModifiedTs
+const _origSave = nfsSaveProject;
+function nfsSaveProjectV3(notify = true) {
+  if (nfsCurrent) nfsCurrent.preflightModifiedTs = new Date().toISOString();
+  _origSave(notify);
+}
+window.nfsSaveProject = nfsSaveProjectV3;
+
+// ============================================================
+//  V3 IMPORT — real parseNutritionText + upgraded UI
+// ============================================================
+let importParsedFields = []; // { field, label, value, confidence, snippet, accepted }
+
+function importModeTab(btn, panelId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#view-importer .sub-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('sub-' + panelId).classList.add('active');
+}
+
+function parseNutritionText(text) {
+  const results = [];
+  const raw = text;
+  const t = text.toLowerCase().replace(/\s+/g, ' ');
+
+  const ssMatch = t.match(/serving\s*size[:\s]+([^\n,]{2,40})/);
+  if (ssMatch) results.push({ field:'servingSize', label:'Serving Size', value: ssMatch[1].trim(), confidence: 0.92, snippet: ssMatch[0] });
+
+  const spcMatch = t.match(/servings?\s+per\s+container[:\s]+([^\n,]{1,30})/);
+  if (spcMatch) results.push({ field:'servingsPerContainer', label:'Servings Per Container', value: spcMatch[1].trim(), confidence: 0.90, snippet: spcMatch[0] });
+
+  const calMatch = t.match(/(?:calories|energy|热量|cal\b)[:\s]+(\d+)/);
+  if (calMatch) results.push({ field:'cal', label:'Calories', value: calMatch[1], confidence: 0.93, snippet: calMatch[0] });
+
+  const NUTRIENTS = [
+    { field:'tf',  label:'Total Fat',          unit:'g',   patterns:[/total\s*fat[:\s]+(\d+\.?\d*)\s*g/] },
+    { field:'sf',  label:'Saturated Fat',       unit:'g',   patterns:[/saturated\s*fat[:\s]+(\d+\.?\d*)\s*g/] },
+    { field:'xf',  label:'Trans Fat',           unit:'g',   patterns:[/trans\s*fat[:\s]+(\d+\.?\d*)\s*g/] },
+    { field:'ch',  label:'Cholesterol',         unit:'mg',  patterns:[/cholesterol[:\s]+(\d+\.?\d*)\s*mg/] },
+    { field:'na',  label:'Sodium',              unit:'mg',  patterns:[/sodium[:\s]+(\d+\.?\d*)\s*mg/, /\bna[:\s]+(\d+\.?\d*)\s*mg/] },
+    { field:'tc',  label:'Total Carbohydrate',  unit:'g',   patterns:[/total\s*carb[a-z]*[:\s]+(\d+\.?\d*)\s*g/] },
+    { field:'df',  label:'Dietary Fiber',       unit:'g',   patterns:[/dietary\s*fiber[:\s]+(\d+\.?\d*)\s*g/, /total\s*fiber[:\s]+(\d+\.?\d*)\s*g/] },
+    { field:'su',  label:'Total Sugars',        unit:'g',   patterns:[/total\s*sugars?[:\s]+(\d+\.?\d*)\s*g/] },
+    { field:'as_', label:'Added Sugars',        unit:'g',   patterns:[/added\s*sugars?[:\s]+(\d+\.?\d*)\s*g/, /incl\.?\s+(\d+\.?\d*)\s*g\s+added/] },
+    { field:'pr',  label:'Protein',             unit:'g',   patterns:[/protein[:\s]+(\d+\.?\d*)\s*g/] },
+    { field:'vd',  label:'Vitamin D',           unit:'mcg', patterns:[/vitamin\s*d[:\s]+(\d+\.?\d*)\s*(?:mcg|µg)/] },
+    { field:'ca',  label:'Calcium',             unit:'mg',  patterns:[/calcium[:\s]+(\d+\.?\d*)\s*mg/] },
+    { field:'fe',  label:'Iron',                unit:'mg',  patterns:[/iron[:\s]+(\d+\.?\d*)\s*mg/] },
+    { field:'k',   label:'Potassium',           unit:'mg',  patterns:[/potassium[:\s]+(\d+\.?\d*)\s*mg/] },
+  ];
+
+  NUTRIENTS.forEach(n => {
+    for (const pat of n.patterns) {
+      const m = t.match(pat);
+      if (m) { results.push({ field: n.field, label: n.label, value: m[1], confidence: 0.88, snippet: m[0] }); break; }
+    }
+  });
+
+  const ingMatch = raw.match(/ingredients?[:\s]+([^]+?)(?=\n\n|contains:|distributed|$)/i);
+  if (ingMatch) results.push({ field:'ingredients', label:'Ingredients', value: ingMatch[1].trim().substring(0, 500), confidence: 0.72, snippet: 'Ingredients block detected' });
+
+  const alMatch = raw.match(/contains[:\s]+([^\n.]+)/i);
+  if (alMatch) results.push({ field:'allergenCustom', label:'Allergen Statement', value: alMatch[0].trim(), confidence: 0.85, snippet: alMatch[0] });
+
+  const distMatch = raw.match(/(?:distributed|imported|marketed)\s+by[:\s]+([^\n]+)/i);
+  if (distMatch) results.push({ field:'distributor', label:'Distributor', value: distMatch[0].trim(), confidence: 0.82, snippet: distMatch[0] });
+
+  const originMatch = raw.match(/(?:manufactured|made|product)\s+(?:in|of)[:\s]+([^\n,.]+)/i);
+  if (originMatch) results.push({ field:'origin', label:'Country of Origin', value: originMatch[0].trim(), confidence: 0.80, snippet: originMatch[0] });
+
+  const warnMatch = raw.match(/(?:WARNING|CHOKING HAZARD)[^\n]*/i);
+  if (warnMatch) results.push({ field:'warning', label:'Warning', value: warnMatch[0].trim(), confidence: 0.88, snippet: warnMatch[0] });
+
+  return results;
+}
+
+function importParseFromPaste(textareaId) {
+  const text = document.getElementById(textareaId)?.value || '';
+  if (!text.trim()) { toast('Empty', 'Paste some text first.'); return; }
+  const fields = parseNutritionText(text);
+  if (!fields.length) { toast('No Fields Found', 'Could not detect any nutrition data. Check the text format.'); return; }
+  importParsedFields = fields.map(f => ({ ...f, accepted: f.confidence >= 0.80 }));
+  renderImportFields();
+  document.getElementById('import-file-info').innerHTML = `<strong>Parsed from text input</strong> — ${fields.length} fields detected`;
+  document.getElementById('import-preview-area').style.display = 'block';
+  document.getElementById('import-merge-controls').style.display = 'block';
+  toast('Parsed', `${fields.length} fields extracted. Review and accept.`);
+}
+
+function renderImportFields() {
+  const container = document.getElementById('import-field-map');
+  if (!container) return;
+  container.innerHTML = '';
+  if (!importParsedFields.length) return;
+
+  importParsedFields.forEach((f, idx) => {
+    const confPct = Math.round(f.confidence * 100);
+    const confColor = f.confidence >= 0.85 ? 'var(--green)' : f.confidence >= 0.65 ? 'var(--orange)' : 'var(--red)';
+
+    // Check if project already has this value
+    let existingVal = '';
+    if (nfsCurrent) {
+      if (['cal','tf','sf','xf','ch','na','tc','df','su','as_','pr','vd','ca','fe','k'].includes(f.field)) {
+        existingVal = nfsCurrent.nutrients?.[f.field]?.declared || '';
+      } else if (f.field === 'servingSize') existingVal = nfsCurrent.servingSize || '';
+      else if (f.field === 'servingsPerContainer') existingVal = nfsCurrent.servingsPerContainer || '';
+      else if (f.field === 'ingredients') existingVal = nfsCurrent.ingredients || '';
+      else if (f.field === 'distributor') existingVal = nfsCurrent.distributor || '';
+      else if (f.field === 'origin') existingVal = nfsCurrent.origin || '';
+      else if (f.field === 'allergenCustom') existingVal = nfsCurrent.allergenCustom || '';
+      else if (f.field === 'warning') existingVal = nfsCurrent.warning || '';
+    }
+
+    const row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:140px 1fr 80px 1fr 50px;gap:8px;padding:8px 14px;border-bottom:1px solid var(--border);align-items:start;';
+    row.innerHTML = `
+      <div style="font-size:11px;font-weight:700;color:var(--dim);padding-top:6px;">${f.label}</div>
+      <div>
+        <input type="text" value="${f.value.replace(/"/g,'&quot;')}" data-idx="${idx}"
+          oninput="importParsedFields[${idx}].value=this.value"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:11px;padding:5px 8px;"/>
+        ${existingVal ? `<div style="font-size:10px;color:var(--muted);margin-top:3px;">Current: <span style="color:var(--orange);">${String(existingVal).substring(0,40)}</span></div>` : ''}
+      </div>
+      <div style="text-align:center;padding-top:6px;">
+        <div style="font-size:12px;font-weight:700;color:${confColor};font-family:var(--mono);">${confPct}%</div>
+        <div style="height:3px;background:var(--surface2);border-radius:2px;margin-top:3px;"><div style="height:3px;width:${confPct}%;background:${confColor};border-radius:2px;"></div></div>
+      </div>
+      <div style="font-size:10px;color:var(--muted);padding-top:6px;line-height:1.4;word-break:break-word;">${f.snippet.substring(0,60)}</div>
+      <div style="text-align:center;padding-top:4px;">
+        <input type="checkbox" ${f.accepted ? 'checked' : ''} onchange="importParsedFields[${idx}].accepted=this.checked" style="width:16px;height:16px;cursor:pointer;"/>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+
+  document.getElementById('import-verify-btn').style.display = 'inline-flex';
+}
+
+function importAcceptHighConf() {
+  importParsedFields.forEach(f => { if (f.confidence >= 0.80) f.accepted = true; });
+  renderImportFields();
+  toast('Selected', 'High-confidence fields selected.');
+}
+
+function importAcceptAll() {
+  importParsedFields.forEach(f => { f.accepted = true; });
+  renderImportFields();
+  toast('Selected', 'All fields selected.');
+}
+
+function importAccept() {
+  if (!nfsCurrent) {
+    nfsCurrent = emptyProject();
+    nfsCurrent.name = 'Imported Label';
+    nfsCurrent.sourceMode = 'import';
+  }
+  const mergeMode = document.getElementById('import-merge-mode')?.value || 'fill-empty';
+  const accepted = importParsedFields.filter(f => f.accepted);
+  let lowConf = 0;
+
+  accepted.forEach(f => {
+    const val = f.value.trim();
+    if (f.confidence < 0.80) lowConf++;
+
+    // Get existing value for conflict check
+    const getExisting = () => {
+      if (['cal','tf','sf','xf','ch','na','tc','df','su','as_','pr','vd','ca','fe','k'].includes(f.field))
+        return nfsCurrent.nutrients?.[f.field]?.declared || '';
+      if (f.field === 'servingSize') return nfsCurrent.servingSize || '';
+      if (f.field === 'servingsPerContainer') return nfsCurrent.servingsPerContainer || '';
+      if (f.field === 'ingredients') return nfsCurrent.ingredients || '';
+      if (f.field === 'distributor') return nfsCurrent.distributor || '';
+      if (f.field === 'origin') return nfsCurrent.origin || '';
+      if (f.field === 'allergenCustom') return nfsCurrent.allergenCustom || '';
+      if (f.field === 'warning') return nfsCurrent.warning || '';
+      return '';
+    };
+
+    const existing = getExisting();
+    if (mergeMode === 'fill-empty' && existing) return; // skip non-empty
+    if (mergeMode === 'ask' && existing && existing !== val) {
+      if (!confirm(`Overwrite "${f.label}"?\nCurrent: ${existing}\nNew: ${val}`)) return;
+    }
+
+    // Apply
+    const applyVal = (elId, v) => { const el = document.getElementById(elId); if (el) el.value = v; };
+    if (['cal','tf','sf','xf','ch','na','tc','df','su','pr','vd','ca','fe','k'].includes(f.field)) {
+      const numVal = parseFloat(val) || '';
+      const fieldKey = f.field;
+      const el = document.getElementById('n-' + fieldKey);
+      if (el && numVal !== '') el.value = numVal;
+      if (!nfsCurrent.nutrients[fieldKey]) nfsCurrent.nutrients[fieldKey] = { raw:'', converted:'', declared:'' };
+      nfsCurrent.nutrients[fieldKey].declared = String(numVal);
+    } else if (f.field === 'as_') {
+      const numVal = parseFloat(val) || '';
+      const el = document.getElementById('n-as');
+      if (el && numVal !== '') el.value = numVal;
+      if (!nfsCurrent.nutrients['as_']) nfsCurrent.nutrients['as_'] = { raw:'', converted:'', declared:'' };
+      nfsCurrent.nutrients['as_'].declared = String(numVal);
+    } else if (f.field === 'servingSize') { applyVal('e-ss', val); nfsCurrent.servingSize = val; }
+    else if (f.field === 'servingsPerContainer') { applyVal('e-spc', val); nfsCurrent.servingsPerContainer = val; }
+    else if (f.field === 'ingredients') { applyVal('e-ing', val); nfsCurrent.ingredients = val; }
+    else if (f.field === 'distributor') { applyVal('e-dist', val); nfsCurrent.distributor = val; }
+    else if (f.field === 'origin') { applyVal('e-origin', val); nfsCurrent.origin = val; }
+    else if (f.field === 'allergenCustom') { applyVal('e-al-custom', val); nfsCurrent.allergenCustom = val; }
+    else if (f.field === 'warning') { applyVal('e-warn', val); nfsCurrent.warning = val; }
+  });
+
+  nfsCurrent.importSession = { fields: importParsedFields, mergeMode, verifiedByUser: false, lowConfidenceFields: lowConf };
+  nfsCurrent.auditLog = nfsCurrent.auditLog || [];
+  nfsCurrent.auditLog.push({ ts: new Date().toISOString(), action: 'imported-fields', count: accepted.length });
+  document.getElementById('lnav-editor').style.display = 'flex';
+  updateHeaderProject();
+  editorUpdate();
+  autoAllDV();
+  nfsSaveProject(false);
+  nfsNav('editor');
+  toast('Imported', `${accepted.length} fields merged (mode: ${mergeMode}). Verify all values before exporting.`);
+}
+
+function importMarkVerified() {
+  if (!nfsCurrent) return;
+  if (!nfsCurrent.importSession) nfsCurrent.importSession = { verifiedByUser: false };
+  nfsCurrent.importSession.verifiedByUser = true;
+  nfsSaveProject(false);
+  toast('Verified', 'Import fields marked as manually verified.');
+}
+
+function importReset() {
+  document.getElementById('import-file').value = '';
+  document.getElementById('import-preview-area').style.display = 'none';
+  document.getElementById('import-merge-controls').style.display = 'none';
+  document.getElementById('import-pdf-paste-area').style.display = 'none';
+  document.getElementById('import-image-preview').style.display = 'none';
+  importParsedFields = [];
+}
+
+// Upgrade handleImportFile to handle images and PDFs
+function handleImportFile(file) {
+  document.getElementById('import-file-info').innerHTML = `<strong>${file.name}</strong><br/><span style="color:var(--muted);">${file.type || 'unknown'} · ${(file.size/1024).toFixed(1)}KB</span>`;
+
+  if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+    document.getElementById('import-pdf-paste-area').style.display = 'block';
+    document.getElementById('import-image-preview').style.display = 'none';
+    document.getElementById('import-preview-area').style.display = 'block';
+    document.getElementById('import-merge-controls').style.display = 'block';
+    // Show a basic note in the fields area
+    const container = document.getElementById('import-field-map');
+    container.innerHTML = '<div style="padding:20px;font-size:12px;color:var(--muted);">Paste PDF text above and click Parse to extract fields.</div>';
+    toast('PDF Detected', 'Copy the PDF text and paste in the field above.');
+    return;
+  }
+
+  if (file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imgEl = document.getElementById('import-img-el');
+      if (imgEl) { imgEl.src = e.target.result; }
+      document.getElementById('import-image-preview').style.display = 'block';
+      document.getElementById('import-preview-area').style.display = 'block';
+      document.getElementById('import-merge-controls').style.display = 'block';
+      const container = document.getElementById('import-field-map');
+      container.innerHTML = '<div style="padding:20px;font-size:12px;color:var(--dim);">Image uploaded. Switch to the "Paste Raw Text" tab, paste OCR output of this image, and click Parse.</div>';
+      toast('Image Uploaded', 'Use the Paste Raw Text tab to parse OCR output.');
+    };
+    reader.readAsDataURL(file);
+    return;
+  }
+
+  // Text file fallback
+  const reader = new FileReader();
+  reader.onload = (e) => importParseFromString(e.target.result, file.name);
+  reader.readAsText(file);
+}
+
+function importParseFromString(text, sourceName) {
+  const fields = parseNutritionText(text);
+  importParsedFields = fields.map(f => ({ ...f, accepted: f.confidence >= 0.80 }));
+  renderImportFields();
+  document.getElementById('import-file-info').innerHTML = `<strong>${sourceName}</strong> — ${fields.length} fields detected`;
+  document.getElementById('import-preview-area').style.display = 'block';
+  document.getElementById('import-merge-controls').style.display = 'block';
+}
+
+// ============================================================
+//  V3 INGREDIENT INTELLIGENCE
+// ============================================================
+let iiState = { clean:'', detectedAllergens:[], selectedAllergens: new Set(), detectedColors:[], dupes:[] };
+
+function iiReset() {
+  iiState = { clean:'', detectedAllergens:[], selectedAllergens: new Set(), detectedColors:[], dupes:[] };
+  const cleanEl = document.getElementById('ii-clean');
+  if (cleanEl) cleanEl.value = '';
+  ['ii-clean-card','ii-allergen-card','ii-color-card','ii-dupe-card','ii-stats-card'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  document.getElementById('ii-final-ing').textContent = '—';
+  document.getElementById('ii-final-al').textContent = '—';
+}
+
+function iiAnalyze() {
+  const raw = document.getElementById('ii-raw')?.value || '';
+  if (!raw.trim()) { toast('Empty', 'Paste ingredient text first.'); return; }
+
+  let clean = raw;
+  clean = clean.replace(/\r?\n/g, ' ');
+  clean = clean.replace(/[;]/g, ',');
+  clean = clean.replace(/,\s*,/g, ',');
+  clean = clean.replace(/,\s*$/, '');
+  clean = clean.replace(/\s{2,}/g, ' ');
+  clean = clean.trim();
+  clean = clean.replace(/^\d+\.\s*/, '');
+  clean = clean.replace(/\.\s*,/g, ',');
+
+  const toTitleCase = s => s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  clean = clean.split(',').map(i => toTitleCase(i.trim())).filter(Boolean).join(', ');
+
+  const colorMap = [
+    [/fd&?c\s*red\s*#?\s*40/gi, 'Red 40'],
+    [/color\s*red\s*(?:no\.?|#)?\s*40/gi, 'Red 40'],
+    [/red\s*#?\s*40/gi, 'Red 40'],
+    [/fd&?c\s*yellow\s*#?\s*5/gi, 'Yellow 5'],
+    [/tartrazine/gi, 'Yellow 5'],
+    [/yellow\s*#?\s*5/gi, 'Yellow 5'],
+    [/fd&?c\s*yellow\s*#?\s*6/gi, 'Yellow 6'],
+    [/yellow\s*#?\s*6/gi, 'Yellow 6'],
+    [/fd&?c\s*blue\s*#?\s*1/gi, 'Blue 1'],
+    [/blue\s*#?\s*1/gi, 'Blue 1'],
+    [/fd&?c\s*blue\s*#?\s*2/gi, 'Blue 2'],
+    [/blue\s*#?\s*2/gi, 'Blue 2'],
+    [/fd&?c\s*green\s*#?\s*3/gi, 'Green 3'],
+    [/green\s*#?\s*3/gi, 'Green 3'],
+    [/caramel\s*colou?r(?:ing)?/gi, 'Caramel Color'],
+  ];
+
+  const detectedColors = [];
+  colorMap.forEach(([pat, replacement]) => {
+    if (pat.test(clean)) {
+      if (!detectedColors.includes(replacement)) detectedColors.push(replacement);
+      clean = clean.replace(pat, replacement);
+    }
+  });
+
+  const ALLERGEN_MAP = {
+    'Milk':      ['Milk','Cream','Butter','Lactose','Whey','Casein'],
+    'Wheat':     ['Wheat','Flour','Gluten'],
+    'Eggs':      ['Egg','Eggs','Albumin'],
+    'Soybeans':  ['Soy','Soybean','Lecithin'],
+    'Peanuts':   ['Peanut'],
+    'Tree Nuts': ['Almond','Cashew','Walnut','Pecan','Hazelnut','Pistachio','Macadamia'],
+    'Fish':      ['Cod','Salmon','Tuna','Tilapia','Bass','Anchovy'],
+    'Shellfish': ['Crab','Lobster','Shrimp','Clam','Oyster'],
+    'Sesame':    ['Sesame','Tahini'],
+  };
+
+  const detectedAllergens = [];
+  Object.entries(ALLERGEN_MAP).forEach(([allergen, signals]) => {
+    if (signals.some(s => new RegExp('\\b' + s + '\\b', 'i').test(clean))) {
+      detectedAllergens.push(allergen);
+    }
+  });
+
+  const parts = clean.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  const seen = {}, dupes = [];
+  parts.forEach(p => { if (seen[p]) { if (!dupes.includes(p)) dupes.push(p); } else seen[p] = true; });
+
+  const cleanEl = document.getElementById('ii-clean');
+  if (cleanEl) cleanEl.value = clean;
+
+  iiState = { clean, detectedAllergens: [...detectedAllergens], selectedAllergens: new Set(detectedAllergens), detectedColors, dupes };
+
+  ['ii-clean-card','ii-stats-card'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = '';
+  });
+
+  if (detectedAllergens.length) document.getElementById('ii-allergen-card').style.display = '';
+  if (detectedColors.length) document.getElementById('ii-color-card').style.display = '';
+  if (dupes.length) document.getElementById('ii-dupe-card').style.display = '';
+
+  renderIIOutput();
+  toast('Analyzed', `${detectedAllergens.length} allergen(s), ${detectedColors.length} color(s)${dupes.length ? ', ' + dupes.length + ' dupe(s)' : ''}.`);
+}
+
+function renderIIOutput() {
+  // Allergen chips
+  const chipContainer = document.getElementById('ii-allergen-chips');
+  if (chipContainer) {
+    chipContainer.innerHTML = '';
+    iiState.detectedAllergens.forEach(al => {
+      const chip = document.createElement('div');
+      chip.className = 'ag-chip' + (iiState.selectedAllergens.has(al) ? ' on' : '');
+      chip.innerHTML = `<span>${al}</span>`;
+      chip.onclick = () => {
+        if (iiState.selectedAllergens.has(al)) iiState.selectedAllergens.delete(al);
+        else iiState.selectedAllergens.add(al);
+        chip.classList.toggle('on', iiState.selectedAllergens.has(al));
+        renderIIOutput();
+      };
+      chipContainer.appendChild(chip);
+    });
+  }
+
+  // Allergen preview
+  const alPreview = document.getElementById('ii-allergen-preview');
+  if (alPreview) {
+    const selected = [...iiState.selectedAllergens];
+    alPreview.textContent = selected.length ? `Contains: ${selected.join(', ')}.` : '(none selected)';
+  }
+
+  // Color chips
+  const colorChips = document.getElementById('ii-color-chips');
+  if (colorChips) {
+    colorChips.innerHTML = '';
+    iiState.detectedColors.forEach(c => {
+      const chip = document.createElement('span');
+      chip.style.cssText = 'background:rgba(74,222,128,0.12);color:var(--green);border:1px solid rgba(74,222,128,0.3);padding:3px 10px;border-radius:10px;font-size:11px;font-family:var(--mono);';
+      chip.textContent = c;
+      colorChips.appendChild(chip);
+    });
+  }
+
+  // Duplicates
+  const dupeList = document.getElementById('ii-dupe-list');
+  if (dupeList) {
+    dupeList.innerHTML = '';
+    iiState.dupes.forEach(d => {
+      const row = document.createElement('div');
+      row.style.cssText = 'font-size:11px;color:var(--orange);font-family:var(--mono);padding:4px 0;';
+      row.textContent = `⚠ Duplicate: "${d}"`;
+      dupeList.appendChild(row);
+    });
+  }
+
+  // Final outputs
+  const currentClean = document.getElementById('ii-clean')?.value || iiState.clean;
+  document.getElementById('ii-final-ing').textContent = currentClean || '—';
+  const selected = [...iiState.selectedAllergens];
+  document.getElementById('ii-final-al').textContent = selected.length ? `Contains: ${selected.join(', ')}.` : '(no allergens detected)';
+
+  // Stats
+  const statsBody = document.getElementById('ii-stats-body');
+  if (statsBody) {
+    const ingCount = currentClean.split(',').filter(Boolean).length;
+    statsBody.innerHTML = `
+      <div>Ingredients detected: <strong style="color:var(--accent);font-family:var(--mono);">${ingCount}</strong></div>
+      <div>Allergens found: <strong style="color:var(--red);font-family:var(--mono);">${iiState.detectedAllergens.length}</strong></div>
+      <div>Color additives normalized: <strong style="color:var(--green);font-family:var(--mono);">${iiState.detectedColors.length}</strong></div>
+      <div>Duplicates: <strong style="color:${iiState.dupes.length ? 'var(--orange)' : 'var(--green)'};font-family:var(--mono);">${iiState.dupes.length}</strong></div>
+      <div>Character count: <strong style="color:var(--muted);font-family:var(--mono);">${currentClean.length}</strong></div>
+    `;
+  }
+}
+
+function iiUpdateOutput() { renderIIOutput(); }
+
+function iiPushToEditor() {
+  const ingText = document.getElementById('ii-clean')?.value || iiState.clean;
+  const alText = [...iiState.selectedAllergens].length ? `Contains: ${[...iiState.selectedAllergens].join(', ')}.` : '';
+  if (!ingText.trim()) { toast('Nothing to Push', 'Normalize some text first.'); return; }
+  const ingEl = document.getElementById('e-ing');
+  const alEl = document.getElementById('e-al-custom');
+  if (ingEl) ingEl.value = ingText;
+  if (alEl && alText) alEl.value = alText;
+  if (nfsCurrent) {
+    nfsCurrent.ingredients = ingText;
+    if (alText) nfsCurrent.allergenCustom = alText;
+  }
+  editorUpdate();
+  nfsNav('editor');
+  setTimeout(() => editorTab(document.querySelector('[data-tab="edit-copy"]'), 'edit-copy'), 100);
+  toast('Pushed to Editor', 'Ingredients + allergen statement updated.');
+}
+
+function iiSaveToProject() {
+  if (!nfsCurrent) { toast('No Project', 'Open or create a project first.'); return; }
+  const ingText = document.getElementById('ii-clean')?.value || iiState.clean;
+  const alText = [...iiState.selectedAllergens].length ? `Contains: ${[...iiState.selectedAllergens].join(', ')}.` : '';
+  nfsCurrent.ingredientIntel = { raw: document.getElementById('ii-raw')?.value || '', normalized: ingText, allergens: [...iiState.selectedAllergens], colors: iiState.detectedColors, dupes: iiState.dupes, finalOutput: ingText };
+  nfsCurrent.ingredients = ingText;
+  if (alText) nfsCurrent.allergenCustom = alText;
+  nfsSaveProject(true);
+}
+
+// ============================================================
+//  V3 PACKAGING HANDOFF EXPORTS
+// ============================================================
+function exportPackagingPayloadV3() {
+  if (!nfsCurrent) { toast('No Project', 'Create and save a project first.'); return; }
+  nfsSaveProject(false);
+  const declared = {};
+  Object.entries(nfsCurrent.nutrients || {}).forEach(([k, v]) => { declared[k] = v.declared; });
+  const payload = {
+    schema: 'hs-nfs-packaging-payload-v3',
+    generated: new Date().toISOString(),
+    project: { id: nfsCurrent.id, name: nfsCurrent.name, brand: nfsCurrent.brand, sku: nfsCurrent.sku },
+    panel: {
+      format: nfsCurrent.format, columnMode,
+      width: nfsCurrent.dimensions?.w, height: nfsCurrent.dimensions?.h, unit: nfsCurrent.dimensions?.unit,
+      servingSize: nfsCurrent.servingSize, servingsPerContainer: nfsCurrent.servingsPerContainer,
+      nutrientsDeclared: declared, dvValues: nfsCurrent.dv,
+    },
+    supportCopy: {
+      ingredients: nfsCurrent.ingredients, allergens: nfsCurrent.allergens,
+      allergenCustom: nfsCurrent.allergenCustom, distributor: nfsCurrent.distributor,
+      origin: nfsCurrent.origin, warning: nfsCurrent.warning,
+      netOz: nfsCurrent.netOz, netG: nfsCurrent.netG,
+    },
+    layout: { profilePreset: nfsCurrent.profileTemplate, dimensions: nfsCurrent.dimensions },
+    trust: {
+      sourceMode: nfsCurrent.sourceMode,
+      preflightSummary: nfsCurrent.preflight ? {
+        ts: nfsCurrent.preflight.ts,
+        blocks: nfsCurrent.preflight.checks?.filter(c => c.sev === 'block').length,
+        errors: nfsCurrent.preflight.checks?.filter(c => c.sev === 'error').length,
+        warnings: nfsCurrent.preflight.checks?.filter(c => c.sev === 'warn').length,
+      } : null,
+      unresolvedWarnings: nfsCurrent.preflight?.checks?.filter(c => c.sev === 'block' || c.sev === 'error').length || 0,
+      exportTs: new Date().toISOString(),
+    },
+    assets: { labelHTML: getLabelHTML(), labelCSS: getLabelCSS() },
+  };
+  const name = (nfsCurrent.name || 'label').toLowerCase().replace(/\s+/g, '-');
+  downloadFile(JSON.stringify(payload, null, 2), `hs_packaging_payload_${name}.json`, 'application/json');
+  navigator.clipboard?.writeText(JSON.stringify(payload, null, 2)).catch(() => {});
+  trackExport('packaging-payload', nfsCurrent.name);
+  toast('Packaging Payload Exported', 'JSON downloaded + copied to clipboard.');
+}
+
+function exportCleanPanelAsset() {
+  const label = getLabelHTML();
+  const name = (nfsCurrent?.name || 'panel').toLowerCase().replace(/\s+/g, '-');
+  const html = `<!DOCTYPE html><html><head><title>Panel — ${name}</title>
+<style>body{margin:20px;background:#fff;}${getLabelCSS()}</style></head>
+<body>${label}</body></html>`;
+  downloadFile(html, `nf_${name}_panel_asset.html`, 'text/html');
+  trackExport('panel-asset', nfsCurrent?.name);
+  toast('Panel Asset Exported', 'Clean label HTML downloaded.');
+}
+
+function exportSupportCopyTxt() {
+  if (!nfsCurrent) { toast('No Project', 'Create a project first.'); return; }
+  const oz = nfsCurrent.netOz, g = nfsCurrent.netG;
+  const lines = [];
+  if (nfsCurrent.ingredients) lines.push(`INGREDIENTS: ${nfsCurrent.ingredients}`);
+  const alStatement = nfsCurrent.allergenCustom || (nfsCurrent.allergens?.length ? `Contains: ${nfsCurrent.allergens.join(', ')}.` : '');
+  if (alStatement) lines.push(alStatement);
+  if (oz || g) lines.push(`NET WT ${oz ? oz + ' OZ' : ''}${oz && g ? ' (' + g + 'g)' : g ? g + 'g' : ''}`);
+  if (nfsCurrent.distributor) lines.push(nfsCurrent.distributor);
+  if (nfsCurrent.origin) lines.push(nfsCurrent.origin);
+  if (nfsCurrent.warning) lines.push(nfsCurrent.warning);
+  const name = (nfsCurrent.name || 'label').toLowerCase().replace(/\s+/g, '-');
+  downloadFile(lines.join('\n'), `support_copy_${name}.txt`, 'text/plain');
+  trackExport('support-copy', nfsCurrent.name);
+  toast('Support Copy Exported', 'Text file downloaded.');
+}
+
+function openRightRailModal() {
+  const modal = document.getElementById('right-rail-modal');
+  if (!modal) return;
+  // Clone label into modal
+  const labelSrc = document.getElementById('nf-label-preview');
+  const dest = document.getElementById('rr-label-inner');
+  if (labelSrc && dest) dest.innerHTML = labelSrc.outerHTML;
+  modal.classList.add('open');
+}
+
+let rrMode = 'wide';
+function setRRMode(mode) {
+  rrMode = mode;
+  const wrap = document.getElementById('rr-pouch-wrap');
+  const noteEl = document.getElementById('rr-dim-note');
+  const wBtn = document.getElementById('rr-wide-btn'), nBtn = document.getElementById('rr-narrow-btn');
+  if (mode === 'narrow') {
+    wrap.style.width = '200px';
+    noteEl.textContent = 'Narrow pouch 3.5" × 7"';
+    wBtn.style.background = 'transparent'; wBtn.style.color = 'var(--muted)'; wBtn.style.borderColor = 'var(--border2)';
+    nBtn.style.background = 'var(--accent)'; nBtn.style.color = '#111'; nBtn.style.borderColor = 'var(--accent)';
+  } else {
+    wrap.style.width = '300px';
+    noteEl.textContent = '5.75" × 7.5" stand-up pouch';
+    nBtn.style.background = 'transparent'; nBtn.style.color = 'var(--muted)'; nBtn.style.borderColor = 'var(--border2)';
+    wBtn.style.background = 'var(--accent)'; wBtn.style.color = '#111'; wBtn.style.borderColor = 'var(--accent)';
+  }
+}
+
+// ============================================================
+//  V3 PRINT & PNG EXPORTS
+// ============================================================
+function printLabel(tier) {
+  const label = getLabelHTML();
+  const name = nfsCurrent?.name || 'Label';
+  const dims = nfsCurrent?.dimensions;
+  const hasMeta = document.getElementById('exp-meta-page')?.checked;
+  const hasDraft = document.getElementById('exp-draft-watermark')?.checked;
+
+  const pageW = dims?.unit === 'in' ? dims.w + 'in' : (dims?.w ? dims.w + 'mm' : '3in');
+  const pageH = dims?.unit === 'in' ? (dims.h + 2) + 'in' : (dims?.h ? (dims.h + 40) + 'mm' : '5in');
+  const marginMM = dims?.margin || 3;
+
+  const watermarkCSS = (tier === 'draft' && hasDraft) ? `
+    .draft-watermark { position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);
+      font-size:48px;font-weight:900;color:rgba(0,0,0,0.07);pointer-events:none;z-index:9999;
+      font-family:Arial;letter-spacing:.2em; }` : '';
+
+  const metaBlock = hasMeta ? `
+    <div class="meta-page" style="margin-top:30px;padding:20px;border:1px solid #ccc;font-family:Arial;font-size:11px;color:#333;line-height:1.8;page-break-before:always;">
+      <strong>Label Metadata</strong><br/>
+      Project: ${name}<br/>
+      Brand: ${nfsCurrent?.brand || '—'}<br/>
+      SKU: ${nfsCurrent?.sku || '—'}<br/>
+      Source Mode: ${nfsCurrent?.sourceMode || '—'}<br/>
+      ${dims ? `Dimensions: ${dims.w}${dims.unit} × ${dims.h}${dims.unit} · Safe margin: ${marginMM}mm<br/>` : ''}
+      Preflight: ${nfsCurrent?.preflight ? (nfsCurrent.preflight.checks?.filter(c=>c.sev==='block').length === 0 ? 'CLEAN' : 'HAS ISSUES') : 'Not run'}<br/>
+      Export Tier: ${tier}<br/>
+      Exported: ${new Date().toLocaleString()}
+    </div>` : '';
+
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>${name}</title>
+<style>
+@page { size: ${pageW} ${pageH}; margin: ${marginMM}mm; }
+body { margin:20px; background:#fff; }
+${getLabelCSS()}
+${watermarkCSS}
+</style></head><body>
+${tier === 'draft' && hasDraft ? '<div class="draft-watermark">DRAFT</div>' : ''}
+${label}
+${metaBlock}
+<${'script'}>window.onload=function(){window.print();setTimeout(function(){window.close();},800);};</${'script'}>
+</body></html>`);
+  w.document.close();
+  trackExport(tier + '-print', name);
+}
+
+function exportPNG(scale) {
+  const labelEl = document.getElementById('nf-label-preview');
+  if (!labelEl) { toast('No Preview', 'Open a label first.'); return; }
+  toast('Rendering...', 'Generating PNG...', 4000);
+  const load = () => {
+    window.html2canvas(labelEl, { scale, backgroundColor: '#ffffff', useCORS: true }).then(canvas => {
+      const name = (nfsCurrent?.name || 'label').toLowerCase().replace(/\s+/g, '-');
+      const tier = scale >= 4 ? 'hires' : 'standard';
+      const a = document.createElement('a');
+      a.download = `nf_${name}_${tier}.png`;
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+      trackExport('png-' + tier, nfsCurrent?.name);
+      toast('PNG Exported', `${scale}x scale PNG downloaded.`);
+    }).catch(e => { toast('PNG Failed', 'Render error: ' + e.message); });
+  };
+  if (window.html2canvas) { load(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+  s.onload = load;
+  s.onerror = () => toast('html2canvas unavailable', 'Check internet connection.');
+  document.head.appendChild(s);
+}
+
+// ============================================================
+//  V3 PREFLIGHT EXTENSIONS
+// ============================================================
+// Wrap the existing runPreflight to inject v3 checks post-run
+const _origRunPreflight = runPreflight;
+function runPreflightV3() {
+  _origRunPreflight();
+  if (!nfsPreflight) return;
+  const extra = [];
+
+  // Stale preflight
+  if (nfsCurrent?.preflightModifiedTs && nfsCurrent?.preflight?.ts) {
+    const modTs = new Date(nfsCurrent.preflightModifiedTs);
+    const pfTs = new Date(nfsCurrent.preflight.ts);
+    if (modTs > pfTs) {
+      extra.push({ sev:'warn', icon:'🟡', title:'Preflight Stale', desc:'Project was modified after the last preflight run. Re-run for accurate results.', fixView:'compliance' });
+    }
+  }
+
+  // Ingredient checks
+  const ing = nfsCurrent?.ingredients || '';
+  if (ing) {
+    const ingParts = ing.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+    const ingSeen = {}, ingDupes = [];
+    ingParts.forEach(p => { if (ingSeen[p]) { if (!ingDupes.includes(p)) ingDupes.push(p); } else ingSeen[p] = true; });
+    if (ingDupes.length > 0) extra.push({ sev:'error', icon:'🟠', title:'Duplicate Ingredients Detected', desc:`Duplicates found: ${ingDupes.slice(0,3).join(', ')}. Review ingredient list.`, fixView:'editor', fixTab:'edit-copy' });
+    if (!ing.trim().endsWith('.')) extra.push({ sev:'warn', icon:'🟡', title:'Ingredient Statement Missing Period', desc:'Ingredient statements should end with a period.', fixView:'editor', fixTab:'edit-copy' });
+    if (ing.length > 1000) extra.push({ sev:'warn', icon:'🟡', title:'Very Long Ingredient Statement', desc:`${ing.length} characters — may not fit on panel. Consider abbreviating.`, fixView:'editor', fixTab:'edit-copy' });
+  }
+
+  // Import verification
+  if (nfsCurrent?.sourceMode === 'import' && nfsCurrent?.importSession && !nfsCurrent?.importSession?.verifiedByUser) {
+    extra.push({ sev:'error', icon:'🟠', title:'Imported Values Not Verified', desc:'These values were imported but not manually verified. Use the "Mark as Verified" button in the Import view.', fixView:'importer' });
+  }
+  if ((nfsCurrent?.importSession?.lowConfidenceFields || 0) > 0) {
+    extra.push({ sev:'warn', icon:'🟡', title:'Low Confidence Import Fields', desc:`${nfsCurrent.importSession.lowConfidenceFields} field(s) had confidence below 80%. Verify manually.`, fixView:'importer' });
+  }
+
+  // Packaging checks
+  if (columnMode === 'dual' && nfsCurrent?.profileTemplate === 'narrow-pouch-rail') {
+    extra.push({ sev:'block', icon:'🔴', title:'Dual Column + Narrow Pouch Incompatible', desc:'Dual-column layout cannot fit in narrow pouch rail profile. Switch to single column or a wider profile.', fixView:'editor' });
+  }
+  if ((nfsCurrent?.servingSize || '').length > 30 && nfsCurrent?.profileTemplate === 'narrow-pouch-rail') {
+    extra.push({ sev:'warn', icon:'🟡', title:'Long Serving Size on Narrow Panel', desc:'Serving size text may overflow narrow panel. Consider abbreviating.', fixView:'editor', fixTab:'edit-nutrition' });
+  }
+
+  if (!extra.length) return;
+
+  // Inject extra checks and re-render
+  nfsPreflight.checks = [...nfsPreflight.checks, ...extra];
+  if (nfsCurrent) nfsCurrent.preflight = nfsPreflight;
+  renderPreflightResults(nfsPreflight.checks);
+  updateComplianceView();
+  updateExportView();
+  updateLnavBadge(nfsPreflight.checks);
+}
+window.runPreflight = runPreflightV3;
+
+// Patch renderPreflightResults to add "Fix →" links
+const _origRenderPF = renderPreflightResults;
+function renderPreflightResultsV3(checks) {
+  _origRenderPF(checks);
+  // Now inject fix links into items that have fixView
+  const list = document.getElementById('pf-result-list');
+  if (!list) return;
+  const items = list.querySelectorAll('.pf-item');
+  items.forEach((row, idx) => {
+    const check = checks[idx];
+    if (!check || !check.fixView) return;
+    const bodyEl = row.querySelector('.pf-body');
+    if (!bodyEl) return;
+    const existing = bodyEl.querySelector('.pf-fix-link');
+    if (existing) return;
+    const link = document.createElement('a');
+    link.className = 'pf-fix-link';
+    link.href = '#';
+    link.textContent = 'Fix →';
+    link.style.cssText = 'font-size:10px;color:var(--accent);text-decoration:none;font-weight:700;margin-top:3px;display:inline-block;';
+    link.onclick = (e) => {
+      e.preventDefault();
+      nfsNav(check.fixView);
+      if (check.fixTab) setTimeout(() => { const btn = document.querySelector(`[data-tab="${check.fixTab}"]`); if (btn) editorTab(btn, check.fixTab); }, 150);
+    };
+    bodyEl.appendChild(link);
+  });
+}
+window.renderPreflightResults = renderPreflightResultsV3;
+
+// ============================================================
+//  V3 DASHBOARD UPGRADES
+// ============================================================
+const _origRenderDashboard = renderDashboard;
+function renderDashboardV3() {
+  _origRenderDashboard();
+
+  // Extra stats
+  const formula = nfsProjects.filter(p => p.sourceMode === 'formula').length;
+  const importsPending = nfsProjects.filter(p => p.sourceMode === 'import' && p.importSession && !p.importSession.verifiedByUser).length;
+  const fEl = document.getElementById('db-count-formula');
+  const iEl = document.getElementById('db-count-imports');
+  if (fEl) fEl.textContent = formula;
+  if (iEl) iEl.textContent = importsPending;
+
+  // Session stats
+  const sessExports = document.getElementById('db-session-exports');
+  if (sessExports) sessExports.textContent = sessionStats.exportsThisSession;
+
+  // Most used profile
+  const profileCounts = {};
+  nfsProjects.forEach(p => { if (p.profileTemplate) profileCounts[p.profileTemplate] = (profileCounts[p.profileTemplate] || 0) + 1; });
+  const topProfile = Object.entries(profileCounts).sort((a,b)=>b[1]-a[1])[0];
+  const topPEl = document.getElementById('db-top-profile');
+  if (topPEl) topPEl.textContent = topProfile ? topProfile[0].replace(/-/g,' ') : '—';
+
+  // Last Mfr Ready
+  const lastMfr = [...nfsProjects].filter(p => p.status === 'ready').sort((a,b) => new Date(b.modified) - new Date(a.modified))[0];
+  const lastMfrEl = document.getElementById('db-last-mfr');
+  if (lastMfrEl) lastMfrEl.textContent = lastMfr ? `${lastMfr.name} (${new Date(lastMfr.modified).toLocaleDateString()})` : '—';
+
+  // Ops Alerts
+  renderOpsAlerts();
+}
+window.renderDashboard = renderDashboardV3;
+
+function renderOpsAlerts() {
+  const list = document.getElementById('db-ops-alerts-list');
+  if (!list) return;
+  const alerts = [];
+  nfsProjects.forEach(p => {
+    if (p.preflight?.checks?.some(c => c.sev === 'block')) alerts.push({ project: p, msg: 'Has unresolved hard blocks', color: 'var(--red)' });
+    else if (p.sourceMode === 'import' && p.importSession && !p.importSession.verifiedByUser) alerts.push({ project: p, msg: 'Import not manually verified', color: 'var(--orange)' });
+    else if (p.sourceMode === 'formula') alerts.push({ project: p, msg: 'Formula estimated — needs lab confirmation', color: 'var(--purple)' });
+    else if (p.preflightModifiedTs && p.preflight?.ts && new Date(p.preflightModifiedTs) > new Date(p.preflight.ts)) alerts.push({ project: p, msg: 'Preflight is stale', color: 'var(--orange)' });
+  });
+
+  if (!alerts.length) {
+    list.innerHTML = '<div style="padding:16px;text-align:center;font-size:12px;color:var(--muted);">No alerts. All labels clean.</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  alerts.slice(0, 5).forEach(a => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);gap:12px;';
+    row.innerHTML = `
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);">${a.project.name || 'Untitled'}</div>
+        <div style="font-size:11px;color:${a.color};">${a.msg}</div>
+      </div>
+      <button class="btn btn-sm btn-secondary" onclick="nfsLoadProject('${a.project.id}')">Open →</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// Also override nfsNav to handle ingredient-intel init
+const _origNfsNav = nfsNav;
+function nfsNavV3(viewId) {
+  _origNfsNav(viewId);
+  if (viewId === 'ingredient-intel') {
+    // No-op init needed — view is always ready
+  }
+}
+window.nfsNav = nfsNavV3;
+
+// ============================================================
+//  V3: UPGRADE exportManufacturerReady filename
+// ============================================================
+const _origExportMfr = exportManufacturerReady;
+function exportManufacturerReadyV3() {
+  if (!nfsPreflight) { toast('Run Preflight First', ''); return; }
+  const blocks = nfsPreflight.checks.filter(c => c.sev === 'block').length;
+  const errors = nfsPreflight.checks.filter(c => c.sev === 'error').length;
+  if (blocks > 0 || errors > 0) { toast('Export Locked', 'Resolve all Hard Blocks and Errors first.'); return; }
+  const brand = (nfsCurrent?.brand || 'label').toLowerCase().replace(/\s+/g, '-');
+  const name = (nfsCurrent?.name || 'label').toLowerCase().replace(/\s+/g, '-');
+  const dateStr = new Date().toISOString().slice(0, 10);
+  downloadFile(buildExportHTML('Manufacturer Ready'), `nf_${brand}_${name}_mfr_ready_${dateStr}.html`, 'text/html');
+  if (nfsCurrent) { nfsCurrent.status = 'ready'; nfsSaveProject(false); }
+  trackExport('manufacturer-ready', nfsCurrent?.name);
+  if (!nfsCurrent.exportHistory) nfsCurrent.exportHistory = [];
+  nfsCurrent.exportHistory.push({ tier: 'manufacturer-ready', ts: new Date().toISOString(), filename: `nf_${brand}_${name}_mfr_ready_${dateStr}.html` });
+  nfsSaveProject(false);
+  toast('Manufacturer Ready Export', 'Downloaded. Operator assumes final responsibility.');
+}
+window.exportManufacturerReady = exportManufacturerReadyV3;
+
+// ============================================================
+//  BOOT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  const validViews2 = ['ingredient-intel','support-composer','barcode','label-style','approval'];
+  const hash = window.location.hash.replace('#','');
+  if (validViews2.includes(hash)) setTimeout(() => nfsNav(hash), 60);
+});
+
+// ============================================================
+//  V4 ADDITIONS
+// ============================================================
+
+// ============================================================
+//  V4: STRUCTURED SUPPORT COPY COMPOSER
+// ============================================================
+const SUPPORT_ICONS = [
+  { id:'recycle', label:'Recycle', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-2.876L6 12l1 2"/><path d="m16 19 2.185-4.876A1.83 1.83 0 0 0 16.815 12H14"/><path d="m5 8 4.5-7.5L14 8"/><path d="m16 8 4 4-4 4"/><path d="M8 8l-4 4 4 4"/></svg>' },
+  { id:'phone', label:'Phone', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' },
+  { id:'globe', label:'Website', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>' },
+  { id:'bottle', label:'Bottle', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2h6v4l2 4v10a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V10l2-4V2z"/><line x1="9" y1="8" x2="15" y2="8"/></svg>' },
+  { id:'leaf', label:'Natural', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>' },
+  { id:'trash', label:'Disposal', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' },
+];
+
+let scSelectedIcons = new Set();
+let scState = {};
+
+function scInitIconPicker() {
+  const container = document.getElementById('sc-icon-picker');
+  if (!container || container.children.length > 0) return;
+  SUPPORT_ICONS.forEach(icon => {
+    const chip = document.createElement('div');
+    chip.className = 'icon-chip' + (scSelectedIcons.has(icon.id) ? ' on' : '');
+    chip.innerHTML = icon.svg + `<span>${icon.label}</span>`;
+    chip.onclick = () => {
+      if (scSelectedIcons.has(icon.id)) scSelectedIcons.delete(icon.id);
+      else scSelectedIcons.add(icon.id);
+      chip.classList.toggle('on', scSelectedIcons.has(icon.id));
+      scUpdate();
+    };
+    container.appendChild(chip);
+  });
+}
+
+function scUpdate() {
+  const prefix = document.getElementById('sc-dist-prefix')?.value || 'DISTRIBUTED BY:';
+  const name = (document.getElementById('sc-dist-name')?.value || '').toUpperCase();
+  const addr1 = document.getElementById('sc-dist-addr1')?.value || '';
+  const addr2 = (document.getElementById('sc-dist-addr2')?.value || '').toUpperCase();
+  const country = document.getElementById('sc-dist-country')?.value || '';
+  const website = (document.getElementById('sc-dist-website')?.value || '').toUpperCase();
+  const phone = document.getElementById('sc-dist-phone')?.value || '';
+  const showOrigin = document.getElementById('sc-origin-show')?.checked !== false;
+  const originPrefix = document.getElementById('sc-origin-prefix')?.value || 'PRODUCT OF';
+  const originCountry = (document.getElementById('sc-origin-country')?.value || '').toUpperCase();
+
+  const lines = [];
+  if (name) lines.push(`${prefix} ${name}`);
+  if (addr1) lines.push(addr1.toUpperCase());
+  if (addr2) lines.push(addr2);
+  if (country) lines.push(country.toUpperCase());
+  if (website) lines.push(website);
+  if (phone) lines.push(phone);
+  if (showOrigin && originCountry) lines.push(`${originPrefix} ${originCountry}`);
+
+  const previewEl = document.getElementById('sc-preview-block');
+  if (previewEl) previewEl.textContent = lines.join('\n') || '(empty — fill fields above)';
+
+  // Icon preview
+  const iconPreview = document.getElementById('sc-icon-preview');
+  if (iconPreview) {
+    iconPreview.innerHTML = '';
+    if (scSelectedIcons.size > 0) {
+      SUPPORT_ICONS.filter(i => scSelectedIcons.has(i.id)).forEach(icon => {
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;';
+        wrap.innerHTML = `<div style="width:20px;height:20px;color:var(--text);">${icon.svg}</div><div style="font-size:9px;color:var(--muted);">${icon.label}</div>`;
+        iconPreview.appendChild(wrap);
+      });
+    } else {
+      iconPreview.innerHTML = '<span style="font-size:11px;color:var(--muted);">No icons selected</span>';
+    }
+  }
+
+  scState = { prefix, name, addr1, addr2, country, website, phone, showOrigin, originPrefix, originCountry, icons: [...scSelectedIcons] };
+}
+
+function scPushToProject() {
+  if (!nfsCurrent) { toast('No Project', 'Open or create a project first.'); return; }
+  const { prefix, name, addr1, addr2, country, website, phone, showOrigin, originPrefix, originCountry, icons } = scState;
+  const distLines = [];
+  if (name) distLines.push(`${prefix} ${name}`);
+  if (addr1) distLines.push(addr1.toUpperCase());
+  if (addr2) distLines.push(addr2);
+  if (country) distLines.push(country.toUpperCase());
+  if (website) distLines.push(website);
+  if (phone) distLines.push(phone);
+  nfsCurrent.distributor = distLines.join('\n');
+  nfsCurrent.origin = showOrigin && originCountry ? `${originPrefix} ${originCountry}` : '';
+  nfsCurrent.supportIcons = icons;
+  nfsCurrent.supportComposerState = scState;
+  // Push to editor fields
+  const distEl = document.getElementById('e-dist');
+  if (distEl) distEl.value = nfsCurrent.distributor;
+  const originEl = document.getElementById('e-origin');
+  if (originEl) originEl.value = nfsCurrent.origin;
+  nfsSaveProject(false);
+  editorUpdate();
+  toast('Pushed', 'Support copy + origin saved to project.');
+}
+
+function scLoadFromProject() {
+  if (!nfsCurrent) { toast('No Project', 'Open a project first.'); return; }
+  if (nfsCurrent.supportComposerState) {
+    const s = nfsCurrent.supportComposerState;
+    const sv = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined) el.value = v; };
+    sv('sc-dist-prefix', s.prefix);
+    sv('sc-dist-name', s.name || '');
+    sv('sc-dist-addr1', s.addr1 || '');
+    sv('sc-dist-addr2', s.addr2 || '');
+    sv('sc-dist-country', s.country || '');
+    sv('sc-dist-website', s.website || '');
+    sv('sc-dist-phone', s.phone || '');
+    sv('sc-origin-prefix', s.originPrefix);
+    sv('sc-origin-country', s.originCountry || '');
+    const showEl = document.getElementById('sc-origin-show');
+    if (showEl) showEl.checked = s.showOrigin !== false;
+    scSelectedIcons = new Set(s.icons || []);
+    // Refresh icon chips
+    document.querySelectorAll('#sc-icon-picker .icon-chip').forEach(chip => {
+      const label = chip.querySelector('span')?.textContent;
+      const icon = SUPPORT_ICONS.find(i => i.label === label);
+      if (icon) chip.classList.toggle('on', scSelectedIcons.has(icon.id));
+    });
+  } else {
+    // Fall back to raw distributor field
+    const dist = nfsCurrent.distributor || '';
+    const lines = dist.split('\n');
+    if (lines[0]) document.getElementById('sc-dist-name').value = lines[0].replace(/^(DISTRIBUTED BY:|IMPORTED BY:|MARKETED BY:|MANUFACTURED BY:|PACKED FOR:)\s*/i,'');
+    if (nfsCurrent.origin) {
+      const m = nfsCurrent.origin.match(/^(PRODUCT OF|MANUFACTURED IN|MADE IN|IMPORTED FROM)\s+(.+)$/i);
+      if (m) { document.getElementById('sc-origin-prefix').value = m[1].toUpperCase(); document.getElementById('sc-origin-country').value = m[2]; }
+    }
+  }
+  scUpdate();
+  toast('Loaded', 'Support copy loaded from project.');
+}
+
+// ============================================================
+//  V4: NET WEIGHT ENGINE
+// ============================================================
+const OZ_TO_G = 28.3495;
+let nwManualOverride = false;
+
+function nwUpdate() {
+  nwManualOverride = false;
+  const oz = parseFloat(document.getElementById('nw-oz')?.value) || 0;
+  if (oz > 0) {
+    const g = Math.round(oz * OZ_TO_G);
+    const gEl = document.getElementById('nw-g');
+    if (gEl) gEl.value = g;
+    nwRender(oz, g);
+  } else {
+    document.getElementById('nw-preview').textContent = '';
+    document.getElementById('nw-warn').style.display = 'none';
+  }
+}
+
+function nwManual() {
+  nwManualOverride = true;
+  const oz = parseFloat(document.getElementById('nw-oz')?.value) || 0;
+  const g = parseFloat(document.getElementById('nw-g')?.value) || 0;
+  nwRender(oz, g);
+}
+
+function nwRender(oz, g) {
+  const fmt = document.getElementById('nw-format')?.value || 'oz-g';
+  let display = '';
+  if (fmt === 'oz-g') display = `NET WT ${oz} OZ (${g}g)`;
+  else if (fmt === 'g-only') display = `NET WT ${g}g`;
+  else if (fmt === 'oz-only') display = `NET WT ${oz} OZ`;
+  else if (fmt === 'floz-ml') display = `${oz} FL OZ (${Math.round(oz * 29.5735)}mL)`;
+  document.getElementById('nw-preview').textContent = display;
+
+  // Validate consistency
+  const warnEl = document.getElementById('nw-warn');
+  const expectedG = Math.round(oz * OZ_TO_G);
+  const tolerance = Math.max(expectedG * 0.05, 5);
+  if (oz > 0 && g > 0 && Math.abs(g - expectedG) > tolerance) {
+    warnEl.textContent = `⚠ Net weight mismatch: ${oz} oz should be ~${expectedG}g, but ${g}g entered. Check values.`;
+    warnEl.style.display = 'block';
+  } else {
+    warnEl.style.display = 'none';
+  }
+
+  // Save to project
+  if (nfsCurrent) {
+    nfsCurrent.netOz = oz; nfsCurrent.netG = g;
+    nfsCurrent.netWeightDisplay = display;
+    const ozEl = document.getElementById('e-nw-oz');
+    const gEl = document.getElementById('e-nw-g');
+    if (ozEl) ozEl.value = oz;
+    if (gEl) gEl.value = g;
+    editorUpdate();
+  }
+}
+
+// ============================================================
+//  V4: SERVING SIZE COMPOSER
+// ============================================================
+function ssCompose() {
+  const qualifier = document.getElementById('ss-qualifier')?.value || '';
+  const qty = document.getElementById('ss-qty')?.value || '';
+  const unitSel = document.getElementById('ss-unit')?.value || 'Pieces';
+  const unitCustom = document.getElementById('ss-unit-custom')?.value || '';
+  const unit = unitSel === 'custom' ? unitCustom : unitSel;
+  const commonUnit = document.getElementById('ss-common-unit')?.value || '';
+  const commonAmt = document.getElementById('ss-common-amt')?.value || '';
+  const metricG = document.getElementById('ss-metric-g')?.value || '';
+
+  // Show/hide custom unit
+  const customEl = document.getElementById('ss-unit-custom');
+  if (customEl) customEl.style.display = unitSel === 'custom' ? 'block' : 'none';
+
+  let parts = [];
+  if (qualifier) parts.push(qualifier);
+  if (qty) parts.push(qty);
+  if (unit) parts.push(unit);
+
+  let inParen = [];
+  if (commonAmt && commonUnit) inParen.push(`${commonAmt} ${commonUnit}`);
+  if (metricG) inParen.push(`${metricG}g`);
+  if (inParen.length > 0) parts.push(`(${inParen.join(') (')})`);
+  // Reformat: "About 3 Pieces (1 oz) (28g)" — standard format
+  if (inParen.length === 2) {
+    const [common, metric] = inParen;
+    parts = [qualifier, qty, unit].filter(Boolean);
+    parts.push(`(${common}) (${metric})`);
+  }
+
+  const result = parts.join(' ').trim();
+  const previewEl = document.getElementById('ss-composed-preview');
+  if (previewEl) previewEl.textContent = result || '—';
+
+  // Warnings
+  const warnEl = document.getElementById('ss-warn');
+  const warnings = [];
+  if (result.length > 35) warnings.push(`Serving size string is ${result.length} chars — may be long for narrow formats.`);
+  if (metricG && commonUnit === 'fl oz') {
+    if (!result.toLowerCase().includes('ml')) warnings.push('Consider adding mL for liquid serving sizes.');
+  }
+  if (warnEl) {
+    warnEl.textContent = warnings.join(' ');
+    warnEl.style.display = warnings.length ? 'block' : 'none';
+  }
+
+  return result;
+}
+
+function ssPushToEditor() {
+  const result = ssCompose();
+  if (!result || result === '—') { toast('Empty', 'Build a serving size first.'); return; }
+  const ssEl = document.getElementById('e-ss');
+  if (ssEl) ssEl.value = result;
+  if (nfsCurrent) nfsCurrent.servingSize = result;
+  editorUpdate();
+  nfsNav('editor');
+  toast('Pushed', `Serving size set: ${result}`);
+}
+
+// ============================================================
+//  V4: STYLE PRESET SYSTEM
+// ============================================================
+let v4StylePreset = 'hidden-supply';
+
+function setStylePreset(preset) {
+  v4StylePreset = preset;
+  document.querySelectorAll('.style-preset-card').forEach(el => el.classList.remove('selected'));
+  document.getElementById('sp-' + preset)?.classList.add('selected');
+
+  const splitIndicator = document.getElementById('split-mode-indicator');
+  const splitCard = document.getElementById('split-mode-card');
+  if (preset === 'small-package') {
+    if (splitIndicator) splitIndicator.style.display = 'inline-flex';
+    if (splitCard) splitCard.style.borderColor = 'var(--purple)';
+  } else {
+    if (splitIndicator) splitIndicator.style.display = 'none';
+    if (splitCard) splitCard.style.borderColor = 'var(--border)';
+  }
+
+  if (nfsCurrent) { nfsCurrent.stylePreset = preset; nfsSaveProject(false); }
+
+  // Apply CSS class to label preview
+  const previewEl = document.getElementById('nf-label-preview');
+  if (previewEl) {
+    previewEl.className = previewEl.className.replace(/\s*style-preset-\S+/g,'');
+    previewEl.classList.add('style-preset-' + preset);
+    // Apply font size adjustments
+    if (preset === 'compact-rail' || preset === 'small-package') {
+      previewEl.style.fontSize = '10px';
+      previewEl.style.width = '220px';
+    } else if (preset === 'wide-panel') {
+      previewEl.style.width = '320px';
+    } else {
+      previewEl.style.fontSize = '';
+      previewEl.style.width = '260px';
+    }
+  }
+  toast('Style Applied', preset.replace(/-/g,' '));
+}
+
+// ============================================================
+//  V4: BARCODE MODULE (JsBarcode)
+// ============================================================
+let bcLoaded = false;
+let bcCurrentMode = 'real';
+
+function bcLoadJsBarcode(cb) {
+  if (window.JsBarcode) { cb(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js';
+  s.onload = () => { bcLoaded = true; cb(); };
+  s.onerror = () => toast('JsBarcode unavailable', 'Check network. Barcode rendering requires internet access.');
+  document.head.appendChild(s);
+}
+
+function bcModeChange() {
+  bcCurrentMode = document.getElementById('bc-mode')?.value || 'real';
+  document.getElementById('bc-real-fields').style.display = bcCurrentMode === 'real' ? 'block' : 'none';
+  document.getElementById('bc-placeholder-fields').style.display = bcCurrentMode === 'placeholder' ? 'block' : 'none';
+  bcUpdate();
+  // Update barcode badge in nav
+  const badge = document.getElementById('lnav-barcode-badge');
+  if (badge) { badge.style.display = bcCurrentMode === 'placeholder' ? 'inline-flex' : 'none'; badge.textContent = 'DEMO'; }
+}
+
+// UPC-A check digit validation
+function upcCheckDigit(code11) {
+  if (code11.length !== 11) return null;
+  let odd = 0, even = 0;
+  for (let i = 0; i < 11; i++) {
+    const d = parseInt(code11[i]);
+    if (isNaN(d)) return null;
+    if (i % 2 === 0) odd += d; else even += d;
+  }
+  const check = (10 - ((odd * 3 + even) % 10)) % 10;
+  return check;
+}
+
+function bcValidate(code, type) {
+  const row = document.getElementById('bc-validation-row');
+  if (!row) return false;
+  if (type === 'UPC') {
+    if (!/^\d{12}$/.test(code)) {
+      row.textContent = `✗ UPC-A must be exactly 12 digits. (${code.length} entered)`;
+      row.style.color = 'var(--red)'; row.style.background = 'var(--red-bg)';
+      return false;
+    }
+    const expectedCheck = upcCheckDigit(code.slice(0, 11));
+    const actualCheck = parseInt(code[11]);
+    if (expectedCheck === actualCheck) {
+      row.textContent = `✓ Valid UPC-A — check digit ${actualCheck} confirmed`;
+      row.style.color = 'var(--green)'; row.style.background = 'rgba(74,222,128,0.08)';
+      return true;
+    } else {
+      row.textContent = `⚠ Check digit mismatch — expected ${expectedCheck}, got ${actualCheck}. Verify your code.`;
+      row.style.color = 'var(--orange)'; row.style.background = 'var(--orange-bg)';
+      return false; // render anyway but warn
+    }
+  } else if (type === 'EAN13') {
+    if (!/^\d{13}$/.test(code)) {
+      row.textContent = `✗ EAN-13 must be 13 digits. (${code.length} entered)`;
+      row.style.color = 'var(--red)'; row.style.background = 'var(--red-bg)';
+      return false;
+    }
+    row.textContent = `✓ EAN-13 format valid`;
+    row.style.color = 'var(--green)'; row.style.background = 'rgba(74,222,128,0.08)';
+    return true;
+  }
+  return false;
+}
+
+function bcUpdate() {
+  const mode = document.getElementById('bc-mode')?.value || 'real';
+  const svgEl = document.getElementById('bc-svg');
+  const placeholder = document.getElementById('bc-placeholder-visual');
+  const emptyHint = document.getElementById('bc-empty-hint');
+  const exportZone = document.getElementById('bc-export-zone');
+
+  if (mode === 'placeholder') {
+    const val = document.getElementById('bc-placeholder-val')?.value || '000000000000';
+    if (svgEl) svgEl.style.display = 'none';
+    if (placeholder) placeholder.style.display = 'flex';
+    if (emptyHint) emptyHint.style.display = 'none';
+    const numEl = placeholder?.querySelector('.barcode-number');
+    if (numEl) numEl.textContent = val.replace(/(\d{1})(\d{5})(\d{5})(\d{1})/, '$1 $2 $3 $4');
+    if (exportZone) exportZone.style.display = 'none';
+    return;
+  }
+
+  const type = document.getElementById('bc-type')?.value || 'UPC';
+  const code = (document.getElementById('bc-value')?.value || '').trim();
+  if (!code) {
+    if (svgEl) svgEl.style.display = 'none';
+    if (placeholder) placeholder.style.display = 'none';
+    if (emptyHint) emptyHint.style.display = 'block';
+    if (exportZone) exportZone.style.display = 'none';
+    document.getElementById('bc-validation-row').textContent = '';
+    document.getElementById('bc-validation-row').style.background = 'var(--surface2)';
+    return;
+  }
+
+  bcValidate(code, type);
+
+  if (!/^\d+$/.test(code)) return;
+
+  bcLoadJsBarcode(() => {
+    try {
+      const w = parseFloat(document.getElementById('bc-width')?.value) || 2;
+      const h = parseFloat(document.getElementById('bc-height')?.value) || 60;
+      const showText = document.getElementById('bc-show-text')?.checked !== false;
+      if (svgEl) svgEl.style.display = 'block';
+      if (placeholder) placeholder.style.display = 'none';
+      if (emptyHint) emptyHint.style.display = 'none';
+      JsBarcode('#bc-svg', code, {
+        format: type === 'UPC' ? 'UPC' : 'EAN13',
+        width: w, height: h,
+        displayValue: showText,
+        fontSize: 12,
+        margin: 8,
+        background: '#ffffff',
+        lineColor: '#000000',
+      });
+      if (exportZone) exportZone.style.display = 'block';
+    } catch(e) {
+      document.getElementById('bc-validation-row').textContent = '✗ Render error: ' + e.message;
+    }
+  });
+}
+
+function bcSaveToProject() {
+  if (!nfsCurrent) { toast('No Project', 'Open a project first.'); return; }
+  const mode = document.getElementById('bc-mode')?.value || 'real';
+  const type = document.getElementById('bc-type')?.value || 'UPC';
+  const code = mode === 'placeholder' ? (document.getElementById('bc-placeholder-val')?.value || '') : (document.getElementById('bc-value')?.value || '');
+  const include = document.getElementById('bc-include-on-label')?.checked !== false;
+  nfsCurrent.barcode = { mode, type, code, include, savedTs: new Date().toISOString() };
+  nfsSaveProject(false);
+  const badge = document.getElementById('lnav-barcode-badge');
+  if (badge) { badge.style.display = mode === 'placeholder' ? 'inline-flex' : 'none'; }
+  toast('Saved', `${mode === 'placeholder' ? 'Placeholder' : type} barcode saved to project.`);
+}
+
+function bcExportPNG() {
+  const svgEl = document.getElementById('bc-svg');
+  if (!svgEl || svgEl.style.display === 'none') { toast('No Barcode', 'Generate a barcode first.'); return; }
+  const canvas = document.createElement('canvas');
+  const svgData = new XMLSerializer().serializeToString(svgEl);
+  const img = new Image();
+  img.onload = () => {
+    canvas.width = img.width; canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+    const code = document.getElementById('bc-value')?.value || 'barcode';
+    const a = document.createElement('a');
+    a.download = `barcode_${code}.png`;
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+    toast('Exported', 'Barcode PNG downloaded.');
+  };
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
+}
+
+// ============================================================
+//  V4: APPROVAL / FREEZE WORKFLOW
+// ============================================================
+const STATUS_LABELS = {
+  draft: '✎ Draft', review: '⧉ Review Ready', approved: '✓ Approved',
+  ready: '★ Manufacturer Ready', frozen: '❄ Frozen',
+};
+const STATUS_BADGE = {
+  draft: 'badge-draft', review: 'badge-review', approved: 'badge-approved',
+  ready: 'badge-ready', frozen: 'badge-frozen',
+};
+
+function apprRefresh() {
+  const content = document.getElementById('approval-content');
+  const noProject = document.getElementById('approval-no-project');
+  if (!nfsCurrent) {
+    if (content) content.style.display = 'none';
+    if (noProject) noProject.style.display = 'block';
+    return;
+  }
+  if (content) content.style.display = 'flex';
+  if (noProject) noProject.style.display = 'none';
+
+  const status = nfsCurrent.status || 'draft';
+  const frozen = nfsCurrent.frozen || false;
+
+  const statusEl = document.getElementById('appr-status-display');
+  if (statusEl) {
+    statusEl.textContent = STATUS_LABELS[status] || status;
+    statusEl.className = 'badge ' + (STATUS_BADGE[status] || 'badge-draft');
+    statusEl.style.fontSize = '16px';
+  }
+  document.getElementById('appr-meta-line').textContent = `Last modified: ${nfsCurrent.modified ? new Date(nfsCurrent.modified).toLocaleString() : '—'} · v${nfsCurrent.version || 1}`;
+  document.getElementById('appr-version-line').textContent = `Project: ${nfsCurrent.name || 'Untitled'} · ID: ${nfsCurrent.id?.slice(0,8) || '—'}`;
+
+  // Freeze toggle
+  const unlockCard = document.getElementById('appr-unlock-card');
+  const freezeBtn = document.getElementById('appr-freeze-btn');
+  if (frozen) {
+    if (unlockCard) unlockCard.style.display = 'block';
+    if (freezeBtn) { freezeBtn.textContent = '❄ Frozen'; freezeBtn.disabled = true; }
+  } else {
+    if (unlockCard) unlockCard.style.display = 'none';
+    if (freezeBtn) { freezeBtn.textContent = 'Freeze Version'; freezeBtn.disabled = false; }
+  }
+
+  // Approval log
+  renderApprovalLog();
+
+  // Nav badge
+  const badge = document.getElementById('lnav-approval-badge');
+  if (badge) {
+    if (frozen) { badge.style.display = 'inline-flex'; badge.textContent = '❄'; badge.style.color = '#60a5fa'; }
+    else if (status === 'ready') { badge.style.display = 'inline-flex'; badge.textContent = '★'; badge.style.color = 'var(--green)'; }
+    else badge.style.display = 'none';
+  }
+}
+
+function apprSetStatus(status) {
+  if (!nfsCurrent) return;
+  if (nfsCurrent.frozen) { toast('Frozen', 'Unlock the label first before changing status.'); return; }
+  const prev = nfsCurrent.status;
+  nfsCurrent.status = status;
+  nfsCurrent.approvalLog = nfsCurrent.approvalLog || [];
+  nfsCurrent.approvalLog.push({ ts: new Date().toISOString(), action: 'status-changed', from: prev, to: status });
+  nfsCurrent.version = (nfsCurrent.version || 1);
+  nfsSaveProject(false);
+  apprRefresh();
+  updateHeaderProject();
+  toast('Status Updated', STATUS_LABELS[status] || status);
+}
+
+function apprPromoteToReady() {
+  if (!nfsCurrent) return;
+  if (nfsCurrent.frozen) { toast('Frozen', 'Unlock the label first.'); return; }
+  // Gate checks
+  if (!nfsPreflight) { toast('Run Preflight First', 'Compliance Review must be run before promoting to Manufacturer Ready.'); return; }
+  const blocks = nfsPreflight.checks.filter(c => c.sev === 'block').length;
+  const errors = nfsPreflight.checks.filter(c => c.sev === 'error').length;
+  if (blocks > 0 || errors > 0) { toast('Preflight Issues', `Resolve ${blocks} blocks and ${errors} errors before promoting.`); return; }
+  if (nfsCurrent.barcode?.mode === 'placeholder' && nfsCurrent.barcode?.include) {
+    toast('Placeholder Barcode', 'Switch to a real barcode or disable barcode inclusion before Manufacturer Ready.'); return;
+  }
+  apprSetStatus('ready');
+}
+
+function apprFreeze() {
+  if (!nfsCurrent) return;
+  nfsCurrent.frozen = true;
+  nfsCurrent.frozenTs = new Date().toISOString();
+  nfsCurrent.version = (nfsCurrent.version || 1) + 1;
+  nfsCurrent.approvalLog = nfsCurrent.approvalLog || [];
+  nfsCurrent.approvalLog.push({ ts: new Date().toISOString(), action: 'frozen', version: nfsCurrent.version });
+  nfsSaveProject(false);
+  apprRefresh();
+  toast('Frozen ❄', `Label frozen at v${nfsCurrent.version}. Unlock required to edit.`);
+}
+
+function apprUnlock() {
+  if (!nfsCurrent) return;
+  const reason = document.getElementById('appr-unlock-reason')?.value?.trim();
+  if (!reason) { toast('Reason Required', 'Enter an unlock reason.'); return; }
+  nfsCurrent.frozen = false;
+  nfsCurrent.status = 'draft';
+  nfsCurrent.approvalLog = nfsCurrent.approvalLog || [];
+  nfsCurrent.approvalLog.push({ ts: new Date().toISOString(), action: 'unlocked', reason });
+  document.getElementById('appr-unlock-reason').value = '';
+  nfsSaveProject(false);
+  apprRefresh();
+  toast('Unlocked', `Label unlocked. Reason: ${reason}`);
+}
+
+function renderApprovalLog() {
+  const list = document.getElementById('appr-log-list');
+  if (!list || !nfsCurrent) return;
+  const log = nfsCurrent.approvalLog || [];
+  if (!log.length) { list.innerHTML = '<div style="padding:16px;font-size:12px;color:var(--muted);">No history yet.</div>'; return; }
+  list.innerHTML = '';
+  [...log].reverse().slice(0, 10).forEach(entry => {
+    const row = document.createElement('div');
+    row.style.cssText = 'padding:8px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--dim);';
+    const ts = new Date(entry.ts).toLocaleString();
+    let text = entry.action;
+    if (entry.action === 'status-changed') text = `Status: ${entry.from} → ${entry.to}`;
+    else if (entry.action === 'frozen') text = `Frozen at v${entry.version}`;
+    else if (entry.action === 'unlocked') text = `Unlocked — ${entry.reason}`;
+    row.innerHTML = `<span style="color:var(--text);font-weight:600;">${text}</span> <span style="color:var(--muted);">· ${ts}</span>`;
+    list.appendChild(row);
+  });
+}
+
+// Patch nfsNav to refresh approval view and support composer icons
+const _origNfsNavV4 = nfsNav;
+function nfsNavV4(viewId) {
+  _origNfsNavV4(viewId);
+  if (viewId === 'approval') setTimeout(apprRefresh, 50);
+  if (viewId === 'support-composer') setTimeout(() => { scInitIconPicker(); scUpdate(); }, 50);
+  if (viewId === 'barcode') {
+    const bc = nfsCurrent?.barcode;
+    if (bc) {
+      const sv = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined) el.value = v; };
+      sv('bc-mode', bc.mode || 'real');
+      sv('bc-type', bc.type || 'UPC');
+      sv('bc-value', bc.mode !== 'placeholder' ? bc.code : '');
+      sv('bc-placeholder-val', bc.mode === 'placeholder' ? bc.code : '');
+      bcModeChange();
+    }
+  }
+  if (viewId === 'label-style') {
+    // Restore style preset
+    if (nfsCurrent?.stylePreset) setTimeout(() => setStylePreset(nfsCurrent.stylePreset), 50);
+  }
+}
+window.nfsNav = nfsNavV4;
+
+// Patch nfsSaveProject to block edits on frozen labels
+const _origSaveV4 = nfsSaveProject;
+function nfsSaveProjectV4(notify = true) {
+  if (nfsCurrent?.frozen) {
+    if (notify) toast('Label Frozen', 'Cannot save — label is frozen. Go to Approval & Freeze to unlock.');
+    return;
+  }
+  _origSaveV4(notify);
+}
+window.nfsSaveProject = nfsSaveProjectV4;
+
+// ============================================================
+//  V4: SPLIT COMPLIANCE BUNDLE EXPORT
+// ============================================================
+function exportSplitComplianceBundle() {
+  if (!nfsCurrent) { toast('No Project', 'Create a project first.'); return; }
+  const profile = document.getElementById('sp-small-profile')?.value || '';
+  const w = document.getElementById('sp-card-w')?.value || '4.13';
+  const h = document.getElementById('sp-card-h')?.value || '5.91';
+  const name = (nfsCurrent.name || 'label').toLowerCase().replace(/\s+/g, '-');
+  const css = getLabelCSS();
+
+  // Block 1: Compact nutrition panel
+  const labelHTML = getLabelHTML();
+  const panelAsset = `<!DOCTYPE html><html><head><title>Panel — ${nfsCurrent.name}</title>
+<style>@page{size:${w}in ${h}in;margin:4mm;}body{margin:0;background:#fff;}${css}</style>
+</head><body>${labelHTML}</body></html>`;
+
+  // Block 2: Support copy block
+  const ingText = nfsCurrent.ingredients || '';
+  const alText = nfsCurrent.allergenCustom || (nfsCurrent.allergens?.length ? `Contains: ${nfsCurrent.allergens.join(', ')}.` : '');
+  const distText = nfsCurrent.distributor || '';
+  const originText = nfsCurrent.origin || '';
+  const netWtText = nfsCurrent.netWeightDisplay || (nfsCurrent.netOz ? `NET WT ${nfsCurrent.netOz} OZ (${nfsCurrent.netG}g)` : '');
+  const supportHTML = `<!DOCTYPE html><html><head><title>Support Copy — ${nfsCurrent.name}</title>
+<style>@page{size:${w}in ${h}in;margin:4mm;}body{margin:0;font-family:Arial,sans-serif;font-size:8pt;color:#000;background:#fff;line-height:1.5;}</style>
+</head><body>
+${ingText ? `<div><strong>INGREDIENTS:</strong> ${ingText}</div>` : ''}
+${alText ? `<div style="font-weight:700;">${alText}</div>` : ''}
+${netWtText ? `<div>${netWtText}</div>` : ''}
+${distText ? `<div style="white-space:pre-line;">${distText}</div>` : ''}
+${originText ? `<div style="font-weight:700;">${originText}</div>` : ''}
+</body></html>`;
+
+  // Block 3: Reference sheet
+  const refHTML = `<!DOCTYPE html><html><head><title>Split Bundle Reference — ${nfsCurrent.name}</title>
+<style>body{font-family:Arial,sans-serif;font-size:11px;margin:20px;color:#333;}h2{font-size:14px;}table{border-collapse:collapse;width:100%;}td,th{padding:6px 10px;border:1px solid #ccc;font-size:10px;}th{background:#f5f5f5;font-weight:700;}</style>
+</head><body>
+<h2>Split Compliance Bundle — ${nfsCurrent.name}</h2>
+<p>Profile: ${profile || 'Custom'} · Card: ${w}" × ${h}"</p>
+<table><tr><th>Zone</th><th>File</th><th>Content</th></tr>
+<tr><td>Zone 1 — Nutrition Panel</td><td>nf_${name}_panel.html</td><td>Compact FDA Nutrition Facts block</td></tr>
+<tr><td>Zone 2 — Support Copy</td><td>nf_${name}_support.html</td><td>Ingredients, allergens, distributor, origin, net weight</td></tr>
+<tr><td>Zone 3 — Barcode</td><td>Barcode Module export</td><td>${nfsCurrent.barcode?.code || 'Use Barcode Module to export'}</td></tr>
+</table>
+<p style="margin-top:12px;font-size:10px;color:#888;">Generated ${new Date().toLocaleString()} · Hidden Supply Nutrition Facts Studio v4</p>
+</body></html>`;
+
+  downloadFile(panelAsset, `nf_${name}_panel.html`, 'text/html');
+  setTimeout(() => downloadFile(supportHTML, `nf_${name}_support.html`, 'text/html'), 400);
+  setTimeout(() => downloadFile(refHTML, `nf_${name}_split_reference.html`, 'text/html'), 800);
+  trackExport('split-bundle', nfsCurrent.name);
+  toast('Split Bundle Exported', '3 files: panel, support copy, reference sheet.');
+}
+
+// ============================================================
+//  V4: PREFLIGHT EXTENSIONS
+// ============================================================
+const _origRunPreflightV4 = runPreflight;
+function runPreflightV4() {
+  _origRunPreflightV4();
+  if (!nfsPreflight) return;
+  const extra = [];
+
+  // Barcode checks
+  const bc = nfsCurrent?.barcode;
+  if (bc?.include) {
+    if (bc.mode === 'placeholder' && (nfsCurrent.status === 'ready' || nfsCurrent.status === 'approved')) {
+      extra.push({ sev:'block', icon:'🔴', title:'Placeholder Barcode on Production Label', desc:'Placeholder/demo barcode is enabled on a label marked as ready or approved. Switch to a real barcode or disable barcode inclusion.', fixView:'barcode' });
+    }
+    if (bc.mode === 'real' && bc.type === 'UPC' && bc.code && bc.code.length === 12) {
+      const check = upcCheckDigit(bc.code.slice(0,11));
+      if (check !== null && check !== parseInt(bc.code[11])) {
+        extra.push({ sev:'error', icon:'🟠', title:'UPC-A Check Digit Invalid', desc:`Barcode ${bc.code} has check digit ${bc.code[11]} but expected ${check}. Verify your UPC code.`, fixView:'barcode' });
+      }
+    }
+    if (bc.mode === 'real' && bc.code && !/^\d{12,13}$/.test(bc.code)) {
+      extra.push({ sev:'error', icon:'🟠', title:'Invalid Barcode Format', desc:`Barcode "${bc.code}" is not a valid ${bc.type} format.`, fixView:'barcode' });
+    }
+  }
+
+  // Net weight checks
+  const oz = parseFloat(nfsCurrent?.netOz) || 0;
+  const g = parseFloat(nfsCurrent?.netG) || 0;
+  if (oz > 0 && g > 0) {
+    const expectedG = Math.round(oz * OZ_TO_G);
+    const tolerance = Math.max(expectedG * 0.05, 5);
+    if (Math.abs(g - expectedG) > tolerance) {
+      extra.push({ sev:'error', icon:'🟠', title:'Net Weight Mismatch', desc:`${oz} oz should be ~${expectedG}g, but ${g}g is declared. Verify net weight values.`, fixView:'support-composer' });
+    }
+  }
+
+  // Freeze/approval checks
+  if (nfsCurrent?.frozen) {
+    extra.push({ sev:'warn', icon:'🟡', title:'Label is Frozen', desc:'This label is frozen and locked from editing. Any issues found need an unlock before they can be fixed.', fixView:'approval' });
+  }
+  if ((nfsCurrent?.status === 'approved' || nfsCurrent?.status === 'ready') && nfsCurrent?.preflightModifiedTs && nfsCurrent?.preflight?.ts) {
+    const lastApproval = nfsCurrent?.approvalLog?.filter(l => l.action === 'status-changed' && (l.to === 'approved' || l.to === 'ready')).slice(-1)[0];
+    if (lastApproval && new Date(nfsCurrent.preflightModifiedTs) > new Date(lastApproval.ts)) {
+      extra.push({ sev:'warn', icon:'🟡', title:'Edited After Approval', desc:'This label was modified after it was approved or marked ready. Consider re-approving.', fixView:'approval' });
+    }
+  }
+
+  if (!extra.length) return;
+  nfsPreflight.checks = [...nfsPreflight.checks, ...extra];
+  if (nfsCurrent) nfsCurrent.preflight = nfsPreflight;
+  renderPreflightResults(nfsPreflight.checks);
+  updateComplianceView();
+  updateExportView();
+  updateLnavBadge(nfsPreflight.checks);
+}
+window.runPreflight = runPreflightV4;
+
+// ============================================================
+//  V4: DASHBOARD EXTENSIONS
+// ============================================================
+const _origRenderDashboardV4 = renderDashboard;
+function renderDashboardV4() {
+  _origRenderDashboardV4();
+  // Extra ops alerts for barcode + freeze status already handled by renderOpsAlerts
+  // Add barcode-specific rows
+  const barcodeNeeded = nfsProjects.filter(p => !p.barcode?.code).length;
+  const placeholderBc = nfsProjects.filter(p => p.barcode?.mode === 'placeholder').length;
+  const frozenLabels = nfsProjects.filter(p => p.frozen).length;
+  // These will naturally flow into the ops alerts if we add them — but ops alerts is per-project
+  // Just update session exports display
+  const sessExports = document.getElementById('db-session-exports');
+  if (sessExports) sessExports.textContent = sessionStats.exportsThisSession;
+}
+window.renderDashboard = renderDashboardV4;
+
+// ============================================================
+//  V4: BOOT ADDITIONS
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  // Init icon picker if visible
+  setTimeout(() => {
+    if (document.getElementById('sc-icon-picker')) scInitIconPicker();
+  }, 200);
+});
+
+// ============================================================
+//  V5 ADDITIONS — SEAM CLOSURE + PREMIUM POLISH
+// ============================================================
+
+// ============================================================
+//  V5: PREVIEW ZOOM
+// ============================================================
+let v5PreviewZoom = 1;
+function setPreviewZoom(z) {
+  const inner = document.getElementById('preview-zoom-inner');
+  const wrap = document.getElementById('label-preview-wrap');
+  if (!inner) return;
+  document.querySelectorAll('.preview-zoom-btn').forEach(b => b.classList.remove('active'));
+  if (z === 'fit') {
+    const rail = document.getElementById('preview-rail');
+    const railW = (rail?.offsetWidth || 300) - 36;
+    const labelW = inner.offsetWidth || 260;
+    z = Math.min(1.2, railW / labelW);
+  }
+  v5PreviewZoom = z;
+  inner.style.transform = `scale(${z})`;
+  if (wrap) wrap.style.height = (inner.offsetHeight * z + 24) + 'px';
+  // Highlight the matching zoom button
+  const pct = Math.round(z * 100);
+  document.querySelectorAll('.preview-zoom-btn').forEach(b => {
+    if (b.textContent.includes(pct + '%')) b.classList.add('active');
+    if (pct === 100 && b.id === 'zoom-100') b.classList.add('active');
+  });
+}
+
+// ============================================================
+//  V5: AUTOSAVE INDICATOR
+// ============================================================
+function autosaveShow(state, text) {
+  const dot = document.getElementById('hdr-autosave-dot');
+  const txt = document.getElementById('hdr-autosave-text');
+  const wrap = document.getElementById('hdr-autosave');
+  if (!dot || !txt || !wrap) return;
+  wrap.style.display = 'inline-flex';
+  const colors = { saving: 'var(--accent)', saved: 'var(--green)', error: 'var(--red)' };
+  dot.style.background = colors[state] || 'var(--muted)';
+  txt.style.color = colors[state] || 'var(--muted)';
+  txt.textContent = text || state;
+  // Also update preview rail indicator
+  const ind = document.getElementById('autosave-indicator');
+  if (ind) { ind.textContent = text || state; ind.style.color = colors[state] || 'var(--muted)'; }
+}
+
+// Wrap nfsSaveProject to add autosave UI feedback
+const _origSaveV5base = nfsSaveProject;
+function nfsSaveProjectV5(notify = true) {
+  autosaveShow('saving', 'Saving...');
+  _origSaveV5base(notify);
+  setTimeout(() => autosaveShow('saved', 'Saved'), 400);
+}
+window.nfsSaveProject = nfsSaveProjectV5;
+
+// ============================================================
+//  V5: CLOSE EXPORT SEAMS — Barcode + Icons in Preview
+// ============================================================
+// Wrap editorUpdate to inject barcode + icons into the label preview
+const _origEditorUpdate = editorUpdate;
+function editorUpdateV5() {
+  _origEditorUpdate();
+  v5InjectBarcodeToPreview();
+  v5InjectIconsToPreview();
+  v5UpdatePreviewTrustBadges();
+  v5UpdatePreviewPFStatus();
+}
+window.editorUpdate = editorUpdateV5;
+
+function v5InjectBarcodeToPreview() {
+  const zone = document.getElementById('lp-barcode-zone');
+  if (!zone) return;
+  const bc = nfsCurrent?.barcode;
+  if (!bc?.include) { zone.style.display = 'none'; zone.innerHTML = ''; return; }
+
+  zone.style.display = 'flex';
+  zone.innerHTML = '';
+
+  if (bc.mode === 'placeholder') {
+    zone.innerHTML = '<div class="nf-barcode-demo"></div><div class="nf-barcode-demo-label">DEMO BARCODE</div>';
+    return;
+  }
+
+  if (!bc.code || !/^\d{12,13}$/.test(bc.code)) {
+    zone.innerHTML = '<div style="font-size:8px;color:#999;text-align:center;">Barcode pending…</div>';
+    return;
+  }
+
+  // Render real barcode
+  bcLoadJsBarcode(() => {
+    const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svgEl.id = 'lp-bc-svg-inline';
+    zone.innerHTML = '';
+    zone.appendChild(svgEl);
+    try {
+      JsBarcode('#lp-bc-svg-inline', bc.code, {
+        format: bc.type === 'UPC' ? 'UPC' : 'EAN13',
+        width: 1.5, height: 50,
+        displayValue: true,
+        fontSize: 10,
+        margin: 4,
+        background: '#ffffff',
+        lineColor: '#000000',
+      });
+    } catch(e) {
+      zone.innerHTML = '<div style="font-size:8px;color:#999;">Barcode render error</div>';
+    }
+  });
+}
+
+const ICON_SVG_MAP = {
+  recycle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-2.876L6 12l1 2"/><path d="m16 19 2.185-4.876A1.83 1.83 0 0 0 16.815 12H14"/><path d="m5 8 4.5-7.5L14 8"/><path d="m16 8 4 4-4 4"/><path d="M8 8l-4 4 4 4"/></svg>',
+  phone:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+  globe:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+  bottle:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 2h6v4l2 4v10a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V10l2-4V2z"/><line x1="9" y1="8" x2="15" y2="8"/></svg>',
+  leaf:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>',
+  trash:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+};
+
+function v5InjectIconsToPreview() {
+  const row = document.getElementById('lp-icons-row');
+  if (!row) return;
+  const icons = nfsCurrent?.supportIcons || [];
+  if (!icons.length) { row.style.display = 'none'; row.innerHTML = ''; return; }
+  row.style.display = 'flex';
+  row.innerHTML = '';
+  icons.forEach(id => {
+    const found = SUPPORT_ICONS.find(i => i.id === id);
+    if (!found) return;
+    const item = document.createElement('div');
+    item.className = 'nf-icon-item';
+    item.innerHTML = `<div style="width:11px;height:11px;color:#333;">${ICON_SVG_MAP[id] || found.svg}</div><span>${found.label}</span>`;
+    row.appendChild(item);
+  });
+}
+
+// ============================================================
+//  V5: PREVIEW TRUST BADGES + PF STATUS
+// ============================================================
+function v5UpdatePreviewTrustBadges() {
+  const container = document.getElementById('preview-trust-badges');
+  if (!container) return;
+  container.innerHTML = '';
+  if (!nfsCurrent) return;
+
+  const badges = [];
+  const sm = nfsCurrent.sourceMode || 'manual';
+  const smColors = { manual:'var(--green)', convert:'var(--blue)', import:'var(--orange)', formula:'var(--purple)' };
+  badges.push({ label: sm.toUpperCase(), color: smColors[sm] || 'var(--muted)' });
+
+  const status = nfsCurrent.status || 'draft';
+  const stColors = { draft:'var(--muted)', review:'var(--blue)', approved:'var(--green)', ready:'var(--green)', frozen:'#60a5fa' };
+  badges.push({ label: status.toUpperCase(), color: stColors[status] || 'var(--muted)' });
+
+  if (nfsCurrent.frozen) badges.push({ label: '❄ FROZEN', color: '#60a5fa' });
+  if (nfsCurrent.barcode?.mode === 'placeholder') badges.push({ label: '⚠ DEMO BC', color: 'var(--orange)' });
+
+  badges.forEach(b => {
+    const span = document.createElement('span');
+    span.className = 'trust-badge';
+    span.style.cssText = `background:${b.color}18;color:${b.color};border:1px solid ${b.color}44;`;
+    span.textContent = b.label;
+    container.appendChild(span);
+  });
+}
+
+function v5UpdatePreviewPFStatus() {
+  const bar = document.getElementById('preview-pf-status');
+  if (!bar) return;
+  if (!nfsPreflight) { bar.className = 'preview-pf-bar none'; bar.textContent = '◯ Run preflight for status'; return; }
+  const checks = nfsPreflight.checks || [];
+  const blocks = checks.filter(c => c.sev === 'block').length;
+  const errors = checks.filter(c => c.sev === 'error').length;
+  const warns = checks.filter(c => c.sev === 'warn').length;
+  if (blocks > 0) { bar.className = 'preview-pf-bar issues'; bar.textContent = `⛔ ${blocks} block${blocks>1?'s':''} — export locked`; }
+  else if (errors > 0) { bar.className = 'preview-pf-bar issues'; bar.textContent = `✗ ${errors} error${errors>1?'s':''}${warns?' + '+warns+' warn':''}`; }
+  else if (warns > 0) { bar.className = 'preview-pf-bar warn'; bar.textContent = `⚠ ${warns} warning${warns>1?'s':''} — review`; }
+  else { bar.className = 'preview-pf-bar clean'; bar.textContent = '✓ Preflight clean'; }
+}
+
+// ============================================================
+//  V5: CLOSE EXPORT SEAM — printLabel / exportHTML now include barcode + icons + support
+// ============================================================
+// Wrap buildExportHTML if it exists, or patch printLabel to use v5 label HTML
+function v5GetFullLabelHTML() {
+  // Get the rendered label HTML and inject barcode + icons if present
+  const labelEl = document.getElementById('nf-label-preview');
+  if (!labelEl) return '<div>No label</div>';
+
+  // Clone to avoid modifying live DOM
+  const clone = labelEl.cloneNode(true);
+
+  // Inject barcode into clone if needed and JsBarcode is available
+  const bcZone = clone.querySelector('#lp-barcode-zone');
+  const bc = nfsCurrent?.barcode;
+  if (bcZone && bc?.include && bc?.mode === 'real' && bc?.code && window.JsBarcode) {
+    // Already rendered in live DOM — just ensure clone has it
+    const liveBcZone = document.getElementById('lp-barcode-zone');
+    if (liveBcZone?.innerHTML) bcZone.innerHTML = liveBcZone.innerHTML;
+  }
+  if (bcZone && bc?.include && bc?.mode === 'placeholder') {
+    bcZone.style.display = 'flex';
+    bcZone.innerHTML = '<div style="background:repeating-linear-gradient(90deg,#000 0,#000 2px,#fff 2px,#fff 5px);height:50px;width:120px;opacity:0.15;border-radius:1px;"></div><div style="font-size:7px;font-weight:700;color:#b97700;letter-spacing:.1em;text-transform:uppercase;margin-top:2px;">DEMO BARCODE</div>';
+  }
+
+  // Fix element IDs in clone to avoid conflicts
+  clone.querySelectorAll('[id]').forEach(el => { el.removeAttribute('id'); });
+
+  return clone.outerHTML;
+}
+
+// Override getLabelHTML to use v5 version
+const _origGetLabelHTML = getLabelHTML;
+function getLabelHTMLV5() {
+  return v5GetFullLabelHTML();
+}
+if (typeof getLabelHTML !== 'undefined') window.getLabelHTML = getLabelHTMLV5;
+
+// ============================================================
+//  V5: STYLE PRESET DEEP INTEGRATION
+// ============================================================
+const _origSetStylePreset = setStylePreset;
+function setStylePresetV5(preset) {
+  _origSetStylePreset(preset);
+  const labelEl = document.getElementById('nf-label-preview');
+  if (!labelEl) return;
+  // Remove all preset classes
+  ['preset-commercial-standard','preset-compact-rail','preset-wide-panel','preset-small-package','preset-hidden-supply']
+    .forEach(c => labelEl.classList.remove(c));
+  // Add new preset class
+  if (preset !== 'hidden-supply') labelEl.classList.add('preset-' + preset);
+  // Trigger update
+  editorUpdate();
+}
+window.setStylePreset = setStylePresetV5;
+
+// ============================================================
+//  V5: PACKAGING PAYLOAD V4 — full export truth
+// ============================================================
+const _origExportPayloadV3 = exportPackagingPayloadV3;
+function exportPackagingPayloadV4() {
+  if (!nfsCurrent) { toast('No Project', 'Create and save a project first.'); return; }
+  nfsSaveProject(false);
+  const declared = {};
+  Object.entries(nfsCurrent.nutrients || {}).forEach(([k, v]) => { declared[k] = v.declared; });
+
+  // Get barcode SVG string if rendered
+  let barcodeSvgStr = null;
+  const liveSvg = document.getElementById('lp-bc-svg-inline') || document.getElementById('bc-svg');
+  if (liveSvg && nfsCurrent.barcode?.mode === 'real') {
+    barcodeSvgStr = new XMLSerializer().serializeToString(liveSvg);
+  }
+
+  const payload = {
+    schema: 'hs-nfs-packaging-payload-v4',
+    generated: new Date().toISOString(),
+    project: { id: nfsCurrent.id, name: nfsCurrent.name, brand: nfsCurrent.brand, sku: nfsCurrent.sku },
+    panel: {
+      format: nfsCurrent.format, columnMode,
+      width: nfsCurrent.dimensions?.w, height: nfsCurrent.dimensions?.h, unit: nfsCurrent.dimensions?.unit,
+      servingSize: nfsCurrent.servingSize, servingsPerContainer: nfsCurrent.servingsPerContainer,
+      nutrientsDeclared: declared, dvValues: nfsCurrent.dv,
+    },
+    supportCopy: {
+      ingredients: nfsCurrent.ingredients,
+      allergens: nfsCurrent.allergens, allergenCustom: nfsCurrent.allergenCustom,
+      distributor: nfsCurrent.distributor, origin: nfsCurrent.origin,
+      warning: nfsCurrent.warning,
+      netOz: nfsCurrent.netOz, netG: nfsCurrent.netG,
+      netWeightDisplay: nfsCurrent.netWeightDisplay,
+      supportComposerState: nfsCurrent.supportComposerState,
+      renderedSupportBlock: buildSupportBlock(),
+    },
+    barcode: {
+      config: nfsCurrent.barcode,
+      svgAsset: barcodeSvgStr,
+    },
+    icons: { selected: nfsCurrent.supportIcons || [] },
+    layout: {
+      profilePreset: nfsCurrent.profileTemplate,
+      stylePreset: nfsCurrent.stylePreset || 'hidden-supply',
+      dimensions: nfsCurrent.dimensions,
+    },
+    approval: {
+      status: nfsCurrent.status || 'draft',
+      frozen: nfsCurrent.frozen || false,
+      version: nfsCurrent.version || 1,
+      frozenTs: nfsCurrent.frozenTs,
+      log: nfsCurrent.approvalLog,
+    },
+    trust: {
+      sourceMode: nfsCurrent.sourceMode,
+      preflightSummary: nfsCurrent.preflight ? {
+        ts: nfsCurrent.preflight.ts,
+        blocks: nfsCurrent.preflight.checks?.filter(c => c.sev === 'block').length,
+        errors: nfsCurrent.preflight.checks?.filter(c => c.sev === 'error').length,
+        warnings: nfsCurrent.preflight.checks?.filter(c => c.sev === 'warn').length,
+      } : null,
+    },
+    assets: { labelHTML: v5GetFullLabelHTML(), labelCSS: typeof getLabelCSS !== 'undefined' ? getLabelCSS() : '' },
+  };
+
+  const name = (nfsCurrent.name || 'label').toLowerCase().replace(/\s+/g, '-');
+  downloadFile(JSON.stringify(payload, null, 2), `hs_packaging_payload_v4_${name}.json`, 'application/json');
+  navigator.clipboard?.writeText(JSON.stringify(payload, null, 2)).catch(() => {});
+  trackExport('packaging-payload-v4', nfsCurrent.name);
+  toast('Packaging Payload v4 Exported', 'Full JSON with barcode SVG + support block downloaded + copied.');
+}
+window.exportPackagingPayloadV3 = exportPackagingPayloadV4; // upgrade in place
+
+function buildSupportBlock() {
+  if (!nfsCurrent) return '';
+  const lines = [];
+  if (nfsCurrent.ingredients) lines.push(`INGREDIENTS: ${nfsCurrent.ingredients}`);
+  const al = nfsCurrent.allergenCustom || (nfsCurrent.allergens?.length ? `Contains: ${nfsCurrent.allergens.join(', ')}.` : '');
+  if (al) lines.push(al);
+  if (nfsCurrent.netWeightDisplay) lines.push(nfsCurrent.netWeightDisplay);
+  if (nfsCurrent.distributor) lines.push(nfsCurrent.distributor);
+  if (nfsCurrent.origin) lines.push(nfsCurrent.origin);
+  if (nfsCurrent.warning) lines.push(nfsCurrent.warning);
+  return lines.join('\n');
+}
+
+// ============================================================
+//  V5: DUPLICATE PROJECT
+// ============================================================
+function nfsDuplicateProject(id) {
+  const source = id ? nfsProjects.find(p => p.id === id) : nfsCurrent;
+  if (!source) { toast('No Project', 'Open a project first.'); return; }
+  const copy = JSON.parse(JSON.stringify(source));
+  copy.id = 'nfs_' + Date.now();
+  copy.name = (copy.name || 'Label') + ' (Copy)';
+  copy.created = new Date().toISOString();
+  copy.modified = new Date().toISOString();
+  copy.status = 'draft';
+  copy.frozen = false;
+  copy.frozenTs = null;
+  copy.approvalLog = [{ ts: new Date().toISOString(), action: 'duplicated-from', sourceId: source.id }];
+  copy.version = 1;
+  nfsProjects.push(copy);
+  localStorage.setItem(NFS_STORAGE_KEY, JSON.stringify(nfsProjects));
+  nfsCurrent = copy;
+  nfsCurrentId = copy.id;
+  localStorage.setItem('hs_nfs_current_project', copy.id);
+  populateEditorFromProject();
+  document.getElementById('lnav-editor').style.display = 'flex';
+  updateHeaderProject();
+  editorUpdate();
+  nfsNav('editor');
+  toast('Duplicated', `"${copy.name}" created as new project.`);
+}
+
+// ============================================================
+//  V5: KEYBOARD SHORTCUTS
+// ============================================================
+document.addEventListener('keydown', (e) => {
+  if (!e.metaKey && !e.ctrlKey) return;
+  const tag = document.activeElement?.tagName?.toLowerCase();
+  if (['input','textarea','select'].includes(tag)) return;
+  if (e.key === 's') { e.preventDefault(); nfsSaveProject(); }
+  if (e.key === 'd') { e.preventDefault(); nfsDuplicateProject(); }
+  if (e.key === 'p') { e.preventDefault(); printLabel('draft'); }
+  if (e.key === 'e') { e.preventDefault(); nfsNav('export'); }
+});
+
+// ============================================================
+//  V5: APPROVAL TIMELINE POLISH
+// ============================================================
+const _origRenderApprovalLog = renderApprovalLog;
+function renderApprovalLogV5() {
+  const list = document.getElementById('appr-log-list');
+  if (!list || !nfsCurrent) return;
+  const log = nfsCurrent.approvalLog || [];
+  if (!log.length) { list.innerHTML = '<div style="padding:16px;font-size:12px;color:var(--muted);">No history yet.</div>'; return; }
+  list.innerHTML = '';
+  [...log].reverse().slice(0, 10).forEach(entry => {
+    const row = document.createElement('div');
+    row.className = 'appr-timeline-row';
+    const dot = document.createElement('div');
+    dot.className = 'appr-timeline-dot';
+    if (entry.action === 'status-changed' && (entry.to === 'approved' || entry.to === 'ready')) dot.classList.add('active');
+    else if (entry.action === 'unlocked') dot.classList.add('warn');
+    const ts = new Date(entry.ts).toLocaleString();
+    let text = entry.action;
+    if (entry.action === 'status-changed') text = `${(entry.from || '?').toUpperCase()} → ${entry.to.toUpperCase()}`;
+    else if (entry.action === 'frozen') text = `Frozen at v${entry.version}`;
+    else if (entry.action === 'unlocked') text = `Unlocked — ${entry.reason}`;
+    else if (entry.action === 'imported-fields') text = `Imported ${entry.count} fields`;
+    else if (entry.action === 'duplicated-from') text = 'Duplicated from another project';
+    row.innerHTML = `<div style="display:flex;align-items:center;gap:8px;flex:1;"><span style="color:var(--text);font-size:11px;font-weight:600;">${text}</span></div><span style="font-size:10px;color:var(--muted);white-space:nowrap;">${ts}</span>`;
+    row.insertBefore(dot, row.firstChild);
+    list.appendChild(row);
+  });
+}
+window.renderApprovalLog = renderApprovalLogV5;
+
+// ============================================================
+//  V5: PREFLIGHT V5 — content overflow / frozen export integrity
+// ============================================================
+const _origRunPreflightV5base = runPreflight;
+function runPreflightV5() {
+  _origRunPreflightV5base();
+  if (!nfsPreflight) return;
+  const extra = [];
+
+  // Content overflow risk (ingredient length vs format)
+  const preset = nfsCurrent?.stylePreset || 'hidden-supply';
+  const ing = nfsCurrent?.ingredients || '';
+  if (preset === 'compact-rail' && ing.length > 600) {
+    extra.push({ sev:'warn', icon:'🟡', title:'Ingredient Overflow Risk (Compact Rail)', desc:`${ing.length} chars is very long for compact rail format. Consider abbreviating or using a wider profile.`, fixView:'label-style' });
+  }
+  if (preset === 'small-package' && ing.length > 400) {
+    extra.push({ sev:'warn', icon:'🟡', title:'Ingredient Overflow Risk (Small Package)', desc:`${ing.length} chars may not fit in split-mode support block. Consider split export bundle.`, fixView:'label-style' });
+  }
+
+  // Frozen export integrity
+  if (nfsCurrent?.frozen && (nfsCurrent?.status === 'ready') && nfsCurrent?.preflight) {
+    const oldBlocks = nfsCurrent.preflight.checks?.filter(c => c.sev === 'block').length || 0;
+    if (oldBlocks > 0) {
+      extra.push({ sev:'block', icon:'🔴', title:'Frozen Label Has Hard Blocks', desc:'This label is frozen but has unresolved hard blocks from a previous preflight run. Unlock and fix before re-freezing.', fixView:'approval' });
+    }
+  }
+
+  // Barcode zone overflow (if barcode width > label width - 20px)
+  const bc = nfsCurrent?.barcode;
+  if (bc?.include && bc?.mode === 'real') {
+    const bcW = (parseFloat(document.getElementById('bc-width')?.value) || 2) * 12 + 60;
+    const labelW = preset === 'compact-rail' ? 210 : preset === 'small-package' ? 200 : 260;
+    if (bcW > labelW - 10) {
+      extra.push({ sev:'warn', icon:'🟡', title:'Barcode Width May Overflow Panel', desc:'Barcode width settings may exceed label panel width. Check barcode module settings.', fixView:'barcode' });
+    }
+  }
+
+  if (!extra.length) return;
+  nfsPreflight.checks = [...nfsPreflight.checks, ...extra];
+  if (nfsCurrent) nfsCurrent.preflight = nfsPreflight;
+  renderPreflightResults(nfsPreflight.checks);
+  updateComplianceView();
+  updateExportView();
+  updateLnavBadge(nfsPreflight.checks);
+  v5UpdatePreviewPFStatus();
+}
+window.runPreflight = runPreflightV5;
+
+// ============================================================
+//  V5: PROJECTS VIEW — add Duplicate button
+// ============================================================
+const _origRenderProjectsList = renderProjectsList;
+function renderProjectsListV5() {
+  _origRenderProjectsList();
+  // Add duplicate button to each project row
+  setTimeout(() => {
+    document.querySelectorAll('.project-row, [data-project-id]').forEach(row => {
+      const pid = row.dataset?.projectId;
+      if (!pid || row.querySelector('.dup-btn')) return;
+      const dupBtn = document.createElement('button');
+      dupBtn.className = 'btn btn-sm btn-ghost dup-btn';
+      dupBtn.textContent = '⧉ Duplicate';
+      dupBtn.title = 'Duplicate this project';
+      dupBtn.onclick = (e) => { e.stopPropagation(); nfsDuplicateProject(pid); };
+      // Append to last cell/action area if possible
+      const actions = row.querySelector('.project-actions');
+      if (actions) actions.appendChild(dupBtn);
+    });
+  }, 100);
+}
+if (typeof renderProjectsList !== 'undefined') window.renderProjectsList = renderProjectsListV5;
+
+// ============================================================
+//  V5: BOOT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  // Show autosave on boot if project is open
+  if (nfsCurrent) {
+    document.getElementById('hdr-autosave').style.display = 'inline-flex';
+    autosaveShow('saved', 'Saved');
+  }
+  // Kick preview badges
+  setTimeout(() => {
+    v5UpdatePreviewTrustBadges();
+    v5UpdatePreviewPFStatus();
+  }, 300);
+  // Keyboard shortcut hints
+  console.log('NFS v5 ready. Shortcuts: ⌘S save · ⌘D duplicate · ⌘P print · ⌘E export');
+});
 </script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     NFS v5.5 — Modular Extensions
+     Load order: modules first, then nfs-init.js boots them.
+     These are additive — they do not modify v5 core behavior.
+     ═══════════════════════════════════════════════════════════ -->
+<script src="modules/nfs-typography.js"></script>
+<script src="modules/nfs-ingredient-intel.js"></script>
+<script src="nfs-init.js"></script>
+
 </body>
 </html>
