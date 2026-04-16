@@ -418,24 +418,24 @@ input:focus, textarea:focus, select:focus {
 .nf-label.preset-commercial-standard .nf-spc { font-size: 9px; font-weight: 400; }
 .nf-label.preset-commercial-standard .nf-ss  { font-size: 10.5px; font-weight: 700; }
 /* THICK bar before Amount Per Serving — reference ~18-20px solid strip */
-.nf-label.preset-commercial-standard .nf-serving-divider { border-top: 10px solid #000; margin: 3px 0 0; }
+.nf-label.preset-commercial-standard .nf-serving-divider { border-top: 8px solid #000; margin: 3px 0 0; }
 /* APS */
-.nf-label.preset-commercial-standard .nf-aps  { font-size: 8px; font-weight: 700; }
+.nf-label.preset-commercial-standard .nf-aps  { font-size: 8.5px; font-weight: 900; }
 /* Calories row */
-.nf-label.preset-commercial-standard .nf-cal-lbl { font-size: 18px; font-weight: 900; line-height: 1.1; }
-.nf-label.preset-commercial-standard .nf-cal-num { font-size: 44px; font-weight: 900; line-height: 1; }
+.nf-label.preset-commercial-standard .nf-cal-lbl { font-size: 18px; font-weight: 900; line-height: 1.05; }
+.nf-label.preset-commercial-standard .nf-cal-num { font-size: 40px; font-weight: 900; line-height: 1; }
 .nf-label.preset-commercial-standard .nf-cal-row { padding: 1px 0 1px; border-bottom: 2px solid #000; }
 .nf-label.preset-commercial-standard .nf-pct-hdr { font-size: 8px; padding: 2px 0 2px; margin-bottom: 0; }
 /* Nutrient rows — bottom rule on every row */
 .nf-label.preset-commercial-standard .nf-nr { font-size: 10px; padding: 1.5px 0; border-bottom: 0.75px solid #000; }
-.nf-label.preset-commercial-standard .nf-nr.bld { font-weight: 800; }
+.nf-label.preset-commercial-standard .nf-nr.bld { font-weight: 900; }
 .nf-label.preset-commercial-standard .nf-nr.sub  { font-size: 9px; padding-left: 14px; font-weight: 500; }
 .nf-label.preset-commercial-standard .nf-nr.subsub { font-size: 9px; padding-left: 26px; }
 .nf-label.preset-commercial-standard .nf-nr.protein-row { border-bottom: 7px solid #000; }
-.nf-label.preset-commercial-standard .nf-nr.last-row { border-bottom: none; }
+.nf-label.preset-commercial-standard .nf-nr.last-row { border-bottom: 1px solid #000; }
 .nf-nr.last-row { border-bottom: none; }
 .nf-label.preset-commercial-standard .nf-foot { font-size: 7.5px; line-height: 1.3; margin-top: 3px; padding-top: 3px; }
-.nf-label.preset-commercial-standard .nf-ing  { font-size: 8px; line-height: 1.4; margin-top: 3px; padding-top: 3px; border-top: 3px solid #000; }
+.nf-label.preset-commercial-standard .nf-ing  { font-size: 7.5px; line-height: 1.38; margin-top: 3px; padding-top: 3px; border-top: 3px solid #000; }
 .nf-label.preset-commercial-standard .nf-all  { font-size: 7.5px; margin-top: 2px; line-height: 1.35; }
 .nf-label.preset-commercial-standard .nf-dist { font-size: 7.5px; margin-top: 4px; color: #000; line-height: 1.5; }
 .nf-label.preset-commercial-standard .nf-wt   { font-size: 7.5px; margin-top: 2px; font-weight: 700; color: #000; }
@@ -661,22 +661,23 @@ input:focus, textarea:focus, select:focus {
   white-space: nowrap; overflow: hidden;
 }
 /* Serving info */
-.nf-spc { font-size: 9px; font-weight: 400; margin-bottom: 0; line-height: 1.35; }
-.nf-ss  { font-size: 10.5px; font-weight: 700; margin-bottom: 1px; line-height: 1.3; }
+.nf-spc { font-size: 9px; font-weight: 400; margin-bottom: 0; line-height: 1.3; }
+.nf-ss-label { font-size: 9px; font-weight: 700; line-height: 1.2; margin-bottom: 0; }
+.nf-ss  { font-size: 10px; font-weight: 700; margin-bottom: 0; line-height: 1.25; }
 /* THICK bar between serving block and calories — reference ~19-20px solid strip */
-.nf-serving-divider { border: none; border-top: 10px solid #000; margin: 3px 0 0; }
+.nf-serving-divider { border: none; border-top: 8px solid #000; margin: 3px 0 0; }
 /* "Amount Per Serving" — bold, correct capitalisation */
-.nf-aps { font-size: 8px; font-weight: 700; color: #000; padding: 1px 0 0; margin-bottom: 0; line-height: 1.1; }
+.nf-aps { font-size: 8.5px; font-weight: 900; color: #000; padding: 2px 0 1px; margin-bottom: 0; line-height: 1.1; }
 /* Calories row */
 .nf-cal-row {
   display: flex; align-items: baseline; justify-content: space-between;
   border-bottom: 2px solid #000; padding: 1px 0 1px; margin-bottom: 0;
 }
-.nf-cal-lbl { font-size: 18px; font-weight: 900; line-height: 1.1; }
-.nf-cal-num { font-size: 44px; font-weight: 900; line-height: 1; }
+.nf-cal-lbl { font-size: 18px; font-weight: 900; line-height: 1.05; }
+.nf-cal-num { font-size: 40px; font-weight: 900; line-height: 1; }
 /* %DV header — right-aligned, hairline below */
 .nf-pct-hdr {
-  text-align: right; font-size: 8px; font-weight: 700;
+  text-align: right; font-size: 8px; font-weight: 900;
   border-bottom: 1px solid #000;
   padding: 2px 0 2px; margin-bottom: 0; line-height: 1.3;
 }
@@ -686,7 +687,7 @@ input:focus, textarea:focus, select:focus {
   font-size: 10px; padding: 1.5px 0; line-height: 1.35;
   border-bottom: 0.75px solid #000;
 }
-.nf-nr.bld   { font-weight: 800; border-top: 1px solid #000; border-bottom: 0.75px solid #000; }
+.nf-nr.bld   { font-weight: 900; border-top: 1px solid #000; border-bottom: 0.75px solid #000; }
 .nf-nr.sub   { padding-left: 14px; font-weight: 500; font-size: 9px; }
 .nf-nr.subsub{ padding-left: 26px; font-weight: 400; font-size: 9px; }
 .nf-nr .pct  { font-weight: 800; padding-left: 5px; white-space: nowrap; }
@@ -698,7 +699,7 @@ input:focus, textarea:focus, select:focus {
   border-top: 1px solid #000; margin-top: 3px; padding-top: 3px;
 }
 /* Ingredients & support copy */
-.nf-ing  { font-size: 8px; line-height: 1.4; border-top: 3px solid #000; margin-top: 3px; padding-top: 3px; }
+.nf-ing  { font-size: 7.5px; line-height: 1.38; border-top: 3px solid #000; margin-top: 3px; padding-top: 3px; }
 .nf-all  { font-size: 7.5px; font-weight: 700; margin-top: 2px; line-height: 1.35; }
 .nf-dist { font-size: 7.5px; margin-top: 4px; color: #000; line-height: 1.5; white-space: pre-line; }
 .nf-dist .nf-dist-line { display: block; white-space: normal; }
@@ -1667,7 +1668,8 @@ input:focus, textarea:focus, select:focus {
                   <div class="nf-label" id="nf-label-preview">
                     <div class="nf-title">Nutrition Facts</div>
                     <div class="nf-spc"><span id="lp-spc">—</span> servings per container</div>
-                    <div class="nf-ss">Serving size <span id="lp-ss">—</span></div>
+                    <div class="nf-ss-label">Serving size</div>
+                    <div class="nf-ss"><span id="lp-ss">—</span></div>
                     <div class="nf-serving-divider"></div>
                     <div class="nf-aps">Amount Per Serving</div>
                     <div class="nf-cal-row"><div class="nf-cal-lbl">Calories</div><div class="nf-cal-num" id="lp-cal">0</div></div>
@@ -3872,23 +3874,24 @@ function getLabelCSS() {
   // ⚠ PARITY: must stay in sync with .nf-label styles in <style> block.
   const base = `.nf-label{font-family:Arial,Helvetica,sans-serif;color:#000;background:#fff;border:3px solid #000;padding:6px 8px;font-size:10px;line-height:1.35;width:280px;box-sizing:border-box;margin:0 auto;page-break-inside:avoid;break-inside:avoid;}
 .nf-title{font-size:36px;font-weight:900;letter-spacing:-1px;line-height:.95;border-bottom:2px solid #000;padding-bottom:3px;margin-bottom:3px;white-space:nowrap;overflow:hidden;}
-.nf-spc{font-size:9px;font-weight:400;margin-bottom:0;line-height:1.35;}
-.nf-ss{font-size:10px;font-weight:700;margin-bottom:0;line-height:1.3;}
-.nf-serving-divider{border:none;border-top:10px solid #000;margin:3px 0 0;}
-.nf-aps{font-size:8px;font-weight:700;color:#000;padding:1px 0 0;margin-bottom:0;line-height:1.1;}
+.nf-spc{font-size:9px;font-weight:400;margin-bottom:0;line-height:1.3;}
+.nf-ss-label{font-size:9px;font-weight:700;line-height:1.2;margin-bottom:0;}
+.nf-ss{font-size:10px;font-weight:700;margin-bottom:0;line-height:1.25;}
+.nf-serving-divider{border:none;border-top:8px solid #000;margin:3px 0 0;}
+.nf-aps{font-size:8.5px;font-weight:900;color:#000;padding:2px 0 1px;margin-bottom:0;line-height:1.1;}
 .nf-cal-row{display:flex;align-items:baseline;justify-content:space-between;border-bottom:2px solid #000;padding:1px 0 1px;margin-bottom:0;}
-.nf-cal-lbl{font-size:18px;font-weight:900;line-height:1.1;}
-.nf-cal-num{font-size:44px;font-weight:900;line-height:1;}
-.nf-pct-hdr{text-align:right;font-size:8px;font-weight:700;border-bottom:1px solid #000;padding:2px 0 2px;margin-bottom:0;line-height:1.3;}
+.nf-cal-lbl{font-size:18px;font-weight:900;line-height:1.05;}
+.nf-cal-num{font-size:40px;font-weight:900;line-height:1;}
+.nf-pct-hdr{text-align:right;font-size:8px;font-weight:900;border-bottom:1px solid #000;padding:2px 0 2px;margin-bottom:0;line-height:1.3;}
 .nf-nr{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;padding:1.5px 0;line-height:1.35;border-bottom:0.75px solid #000;}
-.nf-nr.bld{font-weight:800;border-top:1px solid #000;border-bottom:0.75px solid #000;}
+.nf-nr.bld{font-weight:900;border-top:1px solid #000;border-bottom:0.75px solid #000;}
 .nf-nr.sub{padding-left:14px;font-weight:500;font-size:9px;}
 .nf-nr.subsub{padding-left:26px;font-weight:400;font-size:9px;}
 .nf-nr.protein-row{border-bottom:7px solid #000;}
-.nf-nr.last-row{border-bottom:none;}
+.nf-nr.last-row{border-bottom:1px solid #000;}
 .nf-nr .pct{font-weight:800;padding-left:5px;white-space:nowrap;}
 .nf-foot{font-size:7.5px;line-height:1.3;border-top:1px solid #000;margin-top:3px;padding-top:3px;}
-.nf-ing{font-size:8px;line-height:1.4;border-top:3px solid #000;margin-top:3px;padding-top:3px;}
+.nf-ing{font-size:7.5px;line-height:1.38;border-top:3px solid #000;margin-top:3px;padding-top:3px;}
 .nf-all{font-size:7.5px;font-weight:700;margin-top:2px;line-height:1.35;}
 .nf-dist{font-size:7.5px;margin-top:4px;color:#000;line-height:1.5;white-space:pre-line;}
 .nf-dist .nf-dist-line{display:block;white-space:normal;}
@@ -3915,7 +3918,7 @@ function getLabelCSS() {
 .nf-label.preset-commercial-standard .nf-nr.sub{font-size:9px;padding-left:14px;font-weight:500;}
 .nf-label.preset-commercial-standard .nf-nr.subsub{font-size:9px;padding-left:26px;}
 .nf-label.preset-commercial-standard .nf-nr.protein-row{border-bottom:7px solid #000;}
-.nf-label.preset-commercial-standard .nf-nr.last-row{border-bottom:none;}
+.nf-label.preset-commercial-standard .nf-nr.last-row{border-bottom:1px solid #000;}
 .nf-label.preset-commercial-standard .nf-foot{font-size:7.5px;line-height:1.3;margin-top:3px;padding-top:3px;}
 .nf-label.preset-commercial-standard .nf-ing{font-size:8px;line-height:1.4;margin-top:3px;padding-top:3px;border-top:3px solid #000;}
 .nf-label.preset-commercial-standard .nf-all{font-size:7.5px;margin-top:2px;line-height:1.35;}
