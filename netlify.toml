@@ -1,3 +1,13 @@
+# ── Edge Functions ────────────────────────────────────────────────────────────
+[[edge_functions]]
+  path    = "/joetime"
+  function = "joetime-gate"
+
+[[edge_functions]]
+  path    = "/joetime/*"
+  function = "joetime-gate"
+
+# ── Cache headers ─────────────────────────────────────────────────────────────
 [[headers]]
   for = "/*.html"
   [headers.values]

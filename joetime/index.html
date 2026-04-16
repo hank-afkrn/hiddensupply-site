@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hidden Supply — Internal Tools</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0a0a0a;
+    --surface:  #141414;
+    --border:   #242424;
+    --border2:  #2e2e2e;
+    --text:     #f0ede6;
+    --muted:    #666;
+    --accent:   #e8d44d;
+    --error-bg: #1a0808;
+    --error:    #e05252;
+    --mono:     'SF Mono', 'Fira Mono', 'Cascadia Code', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .lockup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 48px;
+  }
+
+  .wordmark {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .label {
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .card {
+    width: 100%;
+    max-width: 360px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 32px 28px 28px;
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .card-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .field label {
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .field input[type="password"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 5px;
+    color: var(--text);
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color .15s;
+    letter-spacing: .08em;
+    font-family: var(--mono);
+  }
+
+  .field input[type="password"]:focus {
+    border-color: var(--accent);
+  }
+
+  .field input[type="password"].error {
+    border-color: var(--error);
+  }
+
+  .error-msg {
+    display: none;
+    background: var(--error-bg);
+    border: 1px solid #3a1212;
+    border-radius: 5px;
+    color: var(--error);
+    font-size: 12px;
+    padding: 9px 12px;
+    margin-bottom: 14px;
+    line-height: 1.4;
+  }
+
+  .error-msg.visible { display: block; }
+
+  .remember-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 24px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .remember-row input[type="checkbox"] {
+    appearance: none;
+    width: 16px; height: 16px;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    transition: background .12s, border-color .12s;
+  }
+
+  .remember-row input[type="checkbox"]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .remember-row input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 4px; top: 2px;
+    width: 5px; height: 8px;
+    border: 2px solid #000;
+    border-top: none; border-left: none;
+    transform: rotate(45deg);
+  }
+
+  .remember-row span {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .btn {
+    width: 100%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 12px;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+
+  .btn:hover { opacity: .88; }
+  .btn:active { opacity: .75; }
+
+  .footer {
+    margin-top: 28px;
+    font-size: 11px;
+    color: #333;
+    letter-spacing: .06em;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="lockup">
+    <div class="wordmark">Hidden Supply</div>
+    <div class="label">Internal Tools</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Nutrition Facts Studio</div>
+    <div class="card-sub">Access restricted to authorized team members.</div>
+
+    <div id="err-msg" class="error-msg">
+      Incorrect password. Try again.
+    </div>
+
+    <form method="POST" action="/joetime/auth" id="gate-form">
+      <div class="field">
+        <label for="pw">Password</label>
+        <input
+          type="password"
+          id="pw"
+          name="password"
+          autocomplete="current-password"
+          autofocus
+          placeholder="••••••••"
+        />
+      </div>
+
+      <label class="remember-row">
+        <input type="checkbox" name="remember" value="1" checked id="remember-cb"/>
+        <span>Remember this device for 30 days</span>
+      </label>
+
+      <button type="submit" class="btn">Enter</button>
+    </form>
+  </div>
+
+  <div class="footer">hiddensupply.co</div>
+</div>
+
+<script>
+  // Show error state if ?err=1
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('err') === '1') {
+    document.getElementById('err-msg').classList.add('visible');
+    const pw = document.getElementById('pw');
+    pw.classList.add('error');
+    pw.focus();
+  }
+</script>
+</body>
+</html>
