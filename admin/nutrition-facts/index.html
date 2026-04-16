@@ -416,11 +416,11 @@ input:focus, textarea:focus, select:focus {
 .nf-label.preset-commercial-standard .nf-nr { font-size: 10px; padding: 1.5px 0; }
 .nf-label.preset-commercial-standard .nf-nr.sub  { font-size: 9px; padding-left: 14px; }
 .nf-label.preset-commercial-standard .nf-nr.subsub { font-size: 9px; padding-left: 26px; }
-.nf-label.preset-commercial-standard .nf-foot { font-size: 7.5px; line-height: 1.25; margin-top: 5px; padding-top: 4px; }
-.nf-label.preset-commercial-standard .nf-ing  { font-size: 8.5px; line-height: 1.45; margin-top: 5px; padding-top: 4px; }
-.nf-label.preset-commercial-standard .nf-all  { font-size: 8px; margin-top: 3px; }
-.nf-label.preset-commercial-standard .nf-dist { font-size: 7.5px; margin-top: 3px; }
-.nf-label.preset-commercial-standard .nf-wt   { font-size: 8.5px; margin-top: 3px; }
+.nf-label.preset-commercial-standard .nf-foot { font-size: 7.5px; line-height: 1.3; margin-top: 4px; padding-top: 3px; }
+.nf-label.preset-commercial-standard .nf-ing  { font-size: 8.5px; line-height: 1.45; margin-top: 4px; padding-top: 3px; }
+.nf-label.preset-commercial-standard .nf-all  { font-size: 8px; margin-top: 2px; line-height: 1.4; }
+.nf-label.preset-commercial-standard .nf-dist { font-size: 7.5px; margin-top: 4px; color: #000; border-top: 1px solid #000; padding-top: 3px; }
+.nf-label.preset-commercial-standard .nf-wt   { font-size: 8px; margin-top: 2px; font-weight: 700; }
 
 /* HS Standard — slightly narrower, same proportions */
 .nf-label.preset-hs-standard {
@@ -645,6 +645,8 @@ input:focus, textarea:focus, select:focus {
 .nf-ss  { font-size: 10px; font-weight: 700; margin-bottom: 0; line-height: 1.3; }
 /* Thick divider between serving block and calories — standalone element */
 .nf-serving-divider { border: none; border-top: 8px solid #000; margin: 4px 0 0; }
+/* "Amount per serving" label — sits between thick divider and Calories row */
+.nf-aps { font-size: 8px; font-weight: 400; color: #000; padding: 2px 0 0; margin-bottom: -1px; line-height: 1.2; }
 /* Calories row: label left, number right, vertically centered */
 .nf-cal-row {
   display: flex; align-items: center; justify-content: space-between;
@@ -671,13 +673,15 @@ input:focus, textarea:focus, select:focus {
 /* Footnote */
 .nf-foot {
   font-size: 7.5px; line-height: 1.3;
-  border-top: 1px solid #000; margin-top: 5px; padding-top: 4px;
+  border-top: 1px solid #000; margin-top: 4px; padding-top: 3px;
 }
 /* Ingredients & support copy */
-.nf-ing  { font-size: 8.5px; line-height: 1.45; border-top: 2px solid #000; margin-top: 5px; padding-top: 4px; }
-.nf-all  { font-size: 8px; font-weight: 700; margin-top: 3px; }
-.nf-dist { font-size: 7.5px; margin-top: 4px; color: #333; line-height: 1.4; }
-.nf-wt   { font-size: 8.5px; margin-top: 3px; color: #333; }
+.nf-ing  { font-size: 8.5px; line-height: 1.45; border-top: 2px solid #000; margin-top: 4px; padding-top: 3px; }
+.nf-all  { font-size: 8px; font-weight: 700; margin-top: 2px; line-height: 1.4; }
+.nf-dist { font-size: 7.5px; margin-top: 4px; color: #000; line-height: 1.55; border-top: 1px solid #000; padding-top: 3px; }
+.nf-dist .nf-dist-line { display: block; }
+.nf-dist .nf-origin-line { display: block; font-weight: 700; }
+.nf-wt   { font-size: 8px; margin-top: 2px; color: #333; font-weight: 700; letter-spacing: .02em; }
 
 /* ============================================================
    NUTRIENT ENTRY TABLE
@@ -1538,6 +1542,7 @@ input:focus, textarea:focus, select:focus {
                     <div class="nf-spc"><span id="lp-spc">—</span> servings per container</div>
                     <div class="nf-ss">Serving size <span id="lp-ss">—</span></div>
                     <div class="nf-serving-divider"></div>
+                    <div class="nf-aps">Amount per serving</div>
                     <div class="nf-cal-row"><div class="nf-cal-lbl">Calories</div><div class="nf-cal-num" id="lp-cal">0</div></div>
                     <div class="nf-pct-hdr">% Daily Value*</div>
                     <div class="nf-nr bld"><span><b>Total Fat</b> <span id="lp-tf">0</span>g</span><span class="pct" id="lp-ptf">0%</span></div>
@@ -3185,10 +3190,14 @@ function editorUpdate() {
   s('lp-fe', gn('n-fe')); document.getElementById('lp-pfe').textContent = (gn('p-fe') || '0') + '%';
   s('lp-k',  gn('n-k'));  document.getElementById('lp-pk').textContent  = (gn('p-k')  || '0') + '%';
 
-  const ing = gv('e-ing');
+  const ingRaw = gv('e-ing');
   const ingBlock = document.getElementById('lp-ing-block');
-  if (ing) { document.getElementById('lp-ing').textContent = ing; ingBlock.style.display = 'block'; }
-  else ingBlock.style.display = 'none';
+  if (ingRaw) {
+    // Strip any leading "INGREDIENTS:" prefix from the text itself — the wrapper <strong> already provides it
+    const ingClean = ingRaw.replace(/^\s*INGREDIENTS\s*:\s*/i, '').trim();
+    document.getElementById('lp-ing').textContent = ingClean;
+    ingBlock.style.display = 'block';
+  } else ingBlock.style.display = 'none';
 
   const allEl = document.getElementById('lp-all');
   const custom = gv('e-al-custom');
@@ -3198,8 +3207,17 @@ function editorUpdate() {
   const wtEl = document.getElementById('lp-wt');
   wtEl.textContent = (oz || g) ? 'NET WT ' + (oz ? oz + ' OZ' : '') + (oz && g ? ' (' : '') + (g ? g + 'g' : '') + (oz && g ? ')' : '') : '';
 
-  const distParts = [gv('e-dist'), gv('e-origin')].filter(Boolean);
-  document.getElementById('lp-dist').textContent = distParts.join(' | ');
+  // Support copy — stacked lines, not flattened
+  (function() {
+    const distEl = document.getElementById('lp-dist');
+    const rawDist = gv('e-dist') || '';
+    const rawOrigin = gv('e-origin') || '';
+    // Split dist on \n, then append origin as its own line
+    const lines = rawDist.split('\n').map(l => l.trim()).filter(Boolean);
+    if (rawOrigin.trim()) lines.push(rawOrigin.trim());
+    distEl.innerHTML = lines.map(l => `<span class="nf-dist-line">${l}</span>`).join('');
+    distEl.style.display = lines.length ? '' : 'none';
+  })();
 
   // Template width + dual-column sync
   const tpl = document.getElementById('preview-template')?.value;
@@ -3719,11 +3737,12 @@ function getLabelHTML() {
 
 function getLabelCSS() {
   // ⚠ PARITY: must stay in sync with .nf-label styles in <style> block.
-  const base = `.nf-label{font-family:Arial,Helvetica,sans-serif;color:#000;background:#fff;border:2px solid #000;padding:6px 8px;font-size:10px;line-height:1.35;width:280px;box-sizing:border-box;margin:0 auto;}
+  const base = `.nf-label{font-family:Arial,Helvetica,sans-serif;color:#000;background:#fff;border:2px solid #000;padding:6px 8px;font-size:10px;line-height:1.35;width:280px;box-sizing:border-box;margin:0 auto;page-break-inside:avoid;break-inside:avoid;}
 .nf-title{font-size:34px;font-weight:900;letter-spacing:-.8px;line-height:1;border-bottom:10px solid #000;padding-bottom:4px;margin-bottom:4px;}
 .nf-spc{font-size:9px;font-weight:400;margin-bottom:1px;line-height:1.3;}
 .nf-ss{font-size:10px;font-weight:700;margin-bottom:0;line-height:1.3;}
 .nf-serving-divider{border:none;border-top:8px solid #000;margin:4px 0 0;}
+.nf-aps{font-size:8px;font-weight:400;color:#000;padding:2px 0 0;margin-bottom:-1px;line-height:1.2;}
 .nf-cal-row{display:flex;align-items:center;justify-content:space-between;border-bottom:5px solid #000;padding:3px 0 4px;margin-bottom:0;}
 .nf-cal-lbl{font-size:18px;font-weight:700;line-height:1;}
 .nf-cal-num{font-size:44px;font-weight:900;line-height:1;}
@@ -3733,11 +3752,13 @@ function getLabelCSS() {
 .nf-nr.sub{padding-left:14px;font-weight:400;font-size:9px;padding-top:1px;padding-bottom:1px;}
 .nf-nr.subsub{padding-left:26px;font-weight:400;font-size:9px;padding-top:1px;padding-bottom:1px;}
 .nf-nr .pct{font-weight:700;}
-.nf-foot{font-size:7.5px;line-height:1.3;border-top:1px solid #000;margin-top:5px;padding-top:4px;}
-.nf-ing{font-size:8.5px;line-height:1.45;border-top:2px solid #000;margin-top:5px;padding-top:4px;}
-.nf-all{font-size:8px;font-weight:700;margin-top:3px;}
-.nf-dist{font-size:7.5px;margin-top:4px;color:#333;line-height:1.4;}
-.nf-wt{font-size:8.5px;margin-top:3px;color:#333;}`;
+.nf-foot{font-size:7.5px;line-height:1.3;border-top:1px solid #000;margin-top:4px;padding-top:3px;}
+.nf-ing{font-size:8.5px;line-height:1.45;border-top:2px solid #000;margin-top:4px;padding-top:3px;}
+.nf-all{font-size:8px;font-weight:700;margin-top:2px;line-height:1.4;}
+.nf-dist{font-size:7.5px;margin-top:4px;color:#000;line-height:1.55;border-top:1px solid #000;padding-top:3px;}
+.nf-dist .nf-dist-line{display:block;}
+.nf-dist .nf-origin-line{display:block;font-weight:700;}
+.nf-wt{font-size:8px;margin-top:2px;color:#333;font-weight:700;letter-spacing:.02em;}`;
 
   // Active preset overrides — mirrors the <style> preset block above
   const presets = {
@@ -3753,10 +3774,12 @@ function getLabelCSS() {
 .nf-label.preset-commercial-standard .nf-nr{font-size:10px;padding:2px 0;}
 .nf-label.preset-commercial-standard .nf-nr.sub{font-size:9px;padding-left:14px;}
 .nf-label.preset-commercial-standard .nf-nr.subsub{font-size:9px;padding-left:26px;}
-.nf-label.preset-commercial-standard .nf-foot{font-size:7.5px;line-height:1.25;margin-top:5px;padding-top:4px;}
-.nf-label.preset-commercial-standard .nf-ing{font-size:8.5px;line-height:1.45;margin-top:5px;padding-top:4px;}
-.nf-label.preset-commercial-standard .nf-dist{font-size:7.5px;margin-top:3px;}
-.nf-label.preset-commercial-standard .nf-wt{font-size:8.5px;}`,
+.nf-label.preset-commercial-standard .nf-aps{font-size:8px;font-weight:400;}
+.nf-label.preset-commercial-standard .nf-foot{font-size:7.5px;line-height:1.3;margin-top:4px;padding-top:3px;}
+.nf-label.preset-commercial-standard .nf-ing{font-size:8.5px;line-height:1.45;margin-top:4px;padding-top:3px;}
+.nf-label.preset-commercial-standard .nf-all{font-size:8px;margin-top:2px;line-height:1.4;}
+.nf-label.preset-commercial-standard .nf-dist{font-size:7.5px;margin-top:4px;color:#000;border-top:1px solid #000;padding-top:3px;}
+.nf-label.preset-commercial-standard .nf-wt{font-size:8px;margin-top:2px;font-weight:700;}`,
     'hs-standard': `.nf-label.preset-hs-standard{padding:6px 8px;width:265px;font-size:10px;}
 .nf-label.preset-hs-standard .nf-title{font-size:30px;letter-spacing:-.6px;border-bottom:9px solid #000;}
 .nf-label.preset-hs-standard .nf-serving-divider{border-top:7px solid #000;margin:3px 0 2px;}
@@ -3818,9 +3841,18 @@ function buildExportHTML(tier) {
   return `<!DOCTYPE html>
 <html><head><title>Nutrition Facts — ${name}</title>
 <style>
+/* Screen view */
 body{margin:40px;font-family:Arial;background:#f5f5f5;display:flex;justify-content:center;flex-direction:column;align-items:center;gap:20px;}
 .wrap{background:#fff;padding:40px;border-radius:8px;box-shadow:0 2px 20px rgba(0,0,0,.1);}
 .meta{font-family:Arial;font-size:11px;color:#666;text-align:center;}
+/* Print view — single compact page, no split */
+@media print {
+  @page { size: auto; margin: 6mm; }
+  html, body { margin:0; padding:0; background:#fff; display:block; }
+  .wrap { padding:0; border-radius:0; box-shadow:none; background:#fff; }
+  .meta { display:none; }
+  .nf-label { page-break-inside:avoid; break-inside:avoid; }
+}
 ${getLabelCSS()}
 </style></head>
 <body>
@@ -3860,7 +3892,7 @@ function exportCopyBlock() {
   if (gv('e-spc')) parts.push(`Servings Per Container: ${gv('e-spc')}`);
   parts.push(`Calories: ${gn('n-cal')}`);
   parts.push(`Total Fat: ${gn('n-tf')}g`);
-  if (gv('e-ing')) parts.push(`\nINGREDIENTS: ${gv('e-ing')}`);
+  if (gv('e-ing')) { const ic = gv('e-ing').replace(/^\s*INGREDIENTS\s*:\s*/i,'').trim(); parts.push(`\nINGREDIENTS: ${ic}`); }
   if (gv('e-dist')) parts.push(gv('e-dist'));
   navigator.clipboard.writeText(parts.join('\n')).then(() => toast('Copied', 'Copy block in clipboard.'));
 }
@@ -5285,7 +5317,10 @@ function exportSupportCopyTxt() {
   if (!nfsCurrent) { toast('No Project', 'Create a project first.'); return; }
   const oz = nfsCurrent.netOz, g = nfsCurrent.netG;
   const lines = [];
-  if (nfsCurrent.ingredients) lines.push(`INGREDIENTS: ${nfsCurrent.ingredients}`);
+  if (nfsCurrent.ingredients) {
+    const ingClean = nfsCurrent.ingredients.replace(/^\s*INGREDIENTS\s*:\s*/i, '').trim();
+    lines.push(`INGREDIENTS: ${ingClean}`);
+  }
   const alStatement = nfsCurrent.allergenCustom || (nfsCurrent.allergens?.length ? `Contains: ${nfsCurrent.allergens.join(', ')}.` : '');
   if (alStatement) lines.push(alStatement);
   if (oz || g) lines.push(`NET WT ${oz ? oz + ' OZ' : ''}${oz && g ? ' (' + g + 'g)' : g ? g + 'g' : ''}`);
@@ -5337,17 +5372,21 @@ function printLabel(tier) {
   const hasMeta = document.getElementById('exp-meta-page')?.checked;
   const hasDraft = document.getElementById('exp-draft-watermark')?.checked;
 
-  const pageW = dims?.unit === 'in' ? dims.w + 'in' : (dims?.w ? dims.w + 'mm' : '3in');
-  const pageH = dims?.unit === 'in' ? (dims.h + 2) + 'in' : (dims?.h ? (dims.h + 40) + 'mm' : '5in');
+  // Page size: use label dimensions exactly — do NOT add extra height (causes page 2)
+  // Default to auto if no dimensions set so browser sizes to content
   const marginMM = dims?.margin || 3;
+  const pageSizeCSS = dims?.w
+    ? `size: ${dims.unit === 'in' ? dims.w + 'in' : dims.w + 'mm'} ${dims.unit === 'in' ? dims.h + 'in' : dims.h + 'mm'};`
+    : `size: auto;`;
 
   const watermarkCSS = (tier === 'draft' && hasDraft) ? `
     .draft-watermark { position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);
       font-size:48px;font-weight:900;color:rgba(0,0,0,0.07);pointer-events:none;z-index:9999;
       font-family:Arial;letter-spacing:.2em; }` : '';
 
+  // Meta block: separate @page section, NOT page-break-before on main label page
   const metaBlock = hasMeta ? `
-    <div class="meta-page" style="margin-top:30px;padding:20px;border:1px solid #ccc;font-family:Arial;font-size:11px;color:#333;line-height:1.8;page-break-before:always;">
+    <div style="page-break-before:always;padding:20px;font-family:Arial;font-size:11px;color:#333;line-height:1.8;">
       <strong>Label Metadata</strong><br/>
       Project: ${name}<br/>
       Brand: ${nfsCurrent?.brand || '—'}<br/>
@@ -5362,8 +5401,10 @@ function printLabel(tier) {
   const w = window.open('', '_blank');
   w.document.write(`<!DOCTYPE html><html><head><title>${name}</title>
 <style>
-@page { size: ${pageW} ${pageH}; margin: ${marginMM}mm; }
-body { margin:20px; background:#fff; }
+@page { ${pageSizeCSS} margin: ${marginMM}mm; }
+html, body { margin: 0; padding: 0; background: #fff; }
+/* Label must not be split across pages */
+.nf-label { page-break-inside: avoid; break-inside: avoid; }
 ${getLabelCSS()}
 ${watermarkCSS}
 </style></head><body>
@@ -6683,7 +6724,10 @@ window.exportPackagingPayloadV3 = exportPackagingPayloadV4; // upgrade in place
 function buildSupportBlock() {
   if (!nfsCurrent) return '';
   const lines = [];
-  if (nfsCurrent.ingredients) lines.push(`INGREDIENTS: ${nfsCurrent.ingredients}`);
+  if (nfsCurrent.ingredients) {
+    const ic = nfsCurrent.ingredients.replace(/^\s*INGREDIENTS\s*:\s*/i,'').trim();
+    lines.push(`INGREDIENTS: ${ic}`);
+  }
   const al = nfsCurrent.allergenCustom || (nfsCurrent.allergens?.length ? `Contains: ${nfsCurrent.allergens.join(', ')}.` : '');
   if (al) lines.push(al);
   if (nfsCurrent.netWeightDisplay) lines.push(nfsCurrent.netWeightDisplay);
