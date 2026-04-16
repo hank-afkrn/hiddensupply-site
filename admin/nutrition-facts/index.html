@@ -481,8 +481,8 @@ input:focus, textarea:focus, select:focus {
 
 /* --- Barcode inline in label preview --- */
 .nf-barcode-zone {
-  margin-top: 6px; padding-top: 5px;
-  border-top: 1px solid #ccc;
+  margin-top: 5px; padding-top: 4px;
+  border-top: 1px solid #000;
   display: flex; flex-direction: column; align-items: center;
   gap: 2px;
 }
@@ -1297,6 +1297,7 @@ input:focus, textarea:focus, select:focus {
       <div class="tab-bar">
         <button class="tab-btn active" data-tab="edit-nutrition" onclick="editorTab(this,'edit-nutrition')">Nutrition Core</button>
         <button class="tab-btn" data-tab="edit-copy" onclick="editorTab(this,'edit-copy')">Support Copy</button>
+        <button class="tab-btn" data-tab="edit-barcode" onclick="editorTab(this,'edit-barcode')" id="tab-btn-barcode">Barcode</button>
         <button class="tab-btn" data-tab="edit-convert" onclick="editorTab(this,'edit-convert')">Conversion</button>
         <button class="tab-btn" data-tab="edit-math" onclick="editorTab(this,'edit-math')">Math Inspector</button>
       </div>
@@ -1427,6 +1428,110 @@ input:focus, textarea:focus, select:focus {
               </div>
             </div>
           </div><!-- /sub-edit-copy -->
+
+          <!-- BARCODE tab — inline composer, auto-persists to nfsCurrent.barcode -->
+          <div class="sub-panel" id="sub-edit-barcode">
+
+            <div class="section-label">Barcode</div>
+            <div class="card" style="margin-bottom:16px;">
+              <div class="card-body">
+
+                <!-- Mode toggle -->
+                <div class="fi" style="margin-bottom:14px;">
+                  <label>Mode</label>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:400;text-transform:none;letter-spacing:0;cursor:pointer;">
+                      <input type="radio" name="ibc-mode" id="ibc-mode-real" value="real" onchange="bcInlineUpdate()" checked/>
+                      Real / Owned Code
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:400;text-transform:none;letter-spacing:0;cursor:pointer;">
+                      <input type="radio" name="ibc-mode" id="ibc-mode-placeholder" value="placeholder" onchange="bcInlineUpdate()"/>
+                      Placeholder / Demo
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:400;text-transform:none;letter-spacing:0;cursor:pointer;">
+                      <input type="radio" name="ibc-mode" id="ibc-mode-none" value="none" onchange="bcInlineUpdate()"/>
+                      No Barcode
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Real code fields -->
+                <div id="ibc-real-fields">
+                  <div class="grid-2" style="gap:12px;margin-bottom:12px;">
+                    <div class="fi">
+                      <label>Barcode Type</label>
+                      <select id="ibc-type" onchange="bcInlineUpdate()">
+                        <option value="UPC">UPC-A (U.S. Retail)</option>
+                        <option value="EAN13">EAN-13 (International)</option>
+                      </select>
+                    </div>
+                    <div class="fi">
+                      <label>Code (12 digits for UPC-A)</label>
+                      <input type="text" id="ibc-value" placeholder="619364850086" maxlength="14" oninput="bcInlineUpdate()" style="font-family:var(--mono);letter-spacing:.12em;"/>
+                    </div>
+                  </div>
+                  <!-- Check digit helper -->
+                  <div id="ibc-helper" style="margin-bottom:12px;display:none;">
+                    <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Enter your first 11 digits — app computes the UPC-A check digit:</div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <input type="text" id="ibc-prefix11" placeholder="61936485008" maxlength="11" oninput="bcComputeCheck()" style="font-family:var(--mono);letter-spacing:.12em;width:160px;"/>
+                      <span id="ibc-computed-check" style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--accent);min-width:24px;">—</span>
+                      <button class="btn btn-sm btn-secondary" onclick="bcApplyComputedCheck()">Use This Code</button>
+                    </div>
+                    <div style="font-size:10px;color:var(--muted);margin-top:4px;">This renders a valid barcode from your digit pattern. It does not create GS1 ownership. Only enter numbers you own/license.</div>
+                  </div>
+                  <div style="margin-bottom:10px;">
+                    <button class="btn btn-xs btn-ghost" onclick="bcToggleHelper()" id="ibc-helper-toggle" style="font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;">▸ Compute check digit from 11-digit prefix</button>
+                  </div>
+                  <!-- Validation row -->
+                  <div id="ibc-validation" style="font-size:11px;font-family:var(--mono);padding:6px 10px;border-radius:4px;background:var(--surface2);min-height:26px;margin-bottom:0;"></div>
+                </div>
+
+                <!-- Placeholder fields -->
+                <div id="ibc-placeholder-fields" style="display:none;">
+                  <div style="background:var(--orange-bg);border:1px solid var(--orange);border-radius:4px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:var(--orange);line-height:1.5;">
+                    ⚠ <strong>PLACEHOLDER / DEMO ONLY.</strong> This is a visual mockup barcode for layout purposes. It does not represent an owned or licensed retail code. Do not use for Manufacturer Ready exports.
+                  </div>
+                  <div class="fi">
+                    <label>Display Number (cosmetic only)</label>
+                    <input type="text" id="ibc-placeholder-val" placeholder="000000000000" maxlength="14" oninput="bcInlineUpdate()" style="font-family:var(--mono);letter-spacing:.12em;"/>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Include toggle + live preview -->
+            <div class="card" style="margin-bottom:16px;" id="ibc-include-card">
+              <div class="card-body">
+                <label class="remember-row" style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:14px;">
+                  <input type="checkbox" id="ibc-include" onchange="bcInlineUpdate()" checked style="width:16px;height:16px;accent-color:var(--accent);"/>
+                  <span style="font-size:12px;font-weight:600;">Show barcode on label (preview &amp; export)</span>
+                </label>
+
+                <!-- Live preview of the barcode alone -->
+                <div id="ibc-preview-wrap" style="display:flex;flex-direction:column;align-items:center;padding:12px;background:#fff;border:1px solid var(--border2);border-radius:4px;min-height:80px;justify-content:center;gap:4px;">
+                  <div id="ibc-preview-inner" style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <span style="font-size:11px;color:var(--muted);">Barcode preview appears here</span>
+                  </div>
+                </div>
+                <div style="font-size:10px;color:var(--muted);margin-top:6px;text-align:center;">This is exactly what renders at the bottom of the label</div>
+              </div>
+            </div>
+
+            <!-- Sizing controls -->
+            <div class="card" style="margin-bottom:16px;">
+              <div class="card-title" style="font-size:11px;font-weight:700;margin-bottom:10px;color:var(--dim);">SIZE &amp; PLACEMENT</div>
+              <div class="card-body">
+                <div class="grid-2" style="gap:12px;">
+                  <div class="fi"><label>Bar Width (px)</label><input type="number" id="ibc-width" value="1.5" min="1" max="3" step="0.5" oninput="bcInlineUpdate()"/></div>
+                  <div class="fi"><label>Bar Height (px)</label><input type="number" id="ibc-height" value="50" min="30" max="90" step="5" oninput="bcInlineUpdate()"/></div>
+                </div>
+                <div style="font-size:10px;color:var(--muted);margin-top:8px;">UPC-A minimum: 1.02" wide × 0.7" tall. Bar width 1.5–2 keeps scan reliability on standard pouch.</div>
+              </div>
+            </div>
+
+          </div><!-- /sub-edit-barcode -->
 
           <!-- CONVERSION tab -->
           <div class="sub-panel" id="sub-edit-convert">
@@ -3068,6 +3173,8 @@ function nfsLoadProject(id) {
   document.getElementById('lnav-editor').style.display = 'flex';
   updateHeaderProject();
   nfsNav('editor');
+  // Populate inline barcode tab if already open
+  setTimeout(() => { if (typeof bcInlineLoad === 'function') bcInlineLoad(); }, 80);
 }
 
 function nfsDeleteProject(id) {
@@ -3251,6 +3358,10 @@ function editorTab(btn, panelId) {
   btn.classList.add('active');
   document.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('sub-' + panelId).classList.add('active');
+  // Load barcode state when switching to barcode tab
+  if (panelId === 'edit-barcode' && typeof bcInlineLoad === 'function') {
+    setTimeout(bcInlineLoad, 30);
+  }
 }
 
 // ============================================================
@@ -3760,7 +3871,11 @@ function getLabelCSS() {
 .nf-dist{font-size:7.5px;margin-top:3px;color:#000;line-height:1.55;border-top:1px solid #000;padding-top:3px;}
 .nf-dist .nf-dist-line{display:block;}
 .nf-dist .nf-origin-line{display:block;font-weight:700;}
-.nf-wt{font-size:8px;margin-top:2px;color:#000;font-weight:700;letter-spacing:.02em;}`;
+.nf-wt{font-size:8px;margin-top:2px;color:#000;font-weight:700;letter-spacing:.02em;}
+.nf-barcode-zone{margin-top:5px;padding-top:4px;border-top:1px solid #000;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.nf-barcode-zone svg{max-width:100%;}
+.nf-barcode-demo{background:repeating-linear-gradient(90deg,#000 0,#000 2px,#fff 2px,#fff 5px);height:50px;width:120px;opacity:0.15;border-radius:1px;}
+.nf-barcode-demo-label{font-size:7px;font-weight:700;color:#b97700;letter-spacing:.1em;text-transform:uppercase;}`;
   // Active preset overrides — mirrors the <style> preset block above
   const presets = {
     'commercial-standard': `.nf-label.preset-commercial-standard{padding:6px 8px;width:280px;font-size:10px;border:3px solid #000;}
@@ -5949,6 +6064,176 @@ function setStylePreset(preset) {
 let bcLoaded = false;
 let bcCurrentMode = 'real';
 
+// ============================================================
+//  BARCODE INLINE COMPOSER (editor tab integration)
+//  All functions prefixed ibc* to avoid collision with standalone bc* functions
+// ============================================================
+
+let _ibcHelperOpen = false;
+
+function bcInlineMode() {
+  const r = document.querySelector('input[name="ibc-mode"]:checked');
+  return r ? r.value : 'none';
+}
+
+function bcToggleHelper() {
+  _ibcHelperOpen = !_ibcHelperOpen;
+  const h = document.getElementById('ibc-helper');
+  const btn = document.getElementById('ibc-helper-toggle');
+  if (h) h.style.display = _ibcHelperOpen ? 'block' : 'none';
+  if (btn) btn.textContent = (_ibcHelperOpen ? '▾' : '▸') + ' Compute check digit from 11-digit prefix';
+}
+
+function bcComputeCheck() {
+  const prefix = (document.getElementById('ibc-prefix11')?.value || '').replace(/\D/g,'');
+  const display = document.getElementById('ibc-computed-check');
+  if (!display) return;
+  if (prefix.length !== 11) { display.textContent = '—'; return; }
+  const check = upcCheckDigit(prefix);
+  display.textContent = check !== null ? check : '✗';
+}
+
+function bcApplyComputedCheck() {
+  const prefix = (document.getElementById('ibc-prefix11')?.value || '').replace(/\D/g,'');
+  if (prefix.length !== 11) { toast('Needs 11 digits', 'Enter exactly 11 digits first.'); return; }
+  const check = upcCheckDigit(prefix);
+  if (check === null) { toast('Invalid digits', 'Non-numeric characters detected.'); return; }
+  const full = prefix + check;
+  const valEl = document.getElementById('ibc-value');
+  if (valEl) { valEl.value = full; }
+  bcInlineUpdate();
+}
+
+function bcInlineUpdate() {
+  if (!nfsCurrent) return;
+  const mode = bcInlineMode();
+
+  // Show/hide field groups
+  const realFields = document.getElementById('ibc-real-fields');
+  const phFields   = document.getElementById('ibc-placeholder-fields');
+  const incCard    = document.getElementById('ibc-include-card');
+  if (realFields) realFields.style.display = mode === 'real' ? 'block' : 'none';
+  if (phFields)   phFields.style.display   = mode === 'placeholder' ? 'block' : 'none';
+  if (incCard)    incCard.style.display     = mode === 'none' ? 'none' : 'block';
+
+  if (mode === 'none') {
+    // Clear barcode from project
+    nfsCurrent.barcode = { mode: 'none', include: false };
+    editorUpdate();
+    _bcInlineRenderPreview(mode, '', '');
+    return;
+  }
+
+  const include  = document.getElementById('ibc-include')?.checked !== false;
+  const type     = document.getElementById('ibc-type')?.value || 'UPC';
+  const bw       = parseFloat(document.getElementById('ibc-width')?.value) || 1.5;
+  const bh       = parseFloat(document.getElementById('ibc-height')?.value) || 50;
+
+  let code = '';
+  if (mode === 'real') {
+    code = (document.getElementById('ibc-value')?.value || '').trim().replace(/\D/g,'');
+    // Inline validation
+    const val = document.getElementById('ibc-validation');
+    if (val) {
+      if (!code) {
+        val.textContent = ''; val.style.background = 'var(--surface2)'; val.style.color = '';
+      } else if (type === 'UPC' && !/^\d{12}$/.test(code)) {
+        val.textContent = `✗ UPC-A needs 12 digits (${code.length} entered)`;
+        val.style.color = 'var(--red)'; val.style.background = 'var(--red-bg)';
+      } else if (type === 'UPC') {
+        const exp = upcCheckDigit(code.slice(0,11));
+        const act = parseInt(code[11]);
+        if (exp === act) {
+          val.textContent = `✓ Valid UPC-A — check digit ${act} confirmed`;
+          val.style.color = 'var(--green)'; val.style.background = 'rgba(74,222,128,0.08)';
+        } else {
+          val.textContent = `⚠ Check digit: expected ${exp}, got ${act} — verify your code`;
+          val.style.color = 'var(--orange)'; val.style.background = 'var(--orange-bg)';
+        }
+      } else if (type === 'EAN13' && /^\d{13}$/.test(code)) {
+        val.textContent = `✓ EAN-13 format valid`;
+        val.style.color = 'var(--green)'; val.style.background = 'rgba(74,222,128,0.08)';
+      }
+    }
+  } else {
+    // placeholder
+    code = (document.getElementById('ibc-placeholder-val')?.value || '000000000000').replace(/\D/g,'') || '000000000000';
+  }
+
+  // Persist to project
+  nfsCurrent.barcode = { mode, type, code, include, barWidth: bw, barHeight: bh, savedTs: new Date().toISOString() };
+
+  // Refresh label preview (this calls v5InjectBarcodeToPreview internally)
+  editorUpdate();
+
+  // Also render the inline mini-preview in the barcode tab
+  _bcInlineRenderPreview(mode, code, type, bw, bh);
+}
+
+function _bcInlineRenderPreview(mode, code, type, bw, bh) {
+  const wrap = document.getElementById('ibc-preview-inner');
+  if (!wrap) return;
+
+  if (mode === 'none' || !code) {
+    wrap.innerHTML = '<span style="font-size:11px;color:var(--muted);">No barcode</span>';
+    return;
+  }
+
+  if (mode === 'placeholder') {
+    const num = code.replace(/(\d{1})(\d{5})(\d{5})(\d{1})/, '$1 $2 $3 $4');
+    wrap.innerHTML = `
+      <div style="background:repeating-linear-gradient(90deg,#000 0,#000 2px,#fff 2px,#fff 5px);height:${bh||50}px;width:130px;border-radius:1px;opacity:0.18;"></div>
+      <div style="font-family:'Courier New',monospace;font-size:10px;color:#000;">${num || '0 00000 00000 0'}</div>
+      <div style="font-size:9px;font-weight:700;color:var(--orange);letter-spacing:.15em;text-transform:uppercase;">DEMO / PLACEHOLDER</div>`;
+    return;
+  }
+
+  // Real code — need JsBarcode
+  if (!/^\d{12,13}$/.test(code)) {
+    wrap.innerHTML = '<span style="font-size:11px;color:var(--muted);">Enter a valid code above</span>';
+    return;
+  }
+
+  bcLoadJsBarcode(() => {
+    const svgId = 'ibc-preview-svg';
+    wrap.innerHTML = `<svg id="${svgId}"></svg>`;
+    try {
+      JsBarcode('#' + svgId, code, {
+        format: type === 'UPC' ? 'UPC' : 'EAN13',
+        width: bw || 1.5, height: bh || 50,
+        displayValue: true, fontSize: 10, margin: 4,
+        background: '#ffffff', lineColor: '#000000',
+      });
+    } catch(e) {
+      wrap.innerHTML = `<span style="font-size:11px;color:var(--red);">Render error: ${e.message}</span>`;
+    }
+  });
+}
+
+// Load existing project barcode data into the inline tab controls
+function bcInlineLoad() {
+  const bc = nfsCurrent?.barcode;
+  if (!bc || bc.mode === 'none' || !bc.mode) {
+    const r = document.getElementById('ibc-mode-none');
+    if (r) r.checked = true;
+    bcInlineUpdate();
+    return;
+  }
+  // Set radio
+  const radio = document.getElementById('ibc-mode-' + bc.mode);
+  if (radio) radio.checked = true;
+  // Set fields
+  const sv = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined) el.value = v; };
+  sv('ibc-type', bc.type || 'UPC');
+  sv('ibc-value', bc.mode !== 'placeholder' ? (bc.code || '') : '');
+  sv('ibc-placeholder-val', bc.mode === 'placeholder' ? (bc.code || '') : '');
+  sv('ibc-width',  bc.barWidth  || 1.5);
+  sv('ibc-height', bc.barHeight || 50);
+  const incEl = document.getElementById('ibc-include');
+  if (incEl) incEl.checked = bc.include !== false;
+  bcInlineUpdate();
+}
+
 function bcLoadJsBarcode(cb) {
   if (window.JsBarcode) { cb(); return; }
   const s = document.createElement('script');
@@ -6511,7 +6796,8 @@ function v5InjectBarcodeToPreview() {
     try {
       JsBarcode('#lp-bc-svg-inline', bc.code, {
         format: bc.type === 'UPC' ? 'UPC' : 'EAN13',
-        width: 1.5, height: 50,
+        width: bc.barWidth || 1.5,
+        height: bc.barHeight || 50,
         displayValue: true,
         fontSize: 10,
         margin: 4,
