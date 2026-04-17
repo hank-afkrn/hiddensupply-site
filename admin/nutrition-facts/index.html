@@ -1174,6 +1174,7 @@ input:focus, textarea:focus, select:focus {
       <div class="content-area wide">
         <!-- Filters -->
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-secondary" onclick="nfsMigrateLocalToServer()" title="Push labels from this browser to the shared server so all users can see them" style="font-size:11px;">&#8593; Push to Shared</button>
           <select id="proj-filter-brand" onchange="renderProjectList()" style="width:150px;padding:8px 11px;">
             <option value="">All Brands</option>
             <option>Juice Bomb</option><option>Dirty Sips</option><option>Candu</option><option>PeelPals</option><option>Nauti Labs</option>
@@ -3060,7 +3061,8 @@ function emptyProject() {
 let nfsProjects = [];
 // Shared projects — load from server (shared across all users/browsers)
 (function() {
-  fetch('/api/projects').then(r=>r.json()).then(d=>{
+  const _API = 'http://20.165.197.60:8000/api/projects';
+  fetch(_API).then(r=>r.json()).then(d=>{
     nfsProjects = Array.isArray(d.projects) ? d.projects : [];
     // Also seed from localStorage if server is empty (migration path)
     if (!nfsProjects.length) {
@@ -3073,10 +3075,21 @@ let nfsProjects = [];
   }).catch(()=>{ nfsProjects = JSON.parse(localStorage.getItem(NFS_STORAGE_KEY)||'[]'); });
 })();
 function _nfsSyncServer() {
-  fetch('/api/projects', { method:'POST', headers:{'Content-Type':'application/json'},
+  fetch('http://20.165.197.60:8000/api/projects', { method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ projects: nfsProjects }) }).catch(()=>{});
   // Also keep localStorage as fallback
+  localStorage.setItem(NFS_STORAGE_KEY, JSON.stringify(nfsProjects));
+}
+function nfsMigrateLocalToServer() {
+  const local = JSON.parse(localStorage.getItem(NFS_STORAGE_KEY)||'[]');
+  if (!local.length) { toast('Nothing to migrate','No labels found in this browser.'); return; }
+  const serverIds = new Set(nfsProjects.map(p=>p.id));
+  const toAdd = local.filter(p => !serverIds.has(p.id));
+  if (!toAdd.length) { toast('Already synced','All local labels are already on the server.'); return; }
+  nfsProjects = [...nfsProjects, ...toAdd];
   _nfsSyncServer();
+  renderProjectList();
+  toast('Migrated', toAdd.length + ' label(s) pushed to shared server.');
 }
 let nfsCurrentId = localStorage.getItem(NFS_CURRENT_KEY) || null;
 let nfsCurrent = null;   // the live project being edited
