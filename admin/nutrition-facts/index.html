@@ -3061,8 +3061,11 @@ function emptyProject() {
 let nfsProjects = [];
 // Shared projects — load from server (shared across all users/browsers)
 (function() {
-  const _API = 'http://20.165.197.60:8000/api/projects';
-  fetch(_API).then(r=>r.json()).then(d=>{
+  // Use proxied path on HTTPS (Netlify), direct VM on HTTP (local)
+  const _API_BASE = location.protocol === 'https:'
+    ? '/joetime/api/projects'
+    : 'http://20.165.197.60:8000/api/projects';
+  fetch(_API_BASE).then(r=>r.json()).then(d=>{
     nfsProjects = Array.isArray(d.projects) ? d.projects : [];
     // Also seed from localStorage if server is empty (migration path)
     if (!nfsProjects.length) {
@@ -3075,7 +3078,10 @@ let nfsProjects = [];
   }).catch(()=>{ nfsProjects = JSON.parse(localStorage.getItem(NFS_STORAGE_KEY)||'[]'); });
 })();
 function _nfsSyncServer() {
-  fetch('http://20.165.197.60:8000/api/projects', { method:'POST', headers:{'Content-Type':'application/json'},
+  const _API_BASE2 = location.protocol === 'https:'
+    ? '/joetime/api/projects'
+    : 'http://20.165.197.60:8000/api/projects';
+  fetch(_API_BASE2, { method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ projects: nfsProjects }) }).catch(()=>{});
   // Also keep localStorage as fallback
   localStorage.setItem(NFS_STORAGE_KEY, JSON.stringify(nfsProjects));

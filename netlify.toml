@@ -5,6 +5,10 @@
 
 # ── Edge Functions ────────────────────────────────────────────────────────────
 [[edge_functions]]
+  path    = "/joetime/api/*"
+  function = "nfs-api-proxy"
+
+[[edge_functions]]
   path    = "/joetime"
   function = "joetime-gate"
 
