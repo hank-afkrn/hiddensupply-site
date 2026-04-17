@@ -32,13 +32,21 @@ export default async function handler(req, context) {
   });
 
   const resp = await fetch(proxyReq);
-  const body = await resp.text();
 
-  return new Response(body, {
-    status: resp.status,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-    },
-  });
+  // 304 pass-through
+  if (resp.status === 304) {
+    return new Response(null, { status: 304 });
+  }
+
+  const body = await resp.text();
+  const headers = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+  };
+  // Forward ETag so browser can skip re-download
+  const etag = resp.headers.get('etag');
+  if (etag) headers['ETag'] = etag;
+  headers['Cache-Control'] = 'no-cache';
+
+  return new Response(body, { status: resp.status, headers });
 }
