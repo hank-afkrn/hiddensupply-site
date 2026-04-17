@@ -3192,8 +3192,10 @@ function nfsSaveProject(notify = true) {
   if (!nfsCurrent) return;
   nfsCurrent.modified = new Date().toISOString();
   // Read editor values into project
-  nfsCurrent.servingSize = document.getElementById('e-ss')?.value || nfsCurrent.servingSize;
-  nfsCurrent.servingsPerContainer = document.getElementById('e-spc')?.value || nfsCurrent.servingsPerContainer;
+  const _ss = document.getElementById('e-ss');
+  if (_ss) nfsCurrent.servingSize = _ss.value;           // empty string = intentional clear
+  const _spc = document.getElementById('e-spc');
+  if (_spc) nfsCurrent.servingsPerContainer = _spc.value;
   const nKeys = ['cal','tf','sf','xf','ch','na','tc','df','su','as_','pr','vd','ca','fe','k'];
   nKeys.forEach(k => {
     const key = k === 'as_' ? 'as' : k;
@@ -3210,7 +3212,7 @@ function nfsSaveProject(notify = true) {
   nfsCurrent.allergens = [...nfsAllergens];
   nfsCurrent.allergenCustom = document.getElementById('e-al-custom')?.value || '';
   nfsCurrent.netOz = document.getElementById('e-oz')?.value || '';
-  nfsCurrent.netG = nfsCurrent.netG || document.getElementById('e-g')?.value || '';
+  const _eg = document.getElementById('e-g'); if (_eg) nfsCurrent.netG = _eg.value;
   nfsCurrent.distributor = document.getElementById('e-dist')?.value || '';
   nfsCurrent.origin = document.getElementById('e-origin')?.value || '';
   nfsCurrent.warning = document.getElementById('e-warn')?.value || '';
