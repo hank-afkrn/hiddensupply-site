@@ -1309,6 +1309,7 @@ input:focus, textarea:focus, select:focus {
           </div>
         </div>
         <div class="btn-row">
+          <button class="btn btn-sm btn-ghost" onclick="nfsNav('projects')" title="Back to All Labels" style="color:var(--muted);">&#8592; All Labels</button>
           <button class="btn btn-sm btn-secondary" onclick="nfsNav('compliance')">&#9989; Preflight</button>
           <button class="btn btn-sm btn-secondary" onclick="nfsNav('export')">&#128228; Export</button>
           <button class="btn btn-md btn-primary" onclick="nfsSaveProject()">Save</button>
@@ -3265,6 +3266,26 @@ function nfsDuplicateProject(id) {
   toast('Duplicated', '“' + copy.name + '” created.');
 }
 
+function nfsRenameProject(id) {
+  const p = nfsProjects.find(x => x.id === id);
+  if (!p) return;
+  const newName = prompt('Rename label:', p.name || 'Untitled');
+  if (newName === null) return;                          // cancelled
+  const trimmed = newName.trim();
+  if (!trimmed) { toast('Error', 'Name cannot be empty.'); return; }
+  p.name = trimmed;
+  p.modified = new Date().toISOString();
+  if (nfsCurrent?.id === id) {
+    nfsCurrent.name = trimmed;
+    const el = document.getElementById('editor-title');
+    if (el) el.textContent = trimmed;
+    updateHeaderProject && updateHeaderProject();
+  }
+  _nfsSyncServer();
+  renderProjectList();
+  toast('Renamed', '“' + trimmed + '” saved.');
+}
+
 function updateHeaderProject() {
   const el = document.getElementById('hdr-project-name');
   const btn = document.getElementById('hdr-save-btn');
@@ -4214,6 +4235,7 @@ function renderProjectList() {
       <div class="pr-actions">
         <span class="badge badge-${p.status}">${statusLabel(p.status)}</span>
         <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();nfsLoadProject('${p.id}')">Open</button>
+        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();nfsRenameProject('${p.id}')" title="Rename this label">&#9998; Rename</button>
         <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();nfsDuplicateProject('${p.id}')" title="Duplicate this label">&#10066; Dupe</button>
         <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();nfsDeleteProject('${p.id}')">Delete</button>
       </div>
