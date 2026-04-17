@@ -559,8 +559,9 @@
     });
 
     // Assemble final strings
-    const packagingDraft = packagingParts.length ? packagingParts.join(', ') + '.' : '';
-    const reviewDraft    = reviewParts.length    ? reviewParts.join(', ')    + '.' : '';
+    // FDA US format: ALL CAPS for packaging/review drafts
+    const packagingDraft = packagingParts.length ? packagingParts.join(', ').toUpperCase() + '.' : '';
+    const reviewDraft    = reviewParts.length    ? reviewParts.join(', ').toUpperCase()    + '.' : '';
     const cleanDraft     = sorted.map(t => t.resolved).join(', ') + (sorted.length ? '.' : '');
 
     return {

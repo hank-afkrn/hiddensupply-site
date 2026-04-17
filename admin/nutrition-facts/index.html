@@ -3057,7 +3057,27 @@ function emptyProject() {
   };
 }
 
-let nfsProjects = JSON.parse(localStorage.getItem(NFS_STORAGE_KEY) || '[]');
+let nfsProjects = [];
+// Shared projects — load from server (shared across all users/browsers)
+(function() {
+  fetch('/api/projects').then(r=>r.json()).then(d=>{
+    nfsProjects = Array.isArray(d.projects) ? d.projects : [];
+    // Also seed from localStorage if server is empty (migration path)
+    if (!nfsProjects.length) {
+      const local = JSON.parse(localStorage.getItem(NFS_STORAGE_KEY)||'[]');
+      if (local.length) { nfsProjects = local; _nfsSyncServer(); }
+    }
+    renderProjectList();
+    const dash = document.getElementById('view-dashboard');
+    if (dash && dash.style.display !== 'none') { /* refresh dashboard counts */ }
+  }).catch(()=>{ nfsProjects = JSON.parse(localStorage.getItem(NFS_STORAGE_KEY)||'[]'); });
+})();
+function _nfsSyncServer() {
+  fetch('/api/projects', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ projects: nfsProjects }) }).catch(()=>{});
+  // Also keep localStorage as fallback
+  _nfsSyncServer();
+}
 let nfsCurrentId = localStorage.getItem(NFS_CURRENT_KEY) || null;
 let nfsCurrent = null;   // the live project being edited
 let nfsAllergens = new Set();
@@ -3180,7 +3200,7 @@ function nfsSaveProject(notify = true) {
   const idx = nfsProjects.findIndex(p => p.id === nfsCurrent.id);
   if (idx >= 0) nfsProjects[idx] = nfsCurrent;
   else nfsProjects.unshift(nfsCurrent);
-  localStorage.setItem(NFS_STORAGE_KEY, JSON.stringify(nfsProjects));
+  _nfsSyncServer();
   localStorage.setItem(NFS_CURRENT_KEY, nfsCurrent.id);
   if (notify) toast('Saved', nfsCurrent.name || 'Label saved.');
 }
@@ -3202,7 +3222,7 @@ function nfsLoadProject(id) {
 function nfsDeleteProject(id) {
   if (!confirm('Delete this label? This cannot be undone.')) return;
   nfsProjects = nfsProjects.filter(p => p.id !== id);
-  localStorage.setItem(NFS_STORAGE_KEY, JSON.stringify(nfsProjects));
+  _nfsSyncServer();
   if (nfsCurrent?.id === id) {
     nfsCurrent = null;
     document.getElementById('lnav-editor').style.display = 'none';
@@ -3221,7 +3241,7 @@ function nfsDuplicateProject(id) {
   copy.status = 'draft';
   copy.modified = new Date().toISOString();
   nfsProjects.unshift(copy);
-  localStorage.setItem(NFS_STORAGE_KEY, JSON.stringify(nfsProjects));
+  _nfsSyncServer();
   renderProjectList();
   toast('Duplicated', '“' + copy.name + '” created.');
 }
@@ -7090,7 +7110,7 @@ function nfsDuplicateProject(id) {
   copy.approvalLog = [{ ts: new Date().toISOString(), action: 'duplicated-from', sourceId: source.id }];
   copy.version = 1;
   nfsProjects.push(copy);
-  localStorage.setItem(NFS_STORAGE_KEY, JSON.stringify(nfsProjects));
+  _nfsSyncServer();
   nfsCurrent = copy;
   nfsCurrentId = copy.id;
   localStorage.setItem('hs_nfs_current_project', copy.id);
