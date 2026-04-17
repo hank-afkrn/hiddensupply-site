@@ -3212,6 +3212,20 @@ function nfsDeleteProject(id) {
   toast('Deleted', 'Label removed.');
 }
 
+function nfsDuplicateProject(id) {
+  const src = nfsProjects.find(p => p.id === id);
+  if (!src) return;
+  const copy = JSON.parse(JSON.stringify(src));
+  copy.id = 'nfs_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+  copy.name = (copy.name || 'Untitled') + ' (Copy)';
+  copy.status = 'draft';
+  copy.modified = new Date().toISOString();
+  nfsProjects.unshift(copy);
+  localStorage.setItem(NFS_STORAGE_KEY, JSON.stringify(nfsProjects));
+  renderProjectList();
+  toast('Duplicated', '“' + copy.name + '” created.');
+}
+
 function updateHeaderProject() {
   const el = document.getElementById('hdr-project-name');
   const btn = document.getElementById('hdr-save-btn');
@@ -4161,6 +4175,7 @@ function renderProjectList() {
       <div class="pr-actions">
         <span class="badge badge-${p.status}">${statusLabel(p.status)}</span>
         <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();nfsLoadProject('${p.id}')">Open</button>
+        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();nfsDuplicateProject('${p.id}')" title="Duplicate this label">&#10066; Dupe</button>
         <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();nfsDeleteProject('${p.id}')">Delete</button>
       </div>
     `;
