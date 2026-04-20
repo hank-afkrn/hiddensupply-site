@@ -750,9 +750,9 @@ input:focus, textarea:focus, select:focus {
 .nf-nr.bld-first { font-size: 9px; font-weight: 700; border-bottom: 0.75px solid #000; }
 /* Sub-rows */
 .nf-nr.sub    { padding-left: 11px; font-weight: 400; font-size: 9px; border-bottom: none; position: relative; }
-.nf-nr.sub::after    { content: ''; position: absolute; bottom: 0; left: 11px; right: 0; height: 0.75px; background: #000; }
+.nf-nr.sub::after    { content: ''; position: absolute; bottom: -0.5px; left: 11px; right: 0; border-bottom: 0.75px solid #000; }
 .nf-nr.subsub { padding-left: 20px; font-weight: 400; font-size: 9px; border-bottom: none; position: relative; }
-.nf-nr.subsub::after { content: ''; position: absolute; bottom: 0; left: 20px; right: 0; height: 0.75px; background: #000; }
+.nf-nr.subsub::after { content: ''; position: absolute; bottom: -0.5px; left: 20px; right: 0; border-bottom: 0.75px solid #000; }
 /* %DV value */
 .nf-nr .pct   { font-weight: 700; padding-left: 4px; white-space: nowrap; }
 /* Protein — thick bar BELOW (before Vitamin D block) — matches reference */
@@ -4228,9 +4228,9 @@ function getLabelCSS() {
 .nf-nr.bld,.nf-nr.bld-first{font-weight:900;border-top:1px solid #000;border-bottom:0.75px solid #000;}
 .nf-nr.bld-first{border-top:none;}
 .nf-nr.sub{padding-left:14px;font-weight:500;font-size:9px;border-bottom:none;position:relative;}
-.nf-nr.sub::after{content:'';position:absolute;bottom:0;left:14px;right:0;height:0.75px;background:#000;}
+.nf-nr.sub::after{content:'';position:absolute;bottom:-0.5px;left:14px;right:0;border-bottom:1px solid #000;}
 .nf-nr.subsub{padding-left:26px;font-weight:400;font-size:9px;border-bottom:none;position:relative;}
-.nf-nr.subsub::after{content:'';position:absolute;bottom:0;left:26px;right:0;height:0.75px;background:#000;}
+.nf-nr.subsub::after{content:'';position:absolute;bottom:-0.5px;left:26px;right:0;border-bottom:1px solid #000;}
 .nf-nr.protein-row{border-bottom:7px solid #000;}
 .nf-nr.last-row{border-bottom:1px solid #000;}
 .nf-nr .pct{font-weight:800;padding-left:5px;white-space:nowrap;}
@@ -4263,9 +4263,9 @@ function getLabelCSS() {
 .nf-nr.bld{font-size:9px;font-weight:700;border-bottom:1px solid #000;border-top:none;}
 .nf-nr.bld-first{font-size:9px;font-weight:700;border-bottom:1px solid #000;}
 .nf-nr.sub{padding-left:11px;font-weight:400;font-size:9px;border-bottom:none;position:relative;}
-.nf-nr.sub::after{content:'';position:absolute;bottom:0;left:11px;right:0;height:1px;background:#000;}
+.nf-nr.sub::after{content:'';position:absolute;bottom:-0.5px;left:11px;right:0;border-bottom:1px solid #000;}
 .nf-nr.subsub{padding-left:20px;font-weight:400;font-size:9px;border-bottom:none;position:relative;}
-.nf-nr.subsub::after{content:'';position:absolute;bottom:0;left:20px;right:0;height:1px;background:#000;}
+.nf-nr.subsub::after{content:'';position:absolute;bottom:-0.5px;left:20px;right:0;border-bottom:1px solid #000;}
 .nf-nr .pct{font-weight:700;padding-left:4px;white-space:nowrap;}
 .nf-nr.protein-row{border-bottom:8px solid #000;}
 .nf-nr.micro{padding:1.5px 0;}
@@ -5938,7 +5938,8 @@ function printLabel(tier) {
   w.document.write(`<!DOCTYPE html><html><head><title>${name}</title>
 <style>
 @page { ${pageSizeCSS} margin: ${marginMM}mm; }
-html, body { margin: 0; padding: 0; background: #fff; }
+html, body { margin: 0; padding: 0; background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+* { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 /* Label must not be split across pages */
 .nf-label { page-break-inside: avoid; break-inside: avoid; }
 ${getLabelCSS()}
