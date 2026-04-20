@@ -705,18 +705,17 @@ input:focus, textarea:focus, select:focus {
  * Line 2: "Serving size" — bold, left, own line                             *
  * Line 3: value — bold, RIGHT-aligned, own line                             *
  * ─────────────────────────────────────────────────────────────────────────  */
-.nf-spc      { font-size: 10px; font-weight: 400; margin-bottom: 0; line-height: 1.2; }
+.nf-spc      { font-size: 10px; font-weight: 400; margin-bottom: 1px; line-height: 1.3; }
 /* Serving size row — label LEFT, value RIGHT, same line */
-.nf-ss-label-rl { display: none; } /* replaced by flex row below */
-.nf-ss-val   { display: none; }    /* replaced by flex row below */
-/* RL flex row — shown, label left + value right on one line */
-.nf-ss-row   { display: flex; justify-content: space-between; align-items: baseline; font-size: 10px; font-weight: 700; line-height: 1.2; }
+.nf-ss-label-rl { display: none; }
+.nf-ss-val   { display: none; }
+.nf-ss-row   { display: flex; justify-content: space-between; align-items: baseline; font-size: 10px; font-weight: 700; line-height: 1.3; padding: 1px 0 2px; }
 .nf-ss-row span:first-child { min-width: 0; flex-shrink: 1; }
-.nf-ss-row span:last-child  { white-space: nowrap; flex-shrink: 0; }
+.nf-ss-row span:last-child  { white-space: nowrap; flex-shrink: 0; padding-left: 6px; }
 .nf-ss-label { display: none; }
 .nf-ss       { display: none; }
 /* thick bar under serving block */
-.nf-serving-divider { border: none; border-top: 8px solid #000; margin: 1px 0 0; }
+.nf-serving-divider { border: none; border-top: 8px solid #000; margin: 0; }
 
 /* ── APS / CALORIES — tight compact unit ─────────────────── */
 /* APS sits immediately under the thick bar — minimal breathing room */
@@ -774,16 +773,16 @@ input:focus, textarea:focus, select:focus {
 
 /* ── LOWER SUPPORT ZONE ── */
 /* Ingredients — first item, flush to top of support zone */
-.nf-ing  { font-size: 8px; line-height: 1.45; margin-top: 0; color: #000; }
+.nf-ing  { font-size: 8px; line-height: 1.5; margin-top: 0; color: #000; }
 /* Allergen / Contains line */
-.nf-all  { font-size: 8px; font-weight: 700; margin-top: 3px; line-height: 1.35; }
+.nf-all  { font-size: 8px; font-weight: 700; margin-top: 4px; line-height: 1.4; }
 /* Net weight */
 .nf-wt   { font-size: 8px; margin-top: 3px; color: #000; font-weight: 700; letter-spacing: .02em; }
-/* Thin divider before distributor block */
+/* Distributor block — thin rule above, breathing room */
 .nf-dist {
-  font-size: 8px; margin-top: 6px; color: #000; line-height: 1.6;
+  font-size: 8px; margin-top: 7px; color: #000; line-height: 1.65;
   text-align: left;
-  border-top: 0.75px solid #000; padding-top: 5px;
+  border-top: 0.75px solid #000; padding-top: 6px;
 }
 /* Each distributor line on its own line — uppercase */
 .nf-dist .nf-dist-line   { display: block; text-transform: uppercase; letter-spacing: 0.02em; }
@@ -793,11 +792,12 @@ input:focus, textarea:focus, select:focus {
 .nf-dist .nf-website-line { display: block; text-transform: uppercase; letter-spacing: 0.02em; }
 /* Barcode zone — clean integration below support block */
 .nf-barcode-zone {
-  margin-top: 8px; padding-top: 6px;
+  margin-top: 10px; padding: 8px 10px 6px;
   border-top: 0.75px solid #000;
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: #fff;
 }
-.nf-barcode-zone svg { max-width: 100%; }
+.nf-barcode-zone svg { max-width: 90%; display: block; }
 
 /* ── LEGACY MODE fallback — activated by .nf-label.renderer-legacy ── */
 /* When window.NFS_RENDERER = 'legacy', the label gets this class and
@@ -1845,23 +1845,23 @@ input:focus, textarea:focus, select:focus {
                       <div class="nf-pct-hdr">% Daily Value*</div>
 
                       <!-- PATCH 4: bld rows — no sep-top, thin lines only except protein-row -->
-                      <div class="nf-nr bld-first"><span><b>Total Fat</b> <span id="lp-tf">0</span>g</span><span class="pct" id="lp-ptf">0%</span></div>
-                      <div class="nf-nr sub"><span>Saturated Fat <span id="lp-sf">0</span>g</span><span class="pct" id="lp-psf">0%</span></div>
-                      <div class="nf-nr sub"><span><em>Trans</em> Fat <span id="lp-xf">0</span>g</span><span></span></div>
-                      <div class="nf-nr bld"><span><b>Cholesterol</b> <span id="lp-ch">0</span>mg</span><span class="pct" id="lp-pch">0%</span></div>
-                      <div class="nf-nr bld"><span><b>Sodium</b> <span id="lp-na">0</span>mg</span><span class="pct" id="lp-pna">0%</span></div>
-                      <div class="nf-nr bld"><span><b>Total Carbohydrate</b> <span id="lp-tc">0</span>g</span><span class="pct" id="lp-ptc">0%</span></div>
-                      <div class="nf-nr sub"><span>Dietary Fiber <span id="lp-df">0</span>g</span><span class="pct" id="lp-pdf">0%</span></div>
-                      <div class="nf-nr sub"><span>Total Sugars <span id="lp-su">0</span>g</span><span></span></div>
-                      <div class="nf-nr subsub"><span>Includes <span id="lp-as">0</span>g Added Sugars</span><span class="pct" id="lp-pas">0%</span></div>
+                      <div class="nf-nr bld-first"><span><b>Total Fat</b> <span id="lp-tf">0</span> g</span><span class="pct" id="lp-ptf">0%</span></div>
+                      <div class="nf-nr sub"><span>Saturated Fat <span id="lp-sf">0</span> g</span><span class="pct" id="lp-psf">0%</span></div>
+                      <div class="nf-nr sub"><span><em>Trans</em> Fat <span id="lp-xf">0</span> g</span><span></span></div>
+                      <div class="nf-nr bld"><span><b>Cholesterol</b> <span id="lp-ch">0</span> mg</span><span class="pct" id="lp-pch">0%</span></div>
+                      <div class="nf-nr bld"><span><b>Sodium</b> <span id="lp-na">0</span> mg</span><span class="pct" id="lp-pna">0%</span></div>
+                      <div class="nf-nr bld"><span><b>Total Carbohydrate</b> <span id="lp-tc">0</span> g</span><span class="pct" id="lp-ptc">0%</span></div>
+                      <div class="nf-nr sub"><span>Dietary Fiber <span id="lp-df">0</span> g</span><span class="pct" id="lp-pdf">0%</span></div>
+                      <div class="nf-nr sub"><span>Total Sugars <span id="lp-su">0</span> g</span><span></span></div>
+                      <div class="nf-nr subsub"><span>Includes <span id="lp-as">0</span> g Added Sugars</span><span class="pct" id="lp-pas">0%</span></div>
                       <!-- Protein — thick bar BELOW (8px) — only thick bar in nutrient rows -->
-                      <div class="nf-nr bld protein-row"><span><b>Protein</b> <span id="lp-pr">0</span>g</span><span></span></div>
+                      <div class="nf-nr bld protein-row"><span><b>Protein</b> <span id="lp-pr">0</span> g</span><span></span></div>
                       <!-- Vitamin D — first micro row, no sep-top needed (protein-row handles it) -->
-                      <div class="nf-nr micro"><span>Vitamin D <span id="lp-vd">0</span>mcg</span><span class="pct" id="lp-pvd">0%</span></div>
-                      <div class="nf-nr micro"><span>Calcium <span id="lp-ca">0</span>mg</span><span class="pct" id="lp-pca">0%</span></div>
-                      <div class="nf-nr micro"><span>Iron <span id="lp-fe">0</span>mg</span><span class="pct" id="lp-pfe">0%</span></div>
+                      <div class="nf-nr micro"><span>Vitamin D <span id="lp-vd">0</span> mcg</span><span class="pct" id="lp-pvd">0%</span></div>
+                      <div class="nf-nr micro"><span>Calcium <span id="lp-ca">0</span> mg</span><span class="pct" id="lp-pca">0%</span></div>
+                      <div class="nf-nr micro"><span>Iron <span id="lp-fe">0</span> mg</span><span class="pct" id="lp-pfe">0%</span></div>
                       <!-- Potassium — thin line only, no closing bar per reference -->
-                      <div class="nf-nr micro last-row"><span>Potassium <span id="lp-k">0</span>mg</span><span class="pct" id="lp-pk">0%</span></div>
+                      <div class="nf-nr micro last-row"><span>Potassium <span id="lp-k">0</span> mg</span><span class="pct" id="lp-pk">0%</span></div>
 
                       <div class="nf-foot">*The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.</div>
                     </div><!-- /.nf-panel -->
@@ -3580,6 +3580,19 @@ function nfsToggleRenderer() {
 // Apply on load
 document.addEventListener('DOMContentLoaded', nfsApplyRenderer);
 
+// formatUnit: ensure space between number and unit — "35mg" → "35 mg", "0mcg" → "0 mcg"
+// Pure display helper — does not touch stored values
+function formatUnit(val, unit) {
+  if (val === null || val === undefined || val === '') return '—';
+  const n = String(val).trim();
+  if (!n || n === '—') return '—';
+  // Already has space — leave alone
+  if (n.endsWith(' ' + unit)) return n;
+  // Strip unit if accidentally appended, then re-add with space
+  const stripped = n.replace(new RegExp(unit + '$', 'i'), '').trim();
+  return stripped + ' ' + unit;  // thin space + unit
+}
+
 function editorUpdate() {
   const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v !== '' && v !== null ? v : '—'; };
   s('lp-ss', gv('e-ss') || null);  // lp-ss = value span inside .nf-ss-row
@@ -4201,10 +4214,10 @@ function getLabelCSS() {
     ? /* ── LEGACY export CSS ── */
       `.nf-label{font-family:Arial,Helvetica,sans-serif;color:#000;background:#fff;border:3px solid #000;padding:6px 8px;font-size:10px;line-height:1.35;width:280px;box-sizing:border-box;margin:0 auto;page-break-inside:avoid;break-inside:avoid;}
 .nf-title{font-size:36px;font-weight:900;letter-spacing:-1px;line-height:.95;border-bottom:2px solid #000;padding-bottom:3px;margin-bottom:3px;white-space:nowrap;overflow:hidden;}
-.nf-spc{font-size:9px;font-weight:400;margin-bottom:0;line-height:1.3;}
-.nf-ss-row{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;font-weight:700;line-height:1.2;}
+.nf-spc{font-size:9px;font-weight:400;margin-bottom:1px;line-height:1.3;}
+.nf-ss-row{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;font-weight:700;line-height:1.3;padding:1px 0 2px;}
 .nf-ss-row span:first-child{min-width:0;flex-shrink:1;}
-.nf-ss-row span:last-child{white-space:nowrap;flex-shrink:0;}
+.nf-ss-row span:last-child{white-space:nowrap;flex-shrink:0;padding-left:6px;}
 .nf-ss-label{display:none;}
 .nf-ss{display:none;}
 .nf-serving-divider{border:none;border-top:8px solid #000;margin:3px 0 0;}
@@ -4224,9 +4237,9 @@ function getLabelCSS() {
 .nf-nr.last-row{border-bottom:1px solid #000;}
 .nf-nr .pct{font-weight:800;padding-left:5px;white-space:nowrap;}
 .nf-foot{font-size:7.5px;line-height:1.3;border-top:1px solid #000;margin-top:3px;padding-top:3px;}
-.nf-ing{font-size:7.5px;line-height:1.38;border-top:3px solid #000;margin-top:3px;padding-top:3px;}
-.nf-all{font-size:7.5px;font-weight:700;margin-top:2px;line-height:1.35;}
-.nf-dist{font-size:7.5px;margin-top:4px;color:#000;line-height:1.5;white-space:pre-line;}
+.nf-ing{font-size:7.5px;line-height:1.5;border-top:3px solid #000;margin-top:3px;padding-top:3px;}
+.nf-all{font-size:7.5px;font-weight:700;margin-top:4px;line-height:1.4;}
+.nf-dist{font-size:7.5px;margin-top:7px;color:#000;line-height:1.65;white-space:pre-line;}
 .nf-dist .nf-dist-line{display:block;white-space:normal;}
 .nf-dist .nf-origin-line{display:block;white-space:normal;font-weight:700;}
 .nf-wt{font-size:7.5px;margin-top:2px;color:#000;font-weight:700;letter-spacing:.02em;}`
@@ -4235,14 +4248,14 @@ function getLabelCSS() {
 .nf-panel{border:2px solid #000;padding:5px 6px 4px;box-sizing:border-box;}
 .nf-support{margin-top:6px;padding:0;}
 .nf-title{font-size:30px;font-weight:900;letter-spacing:-0.5px;line-height:0.95;border-bottom:1px solid #000;padding-bottom:2px;margin-bottom:3px;}
-.nf-spc{font-size:10px;font-weight:400;margin-bottom:0;line-height:1.2;}
+.nf-spc{font-size:10px;font-weight:400;margin-bottom:1px;line-height:1.3;}
 .nf-ss-label-rl{display:none;}
 .nf-ss-val{display:none;}
-.nf-ss-row{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;font-weight:700;line-height:1.2;}
+.nf-ss-row{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;font-weight:700;line-height:1.3;padding:1px 0 2px;}
 .nf-ss-row span:first-child{min-width:0;flex-shrink:1;}
-.nf-ss-row span:last-child{white-space:nowrap;flex-shrink:0;}
+.nf-ss-row span:last-child{white-space:nowrap;flex-shrink:0;padding-left:6px;}
 .nf-ss-label{display:none;}.nf-ss{display:none;}
-.nf-serving-divider{border:none;border-top:8px solid #000;margin:1px 0 0;}
+.nf-serving-divider{border:none;border-top:8px solid #000;margin:0;}
 .nf-aps{font-size:11px;font-weight:900;color:#000;padding:0;margin-bottom:0;line-height:1.0;}
 .nf-cal-row{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:4px solid #000;padding:0 0 1px;margin-top:0;margin-bottom:0;}
 .nf-cal-lbl{font-size:17px;font-weight:900;line-height:1;}
@@ -4260,15 +4273,15 @@ function getLabelCSS() {
 .nf-nr.micro{padding:1.5px 0;}
 .nf-nr.last-row{border-bottom:4px solid #000;}
 .nf-foot{font-size:7.5px;line-height:1.3;padding-top:3px;margin-top:2px;color:#000;border-top:0.75px solid #000;}
-.nf-ing{font-size:8px;line-height:1.45;margin-top:0;color:#000;}
-.nf-all{font-size:8px;font-weight:700;margin-top:3px;line-height:1.35;}
+.nf-ing{font-size:8px;line-height:1.5;margin-top:0;color:#000;}
+.nf-all{font-size:8px;font-weight:700;margin-top:4px;line-height:1.4;}
 .nf-wt{font-size:8px;margin-top:3px;color:#000;font-weight:700;letter-spacing:.02em;}
-.nf-dist{font-size:8px;margin-top:6px;color:#000;line-height:1.6;text-align:left;border-top:0.75px solid #000;padding-top:5px;}
+.nf-dist{font-size:8px;margin-top:7px;color:#000;line-height:1.65;text-align:left;border-top:0.75px solid #000;padding-top:6px;}
 .nf-dist .nf-dist-line{display:block;text-transform:uppercase;letter-spacing:0.02em;}
 .nf-dist .nf-origin-line{display:block;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;}
 .nf-dist .nf-website-line{display:block;text-transform:uppercase;letter-spacing:0.02em;}
-.nf-barcode-zone{margin-top:8px;padding-top:6px;border-top:0.75px solid #000;display:flex;flex-direction:column;align-items:center;gap:2px;}
-.nf-barcode-zone svg{max-width:100%;}`;
+.nf-barcode-zone{margin-top:10px;padding:8px 10px 6px;border-top:0.75px solid #000;display:flex;flex-direction:column;align-items:center;gap:3px;background:#fff;}
+.nf-barcode-zone svg{max-width:90%;display:block;}`;
   // Active preset overrides — mirrors the <style> preset block above
   const presets = {
     'commercial-standard': `.nf-label.preset-commercial-standard{padding:6px 8px;width:280px;font-size:10px;border:3px solid #000;}
@@ -4354,7 +4367,7 @@ function getLabelCSS() {
     if (match) activePreset = match.replace('preset-', '');
   }
 
-  const shared = `.nf-barcode-zone{margin-top:5px;padding-top:4px;border-top:1px solid #000;display:flex;flex-direction:column;align-items:center;gap:2px;}.nf-barcode-zone svg{max-width:100%;}.nf-barcode-demo{background:repeating-linear-gradient(90deg,#000 0,#000 2px,#fff 2px,#fff 5px);height:50px;width:120px;opacity:0.15;border-radius:1px;}.nf-barcode-demo-label{font-size:7px;font-weight:700;color:#b97700;letter-spacing:.1em;text-transform:uppercase;}`;
+  const shared = `.nf-barcode-zone{margin-top:10px;padding:8px 10px 6px;border-top:0.75px solid #000;display:flex;flex-direction:column;align-items:center;gap:3px;background:#fff;}.nf-barcode-zone svg{max-width:90%;display:block;}.nf-barcode-demo{background:repeating-linear-gradient(90deg,#000 0,#000 2px,#fff 2px,#fff 5px);height:50px;width:120px;opacity:0.15;border-radius:1px;}.nf-barcode-demo-label{font-size:7px;font-weight:700;color:#b97700;letter-spacing:.1em;text-transform:uppercase;}`;
   return base + shared + (presets[activePreset] ? '\n' + presets[activePreset] : '');
 }
 
