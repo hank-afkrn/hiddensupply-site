@@ -1436,7 +1436,15 @@ input:focus, textarea:focus, select:focus {
       <div class="page-head" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
         <div>
           <div class="page-eyebrow">Label Editor</div>
-          <div class="page-title" id="editor-title">Untitled Label</div>
+          <input type="text" id="editor-title" value="Untitled Label"
+            placeholder="Label name…"
+            title="Click to rename"
+            oninput="if(nfsCurrent) nfsCurrent.name = this.value.trim() || 'Untitled'"
+            onkeydown="if(event.key==='Enter') this.blur()"
+            onfocus="this.select(); this.style.borderBottomColor='var(--accent,#FFD600)'"
+            onblur="this.style.borderBottomColor='transparent'; if(nfsCurrent && this.value.trim()) { nfsCurrent.name=this.value.trim(); updateHeaderProject(); _nfsSyncServer && _nfsSyncServer(); }"
+            style="font-size:inherit;font-weight:inherit;font-family:inherit;letter-spacing:inherit;text-transform:inherit;background:transparent;border:none;border-bottom:1px dashed rgba(255,255,255,0.25);border-radius:0;padding:0 0 1px 0;color:inherit;outline:none;width:100%;max-width:480px;cursor:text;"
+          >
           <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;">
             <span id="editor-status-badge" class="badge badge-draft">Draft</span>
             <span id="editor-source-badge" class="trust-badge tb-manual">Manual</span>
@@ -3349,7 +3357,7 @@ function nfsCreateProject() {
 
   nfsCurrent.auditLog.push({ ts: new Date().toISOString(), action: 'created', mode });
   nfsSaveProject(false);
-  document.getElementById('editor-title').textContent = name;
+  const _etEl2 = document.getElementById('editor-title'); if (_etEl2) _etEl2.value = name;
   document.getElementById('editor-source-badge').textContent = modeName(mode);
   updateHeaderProject();
 
@@ -3455,7 +3463,7 @@ function nfsRenameProject(id) {
   if (nfsCurrent?.id === id) {
     nfsCurrent.name = trimmed;
     const el = document.getElementById('editor-title');
-    if (el) el.textContent = trimmed;
+    if (el) el.value = trimmed;
     updateHeaderProject && updateHeaderProject();
   }
   _nfsSyncServer();
@@ -3506,7 +3514,7 @@ function populateEditorFromProject() {
     const name = el.querySelector('span')?.textContent;
     el.classList.toggle('on', nfsAllergens.has(name));
   });
-  document.getElementById('editor-title').textContent = nfsCurrent.name || 'Untitled';
+  const _etEl = document.getElementById('editor-title'); if (_etEl) _etEl.value = nfsCurrent.name || 'Untitled';
   document.getElementById('editor-status-badge').textContent = statusLabel(nfsCurrent.status);
   document.getElementById('editor-status-badge').className = 'badge badge-' + nfsCurrent.status;
   document.getElementById('editor-source-badge').textContent = modeName(nfsCurrent.sourceMode);
