@@ -1985,7 +1985,16 @@ input:focus, textarea:focus, select:focus {
           </div>
         </div>
 
-        <div class="btn-row">
+        <div class="btn-row" style="flex-direction:column;align-items:stretch;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;background:var(--card-bg,#1a1a2e);border:1px solid var(--border);border-radius:8px;padding:10px 14px;">
+            <label style="font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;min-width:80px;">Save As</label>
+            <input type="text" id="sa-label-name" placeholder="e.g. Juice Bomb Astronauts 6oz"
+              style="flex:1;background:var(--input-bg,#0d0d1a);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:14px;font-weight:600;color:var(--text);outline:none;"
+              onfocus="this.style.borderColor='var(--accent,#FFD600)'"
+              onblur="this.style.borderColor='var(--border)'"
+              onkeydown="if(event.key==='Enter') saCreateLabel()"
+            >
+          </div>
           <button class="btn btn-lg btn-primary" onclick="saCreateLabel()">Create Label from Conversion →</button>
         </div>
       </div>
@@ -3957,11 +3966,13 @@ function saRecalcRow(key) {
 }
 
 function saCreateLabel() {
+  const nameInput = document.getElementById('sa-label-name');
+  const labelName = (nameInput?.value.trim()) || 'Converted Label';
   if (!nfsCurrent) {
     nfsCurrent = emptyProject();
-    nfsCurrent.name = 'Converted Label';
     nfsCurrent.sourceMode = 'convert';
   }
+  nfsCurrent.name = labelName;
   const basis = document.getElementById('sa-basis')?.value;
   const tgtG = document.getElementById('sa-tgt-g')?.value;
   const pcs = document.getElementById('sa-pcs')?.value;
@@ -3985,7 +3996,10 @@ function saCreateLabel() {
   document.getElementById('lnav-editor').style.display = 'flex';
   updateHeaderProject();
   nfsNav('editor');
-  toast('Conversion Applied', 'Values loaded into editor. Review and save.');
+  // Set the editable title input in the editor header
+  const titleEl = document.getElementById('editor-title');
+  if (titleEl) { titleEl.value = nfsCurrent.name; titleEl.focus(); titleEl.select(); }
+  toast('Conversion Applied', 'Values loaded into editor — name is selected, rename if needed then Save.');
 }
 
 function saPasteHelper() {
