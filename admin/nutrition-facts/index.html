@@ -3980,26 +3980,28 @@ function saCreateLabel() {
   const customF = document.getElementById('sa-custom-factor')?.value;
   const factor = convFactor(basis, tgtG, pcs, pkgG, customF);
 
+  // Store all converted values into nfsCurrent.nutrients
   NUTRIENT_CONFIG.forEach(nc => {
-    const raw = parseFloat(document.getElementById('sa-src-' + nc.key)?.value) || 0;
-    if (!raw) return;
-    const conv = raw * factor;
-    const declared = fdaRound(conv, nc.unit === '' ? 'cal' : nc.unit);
-    const fieldKey = nc.key === 'as_' ? 'as' : nc.key;
-    const el = document.getElementById('n-' + fieldKey);
-    if (el) el.value = declared;
+    const raw = parseFloat(saSourceVals[nc.key] || document.getElementById('sa-src-' + nc.key)?.value) || 0;
     if (!nfsCurrent.nutrients[nc.key]) nfsCurrent.nutrients[nc.key] = { raw:'', converted:'', declared:'' };
-    nfsCurrent.nutrients[nc.key].raw = String(raw);
-    nfsCurrent.nutrients[nc.key].converted = String(conv.toFixed(2));
-    nfsCurrent.nutrients[nc.key].declared = declared;
+    if (raw) {
+      const conv = raw * factor;
+      const declared = fdaRound(conv, nc.unit === '' ? 'cal' : nc.unit);
+      nfsCurrent.nutrients[nc.key].raw = String(raw);
+      nfsCurrent.nutrients[nc.key].converted = String(conv.toFixed(2));
+      nfsCurrent.nutrients[nc.key].declared = declared;
+    }
   });
+  nfsCurrent.id = nfsCurrent.id || ('nfs-' + Date.now());
+  nfsCurrentId = nfsCurrent.id;
+  nfsSaveProject(false);
   document.getElementById('lnav-editor').style.display = 'flex';
   updateHeaderProject();
+  populateEditorFromProject();  // populate DOM inputs from nfsCurrent before nav
   nfsNav('editor');
-  // Set the editable title input in the editor header
   const titleEl = document.getElementById('editor-title');
   if (titleEl) { titleEl.value = nfsCurrent.name; titleEl.focus(); titleEl.select(); }
-  toast('Conversion Applied', 'Values loaded into editor — name is selected, rename if needed then Save.');
+  toast('Conversion Applied', 'Values loaded into editor — rename if needed then Save.');
 }
 
 function saPasteHelper() {
