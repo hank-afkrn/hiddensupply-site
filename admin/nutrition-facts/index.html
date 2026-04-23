@@ -3968,10 +3968,9 @@ function saRecalcRow(key) {
 function saCreateLabel() {
   const nameInput = document.getElementById('sa-label-name');
   const labelName = (nameInput?.value.trim()) || 'Converted Label';
-  if (!nfsCurrent) {
-    nfsCurrent = emptyProject();
-    nfsCurrent.sourceMode = 'convert';
-  }
+  // Always start fresh — never reuse an existing project's nutrients
+  nfsCurrent = emptyProject();
+  nfsCurrent.sourceMode = 'convert';
   nfsCurrent.name = labelName;
   const basis = document.getElementById('sa-basis')?.value;
   const tgtG = document.getElementById('sa-tgt-g')?.value;
@@ -3994,10 +3993,11 @@ function saCreateLabel() {
   });
   nfsCurrent.id = nfsCurrent.id || ('nfs-' + Date.now());
   nfsCurrentId = nfsCurrent.id;
-  nfsSaveProject(false);
+  // Populate editor DOM first — nfsSaveProject reads from DOM and would wipe nutrients if called before
   document.getElementById('lnav-editor').style.display = 'flex';
   updateHeaderProject();
-  populateEditorFromProject();  // populate DOM inputs from nfsCurrent before nav
+  populateEditorFromProject();
+  nfsSaveProject(false);  // now DOM has correct values — safe to persist
   nfsNav('editor');
   const titleEl = document.getElementById('editor-title');
   if (titleEl) { titleEl.value = nfsCurrent.name; titleEl.focus(); titleEl.select(); }
