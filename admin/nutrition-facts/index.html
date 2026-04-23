@@ -3634,7 +3634,8 @@ function editorUpdate() {
   if (ingRaw) {
     // Strip any leading "INGREDIENTS:" prefix from the text itself - the wrapper <strong> already provides it
     const ingClean = ingRaw.replace(/^\s*INGREDIENTS\s*:\s*/i, '').trim();
-    document.getElementById('lp-ing').textContent = ingClean;
+    const ingHtml = ingClean.split('\n').map(l => l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')).join('<br>');
+    document.getElementById('lp-ing').innerHTML = ingHtml;
     ingBlock.style.display = 'block';
   } else ingBlock.style.display = 'none';
 
