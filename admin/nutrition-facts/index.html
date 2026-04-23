@@ -1543,6 +1543,7 @@ input:focus, textarea:focus, select:focus {
                 <div class="fi" style="margin-bottom:14px;">
                   <label>Ingredients (descending weight - CAPS for allergen names)</label>
                   <textarea id="e-ing" rows="5" placeholder="SUGAR, CORN SYRUP, CARNAUBA WAX, NATURAL AND ARTIFICIAL FLAVORS, CITRIC ACID, RED 40, BLUE 1..." oninput="editorUpdate()"></textarea>
+                  <div style="font-size:10px;color:var(--muted);margin-top:3px;">Enter for line breaks &nbsp;·&nbsp; <b>**text**</b> for bold</div>
                 </div>
                 <div style="margin-bottom:12px;">
                   <div class="fi-label" style="margin-bottom:8px;">Allergens - click to toggle</div>
@@ -3634,7 +3635,10 @@ function editorUpdate() {
   if (ingRaw) {
     // Strip any leading "INGREDIENTS:" prefix from the text itself - the wrapper <strong> already provides it
     const ingClean = ingRaw.replace(/^\s*INGREDIENTS\s*:\s*/i, '').trim();
-    const ingHtml = ingClean.split('\n').map(l => l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')).join('<br>');
+    const ingHtml = ingClean.split('\n')
+      .map(l => l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'))
+      .map(l => l.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'))
+      .join('<br>');
     document.getElementById('lp-ing').innerHTML = ingHtml;
     ingBlock.style.display = 'block';
   } else ingBlock.style.display = 'none';
