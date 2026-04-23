@@ -1574,7 +1574,8 @@ input:focus, textarea:focus, select:focus {
                 </div>
                 <div class="fi" style="margin-bottom:10px;">
                   <label>Distributor Line</label>
-                  <input type="text" id="e-dist" placeholder="Distributed by: [Company], [City], [State] [ZIP] | website.com" oninput="editorUpdate()"/>
+                  <textarea id="e-dist" rows="3" placeholder="Distributed by: Hidden Supply&#10;Los Angeles, CA 90210&#10;hiddensupply.co" oninput="editorUpdate()" style="resize:vertical;font-family:inherit;font-size:inherit;"></textarea>
+                  <div style="font-size:10px;color:var(--muted);margin-top:3px;">Each line = new line on label. Use Enter for line breaks.</div>
                 </div>
                 <div class="fi">
                   <label>Country / Manufacturer Statement</label>
