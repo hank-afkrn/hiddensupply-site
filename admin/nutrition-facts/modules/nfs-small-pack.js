@@ -30,12 +30,12 @@ const T_MICRO   = 6.5;   // vitamins/minerals row
 const T_FOOT    = 6;     // footnote
 
 // Rhythm — intentional whitespace between zones
-const R_AFTER_TITLE  = 3;   // gap after title block to thick rule
-const R_AFTER_CAL    = 4;   // gap after calories to thin rule
-const R_ROW_GAP      = 9;   // line height for nutrient rows
-const R_MICRO_GAP    = 8;   // line height for micro rows
-const R_AFTER_NUTRIENTS = 3; // gap before thick rule before micros
-const R_AFTER_MICROS = 2;   // gap before footnote rule
+const R_AFTER_TITLE  = 2;   // gap after title block to thick rule
+const R_AFTER_CAL    = 3;   // gap after calories to thin rule
+const R_ROW_GAP      = 8;   // line height for nutrient rows
+const R_MICRO_GAP    = 7;   // line height for micro rows
+const R_AFTER_NUTRIENTS = 2; // gap before thick rule before micros
+const R_AFTER_MICROS = 1;   // gap before footnote rule
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let _spcType = 'split';
@@ -281,12 +281,12 @@ function spcNFMicroSVG(d) {
 
   // ── Thick rule ────────────────────────────────────────────────────────────
   y += 1;
-  els += svgRect(P, y, iW, 5, '#000');
-  y += 8;
+  els += svgRect(P, y, iW, 4, '#000');
+  y += 6;
 
   // ── ZONE 3: Calories (dominant) ──────────────────────────────────────────
   els += tx(P + 1, y + T_CAL_LBL - 1, 'Calories', T_CAL_LBL, 900);
-  els += tx(W - P - 1, y + T_CAL_NUM - 1, esc(d.calories), T_CAL_NUM, 900, 'end');
+  els += tx(W - P - 1, y + T_CAL_NUM - 2, esc(d.calories), T_CAL_NUM, 900, 'end');
   y += T_CAL_NUM + R_AFTER_CAL;
 
   // ── Medium rule ───────────────────────────────────────────────────────────
@@ -354,8 +354,8 @@ function spcNFMicroSVG(d) {
 
   // ── Thick rule before micros ──────────────────────────────────────────────
   y += R_AFTER_NUTRIENTS;
-  els += svgRect(P, y, iW, 4, '#000');
-  y += 7;
+  els += svgRect(P, y, iW, 3, '#000');
+  y += 5;
 
   // ── ZONE 5: Micros — single compact line ─────────────────────────────────
   const microSegs = [
@@ -373,7 +373,7 @@ function spcNFMicroSVG(d) {
 
   // ── ZONE 6: Footnote ─────────────────────────────────────────────────────
   els += tx(P + 1, y + T_FOOT, '*%DV based on a 2,000 calorie/day diet.', T_FOOT, 400);
-  y += T_FOOT + P + 1;
+  y += T_FOOT + P - 1;
 
   // Outer border
   const H = y;
@@ -411,10 +411,13 @@ function spcIngSVG(d) {
   const rawAl  = (d.allergenText || '').trim();
 
   if (rawIng) {
-    const lines = wrapLine('INGREDIENTS: ' + rawIng);
+    // Strip any existing "Ingredients:" / "INGREDIENTS:" prefix the form may have saved
+    const ingClean = rawIng.replace(/^ingredients\s*:\s*/i, '').trim();
+    const lines = wrapLine('INGREDIENTS: ' + ingClean);
     lines.forEach((ln, i) => {
       y += fs;
-      if (i === 0 && ln.startsWith('INGREDIENTS:')) {
+      if (i === 0) {
+        // Bold the "INGREDIENTS:" prefix, normal weight for the rest
         const colon = ln.indexOf(':') + 1;
         const pre   = esc(ln.slice(0, colon));
         const rest  = esc(ln.slice(colon));
@@ -487,8 +490,10 @@ function spcBarcodeSVG(d) {
     }
   }
 
+  // Standard UPC-A retail grouping: N NNNNN NNNNN N
+  const upcFormatted = `${code[0]}\u2009${code.slice(1,6)}\u2009${code.slice(6,11)}\u2009${code[11]}`;
   const digits = `<text x="${W/2}" y="${H - 2}" text-anchor="middle" ` +
-    `font-family="'Courier New',Courier,monospace" font-size="8" fill="#000">${code.slice(0,6)}\u2009${code.slice(6)}</text>`;
+    `font-family="'Courier New',Courier,monospace" font-size="8" fill="#000">${upcFormatted}</text>`;
 
   return svgRoot(bars + digits, W, H);
 }
