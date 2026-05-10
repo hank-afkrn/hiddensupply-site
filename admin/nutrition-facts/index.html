@@ -1798,6 +1798,11 @@ input:focus, textarea:focus, select:focus {
                 <option value="narrow">Narrow Vertical</option>
                 <option value="wide">Wide / Relaxed</option>
                 <option value="dual">Dual Column</option>
+                <optgroup label="── Small Pack ──">
+                  <option value="mini-panel">Mini FDA Panel</option>
+                  <option value="mini-panel-ing">Mini FDA + Ingredients</option>
+                  <option value="split-pack">Designer Split Pack</option>
+                </optgroup>
               </select>
             </div>
 
@@ -3424,11 +3429,11 @@ input:focus, textarea:focus, select:focus {
          ==================================================== -->
     <div class="view" id="view-small-pack">
       <div class="page-head">
-        <div class="page-eyebrow">Tools · Small Package · FDA 21 CFR 101.9(j)</div>
-        <div class="page-title">📦 Small Pack Format Converter</div>
-        <div class="page-sub">Reflow FDA Nutrition Facts into compact formats for blister cards, fruit-shaped packs, narrow panels, and other constrained packaging. Exports separate designer asset blocks.</div>
+        <div class="page-eyebrow">Export · Small Pack</div>
+        <div class="page-title">📦 Small Pack Asset Generator</div>
+        <div class="page-sub">Generate production-ready FDA compliance assets for small packaging. Select a format, click export.</div>
       </div>
-      <div class="content-area wide">
+      <div class="content-area narrow">
 
         <!-- No project warning -->
         <div id="spc-no-project" style="padding:48px;text-align:center;font-size:13px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:20px;display:none;">
@@ -3437,184 +3442,117 @@ input:focus, textarea:focus, select:focus {
 
         <div id="spc-main" style="display:none;">
 
-        <!-- ROW: Controls + Live Preview -->
-        <div style="display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start;margin-bottom:20px;">
+          <!-- Export Type Selector -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-hdr"><span class="card-title">Export Type</span></div>
+            <div class="card-body" style="padding-bottom:8px;">
+              <div style="display:flex;flex-direction:column;gap:8px;" id="spc-type-group">
 
-          <!-- LEFT: Controls -->
-          <div>
+                <label id="spc-type-single-lbl" style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:2px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:border-color .15s;" onclick="spcSelectType('single')">
+                  <input type="radio" name="spc-type" value="single" checked style="margin-top:2px;flex-shrink:0;"/>
+                  <div>
+                    <div style="font-size:13px;font-weight:700;margin-bottom:2px;">Single PDF</div>
+                    <div style="font-size:11px;color:var(--dim);line-height:1.5;">Full label — nutrition panel, ingredients, and support copy in one print-ready file.</div>
+                  </div>
+                </label>
 
-            <!-- Format Template -->
-            <div class="card" style="margin-bottom:14px;">
-              <div class="card-hdr"><span class="card-title">Format Template</span></div>
-              <div class="card-body">
-                <div class="fi" style="margin-bottom:0;">
-                  <label>Reflow Format</label>
-                  <select id="spc-format" onchange="spcUpdate()">
-                    <option value="vertical">Standard Vertical (default FDA)</option>
-                    <option value="tabular">Small Tabular (FDA intermediate package)</option>
-                    <option value="linear">Small Linear (FDA very small package)</option>
-                    <option value="split">Split Designer Panels</option>
+                <label id="spc-type-mini-lbl" style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:2px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:border-color .15s;" onclick="spcSelectType('mini')">
+                  <input type="radio" name="spc-type" value="mini" style="margin-top:2px;flex-shrink:0;"/>
+                  <div>
+                    <div style="font-size:13px;font-weight:700;margin-bottom:2px;">Mini FDA Panel</div>
+                    <div style="font-size:11px;color:var(--dim);line-height:1.5;">Nutrition box only. Tightly cropped. No ingredients, no barcode, no dist block. Drop directly into Illustrator.</div>
+                  </div>
+                </label>
+
+                <label id="spc-type-mini-ing-lbl" style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:2px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:border-color .15s;" onclick="spcSelectType('mini-ing')">
+                  <input type="radio" name="spc-type" value="mini-ing" style="margin-top:2px;flex-shrink:0;"/>
+                  <div>
+                    <div style="font-size:13px;font-weight:700;margin-bottom:2px;">Mini FDA + Ingredients</div>
+                    <div style="font-size:11px;color:var(--dim);line-height:1.5;">Compact nutrition panel + ingredient/allergen block stacked below. Barcode stays separate.</div>
+                  </div>
+                </label>
+
+                <label id="spc-type-split-lbl" style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:2px solid var(--accent);border-radius:var(--radius);cursor:pointer;transition:border-color .15s;background:var(--accent-bg);" onclick="spcSelectType('split')">
+                  <input type="radio" name="spc-type" value="split" style="margin-top:2px;flex-shrink:0;"/>
+                  <div>
+                    <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--accent);">Designer Split Pack <span style="font-size:10px;font-weight:700;letter-spacing:.06em;background:rgba(139,92,246,0.2);color:#a78bfa;padding:1px 6px;border-radius:3px;margin-left:4px;">RECOMMENDED</span></div>
+                    <div style="font-size:11px;color:var(--dim);line-height:1.5;">4 separate export files — nutrition panel, ingredients block, barcode, distributor/origin. Each tightly cropped. Place independently around any packaging geometry.</div>
+                  </div>
+                </label>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Options (conditionally shown per type) -->
+          <div class="card" style="margin-bottom:16px;" id="spc-options-card">
+            <div class="card-hdr"><span class="card-title">Options</span></div>
+            <div class="card-body">
+              <div class="grid-2" style="gap:12px;margin-bottom:12px;">
+                <div class="fi">
+                  <label>Background</label>
+                  <select id="spc-bg" onchange="spcRenderPreview()">
+                    <option value="white">White</option>
+                    <option value="transparent">Transparent (PDF only)</option>
                   </select>
                 </div>
-                <div id="spc-format-desc" style="margin-top:10px;font-size:11px;color:var(--dim);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:10px 12px;line-height:1.6;"></div>
-              </div>
-            </div>
-
-            <!-- Package Constraints -->
-            <div class="card" style="margin-bottom:14px;">
-              <div class="card-hdr"><span class="card-title">Package Constraints</span></div>
-              <div class="card-body">
-                <div class="grid-2" style="gap:10px;margin-bottom:10px;">
-                  <div class="fi"><label>Available Width</label>
-                    <div style="display:flex;gap:6px;align-items:center;">
-                      <input type="number" id="spc-w" placeholder="2.5" step="0.01" min="0.5" max="20" oninput="spcUpdate()" style="flex:1;"/>
-                      <select id="spc-unit" onchange="spcUpdate()" style="width:56px;padding:6px 4px;">
-                        <option value="in">in</option>
-                        <option value="mm">mm</option>
-                        <option value="cm">cm</option>
-                        <option value="px">px</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="fi"><label>Available Height</label>
-                    <div style="display:flex;gap:6px;align-items:center;">
-                      <input type="number" id="spc-h" placeholder="4.0" step="0.01" min="0.5" max="20" oninput="spcUpdate()" style="flex:1;"/>
-                      <span style="font-size:11px;color:var(--muted);white-space:nowrap;" id="spc-unit-label2">in</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="fi" style="margin-bottom:10px;">
-                  <label>Package Shape</label>
-                  <select id="spc-shape" onchange="spcUpdate()">
-                    <option value="rectangle">Rectangle</option>
-                    <option value="narrow-strip">Narrow Strip / Roll</option>
-                    <option value="blister-card">Blister Card (peg hang)</option>
-                    <option value="curved">Curved / Irregular</option>
-                    <option value="fruit-shaped">Fruit-Shaped / Die-cut</option>
-                  </select>
-                </div>
-                <div class="fi" style="margin-bottom:0;">
-                  <label>Minimum Font Guard (pt)</label>
-                  <input type="number" id="spc-min-font" value="6" step="0.5" min="4" max="12" oninput="spcUpdate()"/>
-                  <div style="font-size:10px;color:var(--muted);margin-top:3px;">FDA minimum is 6pt for small packages. Below 6pt = compliance warning.</div>
+                <div class="fi">
+                  <label>Min Font Size (pt)</label>
+                  <input type="number" id="spc-min-font" value="6" step="0.5" min="5" max="12" oninput="spcRenderPreview()"/>
                 </div>
               </div>
-            </div>
-
-            <!-- Compliance Status -->
-            <div class="card" id="spc-compliance-card" style="margin-bottom:14px;">
-              <div class="card-hdr"><span class="card-title">Compliance Status</span></div>
-              <div class="card-body" id="spc-compliance-body">
-                <div style="font-size:12px;color:var(--muted);">Configure constraints above to see status.</div>
-              </div>
-            </div>
-
-            <!-- Split Panel Visibility (only shown in split mode) -->
-            <div class="card" id="spc-split-controls" style="margin-bottom:14px;display:none;">
-              <div class="card-hdr"><span class="card-title">Split Panels — Preview</span></div>
-              <div class="card-body">
-                <div style="font-size:11px;color:var(--dim);margin-bottom:10px;">Toggle which panels appear in the combined preview.</div>
-                <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;margin-bottom:6px;">
-                  <input type="checkbox" id="spc-show-nutrition" checked onchange="spcUpdate()"/>
-                  <span>Nutrition Facts Panel</span>
-                </label>
-                <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;margin-bottom:6px;">
-                  <input type="checkbox" id="spc-show-ingredients" checked onchange="spcUpdate()"/>
-                  <span>Ingredients / Allergen Block</span>
-                </label>
-                <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;margin-bottom:6px;">
-                  <input type="checkbox" id="spc-show-barcode" checked onchange="spcUpdate()"/>
-                  <span>Barcode Panel</span>
-                </label>
-                <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;">
-                  <input type="checkbox" id="spc-show-dist" checked onchange="spcUpdate()"/>
-                  <span>Distributor / Origin Panel</span>
-                </label>
-              </div>
-            </div>
-
-          </div><!-- /left controls -->
-
-          <!-- RIGHT: Live Preview -->
-          <div>
-            <div class="card">
-              <div class="card-hdr" style="justify-content:space-between;">
-                <span class="card-title">Live Preview</span>
-                <div style="display:flex;gap:6px;align-items:center;">
-                  <span id="spc-preview-badge" style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:3px;background:var(--surface2);color:var(--muted);">—</span>
-                  <button class="btn btn-sm btn-secondary" onclick="spcZoom(-1)">−</button>
-                  <span id="spc-zoom-label" style="font-size:11px;color:var(--muted);min-width:32px;text-align:center;">100%</span>
-                  <button class="btn btn-sm btn-secondary" onclick="spcZoom(1)">+</button>
+              <!-- Split pack options -->
+              <div id="spc-split-options" style="display:none;">
+                <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:8px;">Include in split pack</div>
+                <div style="display:flex;gap:16px;flex-wrap:wrap;">
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;font-weight:400;text-transform:none;letter-spacing:0;">
+                    <input type="checkbox" id="spc-inc-nutrition" checked style="width:auto;margin:0;" onchange="spcRenderPreview()"/> Nutrition Panel
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;font-weight:400;text-transform:none;letter-spacing:0;">
+                    <input type="checkbox" id="spc-inc-ingredients" checked style="width:auto;margin:0;" onchange="spcRenderPreview()"/> Ingredients
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;font-weight:400;text-transform:none;letter-spacing:0;">
+                    <input type="checkbox" id="spc-inc-barcode" checked style="width:auto;margin:0;" onchange="spcRenderPreview()"/> Barcode
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;font-weight:400;text-transform:none;letter-spacing:0;">
+                    <input type="checkbox" id="spc-inc-dist" style="width:auto;margin:0;" onchange="spcRenderPreview()"/> Distributor / Origin
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;font-weight:400;text-transform:none;letter-spacing:0;">
+                    <input type="checkbox" id="spc-inc-preview" checked style="width:auto;margin:0;"/> Combined Preview
+                  </label>
                 </div>
               </div>
-              <div class="card-body" style="background:#f0f0f0;min-height:480px;display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow:auto;" id="spc-preview-wrap">
-                <div id="spc-preview-inner" style="transform-origin:top center;transition:transform .15s;">
-                  <div style="font-size:12px;color:var(--muted);text-align:center;padding:60px 0;">Select a format and constraints to preview.</div>
-                </div>
+              <!-- Font warning -->
+              <div id="spc-font-warn" style="display:none;margin-top:10px;font-size:11px;color:var(--orange);display:flex;align-items:center;gap:6px;">
+                ⚠ Font below FDA 6pt minimum for small packages.
               </div>
             </div>
-          </div><!-- /right preview -->
-
-        </div><!-- /grid row -->
-
-        <!-- Export Pack -->
-        <div class="card" style="margin-bottom:20px;">
-          <div class="card-hdr" style="justify-content:space-between;">
-            <span class="card-title">Designer Export Pack</span>
-            <span style="font-size:11px;color:var(--dim);">Individual panels + combined preview · HTML/print-to-PDF</span>
           </div>
-          <div class="card-body">
-            <p style="font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:16px;">
-              Export each compliance zone as a standalone print-ready file. Open in any browser → Print → Save as PDF for press-ready output. Each file is a clean white block sized to your constraints — ready to drop into Illustrator/Figma.
-            </p>
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:16px;" id="spc-export-tiles">
 
-              <div style="border:1px solid var(--border);border-radius:var(--radius);padding:14px;background:var(--surface);">
-                <div style="font-size:20px;margin-bottom:4px;">📄</div>
-                <div style="font-size:12px;font-weight:700;margin-bottom:3px;">Nutrition Facts Panel</div>
-                <div style="font-size:10px;color:var(--dim);margin-bottom:10px;">FDA box only. No ingredients. No support copy.</div>
-                <button class="btn btn-sm btn-secondary" style="width:100%;" onclick="spcExportPanel('nutrition')">Export</button>
+          <!-- Live Preview -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-hdr" style="justify-content:space-between;">
+              <span class="card-title" id="spc-preview-title">Preview</span>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <button class="btn btn-sm btn-secondary" onclick="spcZoom(-1)" style="padding:3px 9px;">−</button>
+                <span id="spc-zoom-label" style="font-size:11px;color:var(--muted);min-width:36px;text-align:center;">100%</span>
+                <button class="btn btn-sm btn-secondary" onclick="spcZoom(1)" style="padding:3px 9px;">+</button>
               </div>
-
-              <div style="border:1px solid var(--border);border-radius:var(--radius);padding:14px;background:var(--surface);">
-                <div style="font-size:20px;margin-bottom:4px;">🥗</div>
-                <div style="font-size:12px;font-weight:700;margin-bottom:3px;">Ingredients Panel</div>
-                <div style="font-size:10px;color:var(--dim);margin-bottom:10px;">Ingredients + allergens. Standalone white block.</div>
-                <button class="btn btn-sm btn-secondary" style="width:100%;" onclick="spcExportPanel('ingredients')">Export</button>
-              </div>
-
-              <div style="border:1px solid var(--border);border-radius:var(--radius);padding:14px;background:var(--surface);">
-                <div style="font-size:20px;margin-bottom:4px;">&#9641;</div>
-                <div style="font-size:12px;font-weight:700;margin-bottom:3px;">Barcode Panel</div>
-                <div style="font-size:10px;color:var(--dim);margin-bottom:10px;">Barcode + human-readable number. Standalone.</div>
-                <button class="btn btn-sm btn-secondary" style="width:100%;" onclick="spcExportPanel('barcode')">Export</button>
-              </div>
-
-              <div style="border:1px solid var(--border);border-radius:var(--radius);padding:14px;background:var(--surface);">
-                <div style="font-size:20px;margin-bottom:4px;">🏢</div>
-                <div style="font-size:12px;font-weight:700;margin-bottom:3px;">Distributor / Origin</div>
-                <div style="font-size:10px;color:var(--dim);margin-bottom:10px;">Dist. block + net weight + country of origin.</div>
-                <button class="btn btn-sm btn-secondary" style="width:100%;" onclick="spcExportPanel('distributor')">Export</button>
-              </div>
-
-              <div style="border:1px solid var(--border);border-radius:var(--radius);padding:14px;background:var(--surface);border-color:var(--accent);">
-                <div style="font-size:20px;margin-bottom:4px;">📦</div>
-                <div style="font-size:12px;font-weight:700;margin-bottom:3px;color:var(--accent);">Full Designer Pack</div>
-                <div style="font-size:10px;color:var(--dim);margin-bottom:10px;">All panels + combined preview. 5 files total.</div>
-                <button class="btn btn-sm btn-primary" style="width:100%;" onclick="spcExportFullPack()">Export All</button>
-              </div>
-
             </div>
-
-            <!-- PeelPal-style blister card placement preview -->
-            <div id="spc-placement-preview" style="display:none;">
-              <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;">Package Placement Preview</div>
-              <div style="background:#1a1a1a;border-radius:8px;padding:20px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;justify-content:center;" id="spc-placement-inner"></div>
-              <div style="font-size:10px;color:var(--muted);margin-top:8px;text-align:center;">Schematic only — shows how split panels fit around an irregular package shape.</div>
+            <div style="background:#e8e8e8;min-height:320px;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow:auto;border-radius:0 0 var(--radius) var(--radius);" id="spc-preview-wrap">
+              <div id="spc-preview-inner" style="transform-origin:top center;transition:transform .15s;">
+                <div style="font-size:12px;color:#999;text-align:center;padding:60px 0;">Select an export type above.</div>
+              </div>
             </div>
-
           </div>
-        </div>
+
+          <!-- Export Button -->
+          <div style="margin-bottom:32px;">
+            <button class="btn btn-md btn-primary" style="width:100%;justify-content:center;font-size:14px;padding:14px;" id="spc-export-btn" onclick="spcDoExport()">
+              &#128229; Generate Export
+            </button>
+            <div id="spc-export-status" style="margin-top:8px;font-size:11px;color:var(--dim);text-align:center;min-height:18px;"></div>
+          </div>
 
         </div><!-- /spc-main -->
 
