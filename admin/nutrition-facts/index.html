@@ -869,6 +869,7 @@ input:focus, textarea:focus, select:focus {
    ALLERGEN CHIPS
    ============================================================ */
 .allergen-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+@keyframes ii-spin { to { transform: rotate(360deg); } }
 .ag-chip {
   display: flex; align-items: center; gap: 5px;
   background: var(--surface2); border: 1px solid var(--border);
@@ -1188,6 +1189,9 @@ input:focus, textarea:focus, select:focus {
     <div class="lnav-item" data-view="ingredient-intel" onclick="nfsNav('ingredient-intel')">
       <span class="lnav-icon">&#129516;</span> Ingredient Intel
     </div>
+    <div class="lnav-item" data-view="import-check" onclick="nfsNav('import-check')">
+      <span class="lnav-icon">🛃</span> Import Check
+    </div>
     <div class="lnav-group-label" style="margin-top:8px;">v4</div>
     <div class="lnav-item" data-view="support-composer" onclick="nfsNav('support-composer')">
       <span class="lnav-icon">&#128196;</span> Support Composer
@@ -1202,6 +1206,10 @@ input:focus, textarea:focus, select:focus {
     <div class="lnav-item" data-view="approval" onclick="nfsNav('approval')">
       <span class="lnav-icon">&#9989;</span> Approval / Freeze
       <span class="lnav-badge" id="lnav-approval-badge" style="background:rgba(74,222,128,0.15);color:var(--green);display:none;"></span>
+    </div>
+    <div class="lnav-item" data-view="small-pack" onclick="nfsNav('small-pack')">
+      <span class="lnav-icon">&#128230;</span> Small Pack Converter
+      <span class="lnav-badge" style="background:rgba(139,92,246,0.15);color:#a78bfa;">NEW</span>
     </div>
   </nav>
 
@@ -2130,7 +2138,12 @@ input:focus, textarea:focus, select:focus {
           <!-- LEFT: Input + controls -->
           <div style="display:flex;flex-direction:column;gap:16px;">
             <div class="card">
-              <div class="card-hdr"><span class="card-title">Raw Supplier Text</span></div>
+              <div class="card-hdr" style="justify-content:space-between;">
+                <span class="card-title">Raw Supplier Text</span>
+                <button class="btn btn-sm btn-secondary" onclick="iiOpenScanModal()" title="Scan image or take photo to extract text" style="display:flex;align-items:center;gap:6px;font-size:11px;">
+                  <span style="font-size:14px;">📷</span> Scan Label
+                </button>
+              </div>
               <div class="card-body">
                 <div class="fi" style="margin-bottom:12px;">
                   <textarea id="ii-raw" rows="8" placeholder="Paste messy supplier ingredient copy here...&#10;&#10;e.g: sugar,corn syrup;carnauba wax/natural flavors.citric acid red40 blue 1&#10;contains milk soy"></textarea>
@@ -2141,6 +2154,116 @@ input:focus, textarea:focus, select:focus {
                 </div>
               </div>
             </div>
+
+            <!-- ── OCR Scan Modal ──────────────────────────────────────────── -->
+            <div id="ii-scan-modal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+              <div style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;width:min(560px,94vw);max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;gap:0;">
+
+                <!-- Modal header -->
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid var(--border);">
+                  <div>
+                    <div style="font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;">Ingredient Intelligence</div>
+                    <div style="font-size:16px;font-weight:700;color:var(--text);">📷 Scan Label / Photo</div>
+                  </div>
+                  <button onclick="iiCloseScanModal()" style="background:none;border:1px solid var(--border2);color:var(--dim);font-size:18px;cursor:pointer;border-radius:4px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;line-height:1;">&times;</button>
+                </div>
+
+                <!-- Source selector tabs -->
+                <div style="display:flex;gap:0;border-bottom:1px solid var(--border);">
+                  <button id="ii-scan-tab-cam" onclick="iiScanSetTab('camera')" style="flex:1;padding:12px 8px;background:var(--accent);color:#111;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:none;cursor:pointer;border-radius:0;">📷 Camera</button>
+                  <button id="ii-scan-tab-file" onclick="iiScanSetTab('file')" style="flex:1;padding:12px 8px;background:transparent;color:var(--muted);font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:none;cursor:pointer;border-left:1px solid var(--border);">🖼️ Upload File</button>
+                </div>
+
+                <div style="padding:20px;display:flex;flex-direction:column;gap:16px;">
+
+                  <!-- CAMERA TAB -->
+                  <div id="ii-scan-camera-tab">
+                    <div style="font-size:12px;color:var(--dim);margin-bottom:12px;line-height:1.5;">Point your camera at the ingredient label. For best results: good lighting, hold steady, keep text in frame.</div>
+
+                    <!-- Video preview -->
+                    <div style="position:relative;background:#000;border-radius:6px;overflow:hidden;border:1px solid var(--border2);margin-bottom:12px;aspect-ratio:4/3;max-height:280px;display:flex;align-items:center;justify-content:center;">
+                      <video id="ii-scan-video" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;display:none;"></video>
+                      <canvas id="ii-scan-overlay" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.5;display:none;"></canvas>
+                      <div id="ii-scan-cam-placeholder" style="display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--muted);">
+                        <div style="font-size:40px;">📷</div>
+                        <div style="font-size:12px;">Camera not started</div>
+                      </div>
+                    </div>
+
+                    <!-- Camera selector (shown if multiple cameras) -->
+                    <div id="ii-scan-cam-select-wrap" style="display:none;margin-bottom:10px;">
+                      <select id="ii-scan-cam-select" onchange="iiScanSwitchCamera(this.value)" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:12px;padding:8px 10px;border-radius:4px;font-family:var(--sans);"></select>
+                    </div>
+
+                    <div class="btn-row">
+                      <button id="ii-scan-start-btn" class="btn btn-md btn-secondary" onclick="iiScanStartCamera()">▶ Start Camera</button>
+                      <button id="ii-scan-capture-btn" class="btn btn-lg btn-primary" onclick="iiScanCapture()" style="display:none;">📷 Capture &amp; Scan</button>
+                      <button id="ii-scan-stop-btn" class="btn btn-sm btn-ghost" onclick="iiScanStopCamera()" style="display:none;">■ Stop</button>
+                    </div>
+                  </div>
+
+                  <!-- FILE UPLOAD TAB -->
+                  <div id="ii-scan-file-tab" style="display:none;">
+                    <div style="font-size:12px;color:var(--dim);margin-bottom:12px;line-height:1.5;">Upload a photo of the ingredient label. JPEG, PNG, WebP supported.</div>
+                    <label id="ii-scan-drop-zone" for="ii-scan-file-input" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:2px dashed var(--border2);border-radius:6px;padding:40px 20px;cursor:pointer;background:var(--surface2);transition:border-color .15s;margin-bottom:12px;">
+                      <div style="font-size:36px;">🖼️</div>
+                      <div style="font-size:13px;font-weight:600;color:var(--text);">Click to choose or drag &amp; drop</div>
+                      <div style="font-size:11px;color:var(--muted);">JPEG · PNG · WebP · HEIC</div>
+                    </label>
+                    <input type="file" id="ii-scan-file-input" accept="image/*" style="display:none;" onchange="iiScanFileSelected(this)">
+
+                    <!-- Preview of selected file -->
+                    <div id="ii-scan-file-preview" style="display:none;margin-bottom:12px;">
+                      <img id="ii-scan-file-img" style="max-width:100%;border-radius:6px;border:1px solid var(--border2);max-height:260px;object-fit:contain;display:block;margin:0 auto;">
+                    </div>
+
+                    <div class="btn-row" id="ii-scan-file-btns" style="display:none;">
+                      <button class="btn btn-lg btn-primary" onclick="iiScanFileSubmit()">🔍 Extract Text</button>
+                      <button class="btn btn-sm btn-ghost" onclick="iiScanFileClear()">Clear</button>
+                    </div>
+                  </div>
+
+                  <!-- Captured frame preview (camera mode) -->
+                  <div id="ii-scan-frame-wrap" style="display:none;">
+                    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px;">Captured Frame</div>
+                    <img id="ii-scan-frame-img" style="max-width:100%;border-radius:6px;border:1px solid var(--border2);max-height:220px;object-fit:contain;display:block;margin:0 auto;">
+                    <div class="btn-row" style="margin-top:10px;">
+                      <button class="btn btn-lg btn-primary" onclick="iiScanSubmitFrame()">🔍 Extract Text</button>
+                      <button class="btn btn-sm btn-ghost" onclick="iiScanRetake()">↩ Retake</button>
+                    </div>
+                  </div>
+
+                  <!-- OCR Status / spinner -->
+                  <div id="ii-scan-status" style="display:none;text-align:center;padding:16px 0;">
+                    <div style="font-size:28px;animation:ii-spin 1s linear infinite;display:inline-block;">⏳</div>
+                    <div style="font-size:13px;color:var(--dim);margin-top:8px;" id="ii-scan-status-txt">Scanning image…</div>
+                  </div>
+
+                  <!-- OCR Result -->
+                  <div id="ii-scan-result-wrap" style="display:none;">
+                    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:8px;">✓ Extracted Text</div>
+                    <textarea id="ii-scan-result-txt" rows="6" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;font-family:var(--mono);padding:10px 12px;resize:vertical;"></textarea>
+                    <div class="btn-row" style="margin-top:10px;">
+                      <button class="btn btn-lg btn-primary" onclick="iiScanUseText()">✓ Use as Source Text</button>
+                      <button class="btn btn-md btn-secondary" onclick="iiScanAppendText()">+ Append to Source</button>
+                      <button class="btn btn-sm btn-ghost" onclick="iiScanClearResult()">✕ Discard</button>
+                    </div>
+                    <div style="font-size:10px;color:var(--muted);margin-top:6px;font-style:italic;">Review and edit before using. "Use as Source Text" replaces the textarea; "Append" adds below existing text.</div>
+                  </div>
+
+                  <!-- OCR Error -->
+                  <div id="ii-scan-error" style="display:none;background:var(--red-bg);border:1px solid rgba(248,113,113,.25);border-radius:6px;padding:12px 14px;">
+                    <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:4px;">Scan failed</div>
+                    <div id="ii-scan-error-txt" style="font-size:12px;color:var(--dim);"></div>
+                    <button class="btn btn-sm btn-ghost" onclick="iiScanClearResult()" style="margin-top:8px;">Try again</button>
+                  </div>
+
+                </div>
+                <!-- hidden canvas for frame capture -->
+                <canvas id="ii-scan-canvas" style="display:none;"></canvas>
+              </div>
+            </div>
+            <!-- ── /OCR Scan Modal ─────────────────────────────────────────── -->
 
             <div class="card" id="ii-clean-card" style="display:none;">
               <div class="card-hdr"><span class="card-title" style="color:var(--green);">&#10003; Clean Draft</span></div>
@@ -3103,6 +3226,401 @@ input:focus, textarea:focus, select:focus {
       </div>
     </div><!-- /formula -->
 
+    <!-- ====================================================
+         VIEW: IMPORT COMPLIANCE CHECK v2
+         ==================================================== -->
+    <div class="view" id="view-import-check">
+      <div class="page-head">
+        <div class="page-eyebrow">Tools · Import · v2</div>
+        <div class="page-title">🛃 Import Compliance Check</div>
+        <div class="page-sub">Paste a raw supplier ingredient list. Screen for banned, restricted, unverified, or low-confidence ingredients before print or import. <strong>Preflight tool — not legal clearance.</strong></div>
+      </div>
+      <div class="content-area wide">
+
+        <!-- TOP ROW: Input + sidebar -->
+        <div style="display:grid;grid-template-columns:1fr 260px;gap:20px;align-items:start;margin-bottom:20px;">
+
+          <!-- Input card -->
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Supplier Ingredient List</span></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+              <div class="fi">
+                <label>Supplier / Product Name (optional)</label>
+                <input type="text" id="ic-supplier-name" placeholder="e.g. Weihua — Juice Bomb Astronauts" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:12px;padding:8px 10px;border-radius:4px;font-family:var(--sans);">
+              </div>
+              <div class="fi">
+                <textarea id="ic-raw" rows="7" placeholder="Paste raw ingredient list from supplier, Alibaba, or COA...&#10;&#10;e.g: Maltose syrup, white sugar, gelatin, sorbitol, citric acid, pectin, sodium citrate, flavoring, brilliant blue, lemon yellow, allura red, titanium dioxide"></textarea>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:end;">
+                <div class="fi" style="margin:0;">
+                  <label>Country of Origin</label>
+                  <select id="ic-country" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:12px;padding:8px 10px;border-radius:4px;font-family:var(--sans);">
+                    <option value="CN" selected>🇨🇳 China</option>
+                    <option value="TW">🇹🇼 Taiwan</option>
+                    <option value="KR">🇰🇷 South Korea</option>
+                    <option value="JP">🇯🇵 Japan</option>
+                    <option value="EU">🇪🇺 EU / Europe</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </div>
+                <div class="fi" style="margin:0;">
+                  <label>Product Category</label>
+                  <select id="ic-category" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:12px;padding:8px 10px;border-radius:4px;font-family:var(--sans);">
+                    <option value="candy" selected>🍬 Candy</option>
+                    <option value="gummy">🐻 Gummies</option>
+                    <option value="chocolate">🍫 Chocolate</option>
+                    <option value="snack">🍿 Snacks</option>
+                    <option value="beverage">🥤 Beverages</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <button class="btn btn-lg btn-primary" onclick="icRunCheck()" style="flex:1;">🛃 Run Check</button>
+                  <button class="btn btn-sm btn-ghost" onclick="icReset()">✕</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right sidebar: history + refs + DB -->
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="card">
+              <div class="card-hdr" style="justify-content:space-between;">
+                <span class="card-title" style="font-size:11px;color:var(--dim);">🕐 History</span>
+                <button class="btn btn-sm btn-ghost" style="font-size:10px;padding:2px 6px;" onclick="icLoadHistory()">↺</button>
+              </div>
+              <div class="card-body" style="padding:6px 12px;">
+                <div id="ic-history-list"><div style="font-size:11px;color:var(--muted);padding:4px 0;">No saved checks yet.</div></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hdr"><span class="card-title" style="color:var(--dim);font-size:11px;">📚 FDA References</span></div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:5px;">
+                <a href="https://www.fda.gov/food/color-additives/color-additive-status-list" target="_blank" style="font-size:11px;color:var(--blue);text-decoration:none;">↗ Color Additive Status</a>
+                <a href="https://www.accessdata.fda.gov/scripts/fdcc/?set=FoodSubstances" target="_blank" style="font-size:11px;color:var(--blue);text-decoration:none;">↗ EAFUS Food Substances</a>
+                <a href="https://www.fda.gov/food/food-additives-petitions/food-additive-status-list" target="_blank" style="font-size:11px;color:var(--blue);text-decoration:none;">↗ Food Additive Status</a>
+                <a href="https://www.fda.gov/food/food-additives-petitions/red-no-3" target="_blank" style="font-size:11px;color:var(--red);text-decoration:none;">↗ ⛔ Red No. 3</a>
+                <a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-A/part-73/subpart-A/section-73.575" target="_blank" style="font-size:11px;color:var(--blue);text-decoration:none;">↗ TiO₂ 21 CFR 73.575</a>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hdr" style="justify-content:space-between;">
+                <span class="card-title" style="color:var(--dim);font-size:11px;">🔧 Compliance DB</span>
+                <button class="btn btn-sm btn-ghost" style="font-size:10px;" onclick="(()=>{const p=document.getElementById('ic-db-panel');p.style.display=p.style.display==='none'?'block':'none';if(p.style.display==='block'&&!document.getElementById('ic-db-editor').value)icDbLoad();})()">Edit</button>
+              </div>
+              <div id="ic-db-panel" style="display:none;">
+                <div class="card-body" style="display:flex;flex-direction:column;gap:8px;">
+                  <textarea id="ic-db-editor" rows="10" style="width:100%;background:#0a0a0a;border:1px solid var(--border2);color:var(--dim);font-size:10px;font-family:var(--mono);padding:8px;border-radius:4px;resize:vertical;"></textarea>
+                  <div class="btn-row">
+                    <button class="btn btn-sm btn-primary" onclick="icDbSave()">💾 Save</button>
+                    <button class="btn btn-sm btn-ghost" onclick="icDbLoad()">↺</button>
+                  </div>
+                  <div id="ic-db-status" style="font-size:10px;color:var(--green);display:none;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTS AREA: full-width below -->
+        <div id="ic-output-col" style="display:flex;flex-direction:column;gap:16px;">
+
+          <!-- Banner -->
+          <div id="ic-banner" style="display:none;"></div>
+
+          <!-- Formula breakdown + save bar side by side -->
+          <div style="display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;">
+            <div class="card" id="ic-breakdown" style="display:none;">
+              <div class="card-hdr"><span class="card-title" style="font-size:12px;">Formula Risk Summary</span></div>
+              <div class="card-body" id="ic-breakdown-body" style="display:flex;flex-wrap:wrap;gap:8px 20px;"></div>
+            </div>
+            <div id="ic-save-bar" style="display:none;flex-direction:column;gap:8px;">
+              <button class="btn btn-md btn-secondary" onclick="icSaveCheck()">💾 Save Check</button>
+              <button class="btn btn-md btn-secondary" onclick="icExport()">↓ Export</button>
+            </div>
+          </div>
+
+          <!-- U.S. Ingredient Draft -->
+          <div class="card" id="ic-draft-card" style="display:none;">
+            <div class="card-hdr" style="justify-content:space-between;">
+              <span class="card-title" style="color:var(--green);">✓ U.S. Ingredient Draft</span>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-sm btn-ghost" onclick="icCopyDraft()" style="font-size:10px;">Copy</button>
+                <button class="btn btn-sm btn-secondary" onclick="icUseDraft()" style="font-size:10px;">→ Label Builder</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="ic-draft-text" style="font-size:12px;font-weight:600;line-height:1.8;color:var(--text);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:12px 14px;font-family:var(--mono);white-space:pre-wrap;"></div>
+              <div style="font-size:10px;color:var(--muted);margin-top:8px;font-style:italic;">⚠ [?] items must be resolved. Banned items excluded. Review table below.</div>
+            </div>
+          </div>
+
+          <!-- Two-column: packaging notes + supplier follow-up -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="card" id="ic-packaging-card" style="display:none;">
+              <div class="card-hdr"><span class="card-title">📦 Packaging Notes</span></div>
+              <div class="card-body" id="ic-packaging-body" style="display:flex;flex-direction:column;gap:8px;font-size:12px;"></div>
+            </div>
+            <div class="card" id="ic-followup-card" style="display:none;border-color:rgba(124,111,255,.4);">
+              <div class="card-hdr" style="background:rgba(124,111,255,.08);justify-content:space-between;">
+                <span class="card-title" style="color:var(--accent);">📧 Supplier Follow-Up</span>
+                <button class="btn btn-sm btn-ghost" onclick="icCopyFollowup()" style="font-size:10px;">Copy</button>
+              </div>
+              <div class="card-body">
+                <textarea id="ic-followup-txt" rows="9" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:11px;font-family:var(--mono);padding:10px 12px;border-radius:4px;resize:vertical;"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter bar -->
+          <div id="ic-filter-bar" style="display:none;gap:10px;align-items:center;flex-wrap:wrap;">
+            <select id="ic-filter-risk" onchange="icFilterTable()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:11px;padding:6px 10px;border-radius:4px;font-family:var(--sans);">
+              <option value="all">All Risk Levels</option>
+              <option value="red">⛔ Red only</option>
+              <option value="yellow">⚠️ Yellow only</option>
+              <option value="green">✅ Green only</option>
+            </select>
+            <input type="text" id="ic-search" placeholder="Search ingredients…" oninput="icFilterTable()" style="flex:1;min-width:160px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:11px;padding:6px 10px;border-radius:4px;font-family:var(--sans);">
+            <span style="font-size:10px;color:var(--muted);">Click any row for detail.</span>
+          </div>
+
+          <!-- Compliance table -->
+          <div class="card" id="ic-table-card" style="display:none;">
+            <div class="card-hdr"><span class="card-title">Ingredient Compliance Table</span></div>
+            <div style="overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;font-size:11px;">
+                <thead>
+                  <tr style="background:var(--surface2);border-bottom:1px solid var(--border2);">
+                    <th onclick="icSortTable(0)" style="padding:8px 10px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted);cursor:pointer;white-space:nowrap;">Supplier Term ↕</th>
+                    <th onclick="icSortTable(1)" style="padding:8px 10px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted);cursor:pointer;white-space:nowrap;">U.S. Name ↕</th>
+                    <th onclick="icSortTable(2)" style="padding:8px 10px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted);cursor:pointer;">Category</th>
+                    <th onclick="icSortTable(3)" style="padding:8px 10px;text-align:center;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted);cursor:pointer;">Risk ↕</th>
+                    <th style="padding:8px 10px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted);">Explainer / Why Flagged</th>
+                    <th style="padding:8px 10px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted);">Docs Required</th>
+                  </tr>
+                </thead>
+                <tbody id="ic-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div><!-- /ic-output-col -->
+      </div>
+
+      <!-- Ingredient Detail Drawer -->
+      <div id="ic-drawer" style="display:none;position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:flex-start;justify-content:flex-end;">
+        <div style="width:min(480px,95vw);height:100vh;overflow-y:auto;background:var(--surface);border-left:1px solid var(--border2);display:flex;flex-direction:column;">
+          <div style="position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;z-index:1;">
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);">Ingredient Detail</div>
+            <button onclick="icCloseDrawer()" style="background:none;border:1px solid var(--border2);color:var(--dim);font-size:18px;cursor:pointer;border-radius:4px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;">&times;</button>
+          </div>
+          <div id="ic-drawer-content" style="padding:20px;flex:1;"></div>
+        </div>
+      </div>
+    </div><!-- /import-check -->
+
+    <!-- ====================================================
+         VIEW: SMALL PACK FORMAT CONVERTER
+         ==================================================== -->
+    <div class="view" id="view-small-pack">
+      <div class="page-head">
+        <div class="page-eyebrow">Tools · Small Package · FDA 21 CFR 101.9(j)</div>
+        <div class="page-title">📦 Small Pack Format Converter</div>
+        <div class="page-sub">Reflow FDA Nutrition Facts into compact formats for blister cards, fruit-shaped packs, narrow panels, and other constrained packaging. Exports separate designer asset blocks.</div>
+      </div>
+      <div class="content-area wide">
+
+        <!-- No project warning -->
+        <div id="spc-no-project" style="padding:48px;text-align:center;font-size:13px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:20px;display:none;">
+          ⚠️ No label open. <a href="#" onclick="nfsNav('projects');return false;" style="color:var(--accent);">Open or create a label</a> first, then return here.
+        </div>
+
+        <div id="spc-main" style="display:none;">
+
+        <!-- ROW: Controls + Live Preview -->
+        <div style="display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start;margin-bottom:20px;">
+
+          <!-- LEFT: Controls -->
+          <div>
+
+            <!-- Format Template -->
+            <div class="card" style="margin-bottom:14px;">
+              <div class="card-hdr"><span class="card-title">Format Template</span></div>
+              <div class="card-body">
+                <div class="fi" style="margin-bottom:0;">
+                  <label>Reflow Format</label>
+                  <select id="spc-format" onchange="spcUpdate()">
+                    <option value="vertical">Standard Vertical (default FDA)</option>
+                    <option value="tabular">Small Tabular (FDA intermediate package)</option>
+                    <option value="linear">Small Linear (FDA very small package)</option>
+                    <option value="split">Split Designer Panels</option>
+                  </select>
+                </div>
+                <div id="spc-format-desc" style="margin-top:10px;font-size:11px;color:var(--dim);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:10px 12px;line-height:1.6;"></div>
+              </div>
+            </div>
+
+            <!-- Package Constraints -->
+            <div class="card" style="margin-bottom:14px;">
+              <div class="card-hdr"><span class="card-title">Package Constraints</span></div>
+              <div class="card-body">
+                <div class="grid-2" style="gap:10px;margin-bottom:10px;">
+                  <div class="fi"><label>Available Width</label>
+                    <div style="display:flex;gap:6px;align-items:center;">
+                      <input type="number" id="spc-w" placeholder="2.5" step="0.01" min="0.5" max="20" oninput="spcUpdate()" style="flex:1;"/>
+                      <select id="spc-unit" onchange="spcUpdate()" style="width:56px;padding:6px 4px;">
+                        <option value="in">in</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="px">px</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="fi"><label>Available Height</label>
+                    <div style="display:flex;gap:6px;align-items:center;">
+                      <input type="number" id="spc-h" placeholder="4.0" step="0.01" min="0.5" max="20" oninput="spcUpdate()" style="flex:1;"/>
+                      <span style="font-size:11px;color:var(--muted);white-space:nowrap;" id="spc-unit-label2">in</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="fi" style="margin-bottom:10px;">
+                  <label>Package Shape</label>
+                  <select id="spc-shape" onchange="spcUpdate()">
+                    <option value="rectangle">Rectangle</option>
+                    <option value="narrow-strip">Narrow Strip / Roll</option>
+                    <option value="blister-card">Blister Card (peg hang)</option>
+                    <option value="curved">Curved / Irregular</option>
+                    <option value="fruit-shaped">Fruit-Shaped / Die-cut</option>
+                  </select>
+                </div>
+                <div class="fi" style="margin-bottom:0;">
+                  <label>Minimum Font Guard (pt)</label>
+                  <input type="number" id="spc-min-font" value="6" step="0.5" min="4" max="12" oninput="spcUpdate()"/>
+                  <div style="font-size:10px;color:var(--muted);margin-top:3px;">FDA minimum is 6pt for small packages. Below 6pt = compliance warning.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Compliance Status -->
+            <div class="card" id="spc-compliance-card" style="margin-bottom:14px;">
+              <div class="card-hdr"><span class="card-title">Compliance Status</span></div>
+              <div class="card-body" id="spc-compliance-body">
+                <div style="font-size:12px;color:var(--muted);">Configure constraints above to see status.</div>
+              </div>
+            </div>
+
+            <!-- Split Panel Visibility (only shown in split mode) -->
+            <div class="card" id="spc-split-controls" style="margin-bottom:14px;display:none;">
+              <div class="card-hdr"><span class="card-title">Split Panels — Preview</span></div>
+              <div class="card-body">
+                <div style="font-size:11px;color:var(--dim);margin-bottom:10px;">Toggle which panels appear in the combined preview.</div>
+                <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;margin-bottom:6px;">
+                  <input type="checkbox" id="spc-show-nutrition" checked onchange="spcUpdate()"/>
+                  <span>Nutrition Facts Panel</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;margin-bottom:6px;">
+                  <input type="checkbox" id="spc-show-ingredients" checked onchange="spcUpdate()"/>
+                  <span>Ingredients / Allergen Block</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;margin-bottom:6px;">
+                  <input type="checkbox" id="spc-show-barcode" checked onchange="spcUpdate()"/>
+                  <span>Barcode Panel</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;">
+                  <input type="checkbox" id="spc-show-dist" checked onchange="spcUpdate()"/>
+                  <span>Distributor / Origin Panel</span>
+                </label>
+              </div>
+            </div>
+
+          </div><!-- /left controls -->
+
+          <!-- RIGHT: Live Preview -->
+          <div>
+            <div class="card">
+              <div class="card-hdr" style="justify-content:space-between;">
+                <span class="card-title">Live Preview</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span id="spc-preview-badge" style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:3px;background:var(--surface2);color:var(--muted);">—</span>
+                  <button class="btn btn-sm btn-secondary" onclick="spcZoom(-1)">−</button>
+                  <span id="spc-zoom-label" style="font-size:11px;color:var(--muted);min-width:32px;text-align:center;">100%</span>
+                  <button class="btn btn-sm btn-secondary" onclick="spcZoom(1)">+</button>
+                </div>
+              </div>
+              <div class="card-body" style="background:#f0f0f0;min-height:480px;display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow:auto;" id="spc-preview-wrap">
+                <div id="spc-preview-inner" style="transform-origin:top center;transition:transform .15s;">
+                  <div style="font-size:12px;color:var(--muted);text-align:center;padding:60px 0;">Select a format and constraints to preview.</div>
+                </div>
+              </div>
+            </div>
+          </div><!-- /right preview -->
+
+        </div><!-- /grid row -->
+
+        <!-- Export Pack -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-hdr" style="justify-content:space-between;">
+            <span class="card-title">Designer Export Pack</span>
+            <span style="font-size:11px;color:var(--dim);">Individual panels + combined preview · HTML/print-to-PDF</span>
+          </div>
+          <div class="card-body">
+            <p style="font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:16px;">
+              Export each compliance zone as a standalone print-ready file. Open in any browser → Print → Save as PDF for press-ready output. Each file is a clean white block sized to your constraints — ready to drop into Illustrator/Figma.
+            </p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:16px;" id="spc-export-tiles">
+
+              <div style="border:1px solid var(--border);border-radius:var(--radius);padding:14px;background:var(--surface);">
+                <div style="font-size:20px;margin-bottom:4px;">📄</div>
+                <div style="font-size:12px;font-weight:700;margin-bottom:3px;">Nutrition Facts Panel</div>
+                <div style="font-size:10px;color:var(--dim);margin-bottom:10px;">FDA box only. No ingredients. No support copy.</div>
+                <button class="btn btn-sm btn-secondary" style="width:100%;" onclick="spcExportPanel('nutrition')">Export</button>
+              </div>
+
+              <div style="border:1px solid var(--border);border-radius:var(--radius);padding:14px;background:var(--surface);">
+                <div style="font-size:20px;margin-bottom:4px;">🥗</div>
+                <div style="font-size:12px;font-weight:700;margin-bottom:3px;">Ingredients Panel</div>
+                <div style="font-size:10px;color:var(--dim);margin-bottom:10px;">Ingredients + allergens. Standalone white block.</div>
+                <button class="btn btn-sm btn-secondary" style="width:100%;" onclick="spcExportPanel('ingredients')">Export</button>
+              </div>
+
+              <div style="border:1px solid var(--border);border-radius:var(--radius);padding:14px;background:var(--surface);">
+                <div style="font-size:20px;margin-bottom:4px;">&#9641;</div>
+                <div style="font-size:12px;font-weight:700;margin-bottom:3px;">Barcode Panel</div>
+                <div style="font-size:10px;color:var(--dim);margin-bottom:10px;">Barcode + human-readable number. Standalone.</div>
+                <button class="btn btn-sm btn-secondary" style="width:100%;" onclick="spcExportPanel('barcode')">Export</button>
+              </div>
+
+              <div style="border:1px solid var(--border);border-radius:var(--radius);padding:14px;background:var(--surface);">
+                <div style="font-size:20px;margin-bottom:4px;">🏢</div>
+                <div style="font-size:12px;font-weight:700;margin-bottom:3px;">Distributor / Origin</div>
+                <div style="font-size:10px;color:var(--dim);margin-bottom:10px;">Dist. block + net weight + country of origin.</div>
+                <button class="btn btn-sm btn-secondary" style="width:100%;" onclick="spcExportPanel('distributor')">Export</button>
+              </div>
+
+              <div style="border:1px solid var(--border);border-radius:var(--radius);padding:14px;background:var(--surface);border-color:var(--accent);">
+                <div style="font-size:20px;margin-bottom:4px;">📦</div>
+                <div style="font-size:12px;font-weight:700;margin-bottom:3px;color:var(--accent);">Full Designer Pack</div>
+                <div style="font-size:10px;color:var(--dim);margin-bottom:10px;">All panels + combined preview. 5 files total.</div>
+                <button class="btn btn-sm btn-primary" style="width:100%;" onclick="spcExportFullPack()">Export All</button>
+              </div>
+
+            </div>
+
+            <!-- PeelPal-style blister card placement preview -->
+            <div id="spc-placement-preview" style="display:none;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;">Package Placement Preview</div>
+              <div style="background:#1a1a1a;border-radius:8px;padding:20px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;justify-content:center;" id="spc-placement-inner"></div>
+              <div style="font-size:10px;color:var(--muted);margin-top:8px;text-align:center;">Schematic only — shows how split panels fit around an irregular package shape.</div>
+            </div>
+
+          </div>
+        </div>
+
+        </div><!-- /spc-main -->
+
+      </div>
+    </div><!-- /small-pack -->
+
   </main>
 </div><!-- /app-shell -->
 
@@ -3320,12 +3838,13 @@ function nfsNav(viewId) {
   if (viewId === 'export') updateExportView();
   if (viewId === 'converter') saInit();
   if (viewId === 'formula') { if (fcRows.length === 0) { fcAddRow(); fcAddRow(); } }
+  if (viewId === 'small-pack') { if (typeof spcInit === 'function') spcInit(); }
 }
 
 // Hash routing on load
 (function() {
   const hash = window.location.hash.replace('#','');
-  const validViews = ['dashboard','projects','new-label','editor','converter','importer','templates','compliance','export','formula'];
+  const validViews = ['dashboard','projects','new-label','editor','converter','importer','templates','compliance','export','formula','small-pack'];
   if (hash && validViews.includes(hash)) {
     setTimeout(() => nfsNav(hash), 50);
   }
@@ -5511,6 +6030,665 @@ function importParseFromString(text, sourceName) {
 // ============================================================
 let iiState = { clean:'', detectedAllergens:[], selectedAllergens: new Set(), detectedColors:[], dupes:[] };
 
+// ── OCR / Scan Label ──────────────────────────────────────────────────────────
+let _iiScanStream = null;
+let _iiScanCapturedDataURL = null;
+let _iiScanCurrentTab = 'camera';
+
+function iiOpenScanModal() {
+  const modal = document.getElementById('ii-scan-modal');
+  modal.style.display = 'flex';
+  // Reset state
+  iiScanClearResult();
+  iiScanSetTab('camera');
+}
+
+function iiCloseScanModal() {
+  iiScanStopCamera();
+  document.getElementById('ii-scan-modal').style.display = 'none';
+}
+
+function iiScanSetTab(tab) {
+  _iiScanCurrentTab = tab;
+  const camTab  = document.getElementById('ii-scan-camera-tab');
+  const fileTab = document.getElementById('ii-scan-file-tab');
+  const btnCam  = document.getElementById('ii-scan-tab-cam');
+  const btnFile = document.getElementById('ii-scan-tab-file');
+  const accent = 'var(--accent)', none = 'transparent', muted = 'var(--muted)', dark = '#111';
+
+  if (tab === 'camera') {
+    camTab.style.display  = 'block';
+    fileTab.style.display = 'none';
+    btnCam.style.background  = accent;  btnCam.style.color  = dark;
+    btnFile.style.background = none;    btnFile.style.color = muted;
+  } else {
+    camTab.style.display  = 'none';
+    fileTab.style.display = 'block';
+    btnFile.style.background = accent;  btnFile.style.color = dark;
+    btnCam.style.background  = none;    btnCam.style.color  = muted;
+    iiScanStopCamera();
+  }
+}
+
+async function iiScanStartCamera() {
+  try {
+    // Enumerate cameras
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevs = devices.filter(d => d.kind === 'videoinput');
+    const selWrap = document.getElementById('ii-scan-cam-select-wrap');
+    const sel = document.getElementById('ii-scan-cam-select');
+    if (videoDevs.length > 1) {
+      sel.innerHTML = videoDevs.map((d, i) => `<option value="${d.deviceId}">${d.label || 'Camera ' + (i+1)}</option>`).join('');
+      selWrap.style.display = 'block';
+    }
+
+    const constraints = { video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } } };
+    _iiScanStream = await navigator.mediaDevices.getUserMedia(constraints);
+    const video = document.getElementById('ii-scan-video');
+    video.srcObject = _iiScanStream;
+    video.style.display = 'block';
+    document.getElementById('ii-scan-cam-placeholder').style.display = 'none';
+    document.getElementById('ii-scan-start-btn').style.display    = 'none';
+    document.getElementById('ii-scan-capture-btn').style.display  = 'flex';
+    document.getElementById('ii-scan-stop-btn').style.display     = 'flex';
+  } catch(e) {
+    toast('Camera error', e.message || 'Could not access camera. Try File Upload instead.');
+  }
+}
+
+async function iiScanSwitchCamera(deviceId) {
+  iiScanStopCamera();
+  try {
+    _iiScanStream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: deviceId } } });
+    const video = document.getElementById('ii-scan-video');
+    video.srcObject = _iiScanStream;
+    video.style.display = 'block';
+    document.getElementById('ii-scan-cam-placeholder').style.display = 'none';
+    document.getElementById('ii-scan-start-btn').style.display    = 'none';
+    document.getElementById('ii-scan-capture-btn').style.display  = 'flex';
+    document.getElementById('ii-scan-stop-btn').style.display     = 'flex';
+  } catch(e) {
+    toast('Camera switch failed', e.message);
+  }
+}
+
+function iiScanStopCamera() {
+  if (_iiScanStream) {
+    _iiScanStream.getTracks().forEach(t => t.stop());
+    _iiScanStream = null;
+  }
+  const video = document.getElementById('ii-scan-video');
+  if (video) { video.srcObject = null; video.style.display = 'none'; }
+  const ph = document.getElementById('ii-scan-cam-placeholder');
+  if (ph) ph.style.display = 'flex';
+  const startBtn = document.getElementById('ii-scan-start-btn');
+  if (startBtn) startBtn.style.display = 'flex';
+  const captureBtn = document.getElementById('ii-scan-capture-btn');
+  if (captureBtn) captureBtn.style.display = 'none';
+  const stopBtn = document.getElementById('ii-scan-stop-btn');
+  if (stopBtn) stopBtn.style.display = 'none';
+}
+
+function iiScanCapture() {
+  const video  = document.getElementById('ii-scan-video');
+  const canvas = document.getElementById('ii-scan-canvas');
+  if (!video || !video.videoWidth) { toast('Not ready', 'Camera not active.'); return; }
+  canvas.width  = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  _iiScanCapturedDataURL = canvas.toDataURL('image/jpeg', 0.92);
+
+  // Show frame preview
+  const img = document.getElementById('ii-scan-frame-img');
+  img.src = _iiScanCapturedDataURL;
+  document.getElementById('ii-scan-frame-wrap').style.display = 'block';
+  // Hide capture button while reviewing
+  document.getElementById('ii-scan-capture-btn').style.display = 'none';
+  document.getElementById('ii-scan-stop-btn').style.display = 'none';
+}
+
+function iiScanRetake() {
+  _iiScanCapturedDataURL = null;
+  document.getElementById('ii-scan-frame-wrap').style.display = 'none';
+  document.getElementById('ii-scan-capture-btn').style.display = 'flex';
+  document.getElementById('ii-scan-stop-btn').style.display = 'flex';
+  iiScanClearResult();
+}
+
+async function iiScanSubmitFrame() {
+  if (!_iiScanCapturedDataURL) { toast('No frame', 'Capture a frame first.'); return; }
+  await iiScanRunOCR(_iiScanCapturedDataURL);
+}
+
+function iiScanFileSelected(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    _iiScanCapturedDataURL = e.target.result;
+    const img = document.getElementById('ii-scan-file-img');
+    img.src = _iiScanCapturedDataURL;
+    document.getElementById('ii-scan-file-preview').style.display = 'block';
+    document.getElementById('ii-scan-file-btns').style.display = 'flex';
+
+    // Style the drop zone to indicate file selected
+    const dz = document.getElementById('ii-scan-drop-zone');
+    dz.style.borderColor = 'var(--green)';
+  };
+  reader.readAsDataURL(file);
+}
+
+function iiScanFileClear() {
+  _iiScanCapturedDataURL = null;
+  document.getElementById('ii-scan-file-input').value = '';
+  document.getElementById('ii-scan-file-preview').style.display = 'none';
+  document.getElementById('ii-scan-file-btns').style.display = 'none';
+  document.getElementById('ii-scan-drop-zone').style.borderColor = '';
+  iiScanClearResult();
+}
+
+async function iiScanFileSubmit() {
+  if (!_iiScanCapturedDataURL) { toast('No image', 'Select an image first.'); return; }
+  await iiScanRunOCR(_iiScanCapturedDataURL);
+}
+
+async function iiScanRunOCR(dataURL) {
+  // Show spinner
+  document.getElementById('ii-scan-status').style.display = 'block';
+  document.getElementById('ii-scan-status-txt').textContent = 'Analyzing image with AI…';
+  document.getElementById('ii-scan-result-wrap').style.display = 'none';
+  document.getElementById('ii-scan-error').style.display = 'none';
+  document.getElementById('ii-scan-frame-wrap').style.display = 'none';
+
+  try {
+    const resp = await fetch('/api/ocr', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: dataURL })
+    });
+    const data = await resp.json();
+    document.getElementById('ii-scan-status').style.display = 'none';
+
+    if (!resp.ok || !data.ok) {
+      document.getElementById('ii-scan-error-txt').textContent = data.error || 'Unknown error';
+      document.getElementById('ii-scan-error').style.display = 'block';
+      return;
+    }
+
+    // Show result
+    document.getElementById('ii-scan-result-txt').value = data.text;
+    document.getElementById('ii-scan-result-wrap').style.display = 'block';
+
+    // Re-show captured frame for reference
+    if (_iiScanCapturedDataURL && _iiScanCurrentTab === 'camera') {
+      document.getElementById('ii-scan-frame-img').src = _iiScanCapturedDataURL;
+      document.getElementById('ii-scan-frame-wrap').style.display = 'block';
+    }
+  } catch(e) {
+    document.getElementById('ii-scan-status').style.display = 'none';
+    document.getElementById('ii-scan-error-txt').textContent = e.message;
+    document.getElementById('ii-scan-error').style.display = 'block';
+  }
+}
+
+function iiScanUseText() {
+  const text = document.getElementById('ii-scan-result-txt').value.trim();
+  if (!text) return;
+  document.getElementById('ii-raw').value = text;
+  iiCloseScanModal();
+  toast('✓ Source set', 'Text extracted from image. Hit Normalize & Analyze.');
+}
+
+function iiScanAppendText() {
+  const text = document.getElementById('ii-scan-result-txt').value.trim();
+  if (!text) return;
+  const existing = document.getElementById('ii-raw').value.trim();
+  document.getElementById('ii-raw').value = existing ? existing + '\n' + text : text;
+  iiCloseScanModal();
+  toast('✓ Appended', 'Text added below existing source. Hit Normalize & Analyze.');
+}
+
+function iiScanClearResult() {
+  document.getElementById('ii-scan-result-wrap').style.display  = 'none';
+  document.getElementById('ii-scan-error').style.display        = 'none';
+  document.getElementById('ii-scan-status').style.display       = 'none';
+  document.getElementById('ii-scan-frame-wrap').style.display   = 'none';
+  const rt = document.getElementById('ii-scan-result-txt');
+  if (rt) rt.value = '';
+}
+
+// Close modal on backdrop click
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('ii-scan-modal');
+  if (modal && e.target === modal) iiCloseScanModal();
+});
+
+// Drag-and-drop support on the drop zone
+document.addEventListener('DOMContentLoaded', () => {
+  const dz = document.getElementById('ii-scan-drop-zone');
+  if (!dz) return;
+  dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.style.borderColor = 'var(--accent)'; });
+  dz.addEventListener('dragleave', () => { dz.style.borderColor = ''; });
+  dz.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dz.style.borderColor = '';
+    const file = e.dataTransfer?.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const inp = document.getElementById('ii-scan-file-input');
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      inp.files = dt.files;
+      iiScanFileSelected(inp);
+    }
+  });
+});
+// ── /OCR Scan Label ───────────────────────────────────────────────────────────
+
+// ══════════════════════════════════════════════════════════════════════════════
+// IMPORT COMPLIANCE CHECK v2
+// ══════════════════════════════════════════════════════════════════════════════
+const IC_RISK_CFG = {
+  green:  { bg:'rgba(74,222,128,.12)', border:'rgba(74,222,128,.3)',  color:'#4ADE80', label:'✅ GREEN — Likely Acceptable' },
+  yellow: { bg:'rgba(251,191,36,.10)', border:'rgba(251,191,36,.35)', color:'#FCD34D', label:'⚠️ YELLOW — Needs Verification' },
+  red:    { bg:'rgba(248,113,113,.12)',border:'rgba(248,113,113,.35)',color:'#F87171', label:'⛔ RED — Do Not Approve' },
+};
+const IC_ROW_CLR = {
+  green:  { bg:'rgba(74,222,128,.05)', badge:'rgba(74,222,128,.18)',  color:'#4ADE80' },
+  yellow: { bg:'rgba(251,191,36,.05)', badge:'rgba(251,191,36,.18)',  color:'#FCD34D' },
+  red:    { bg:'rgba(248,113,113,.07)',badge:'rgba(248,113,113,.2)',  color:'#F87171' },
+};
+const MT_CONF = { exact:'Exact', alias:'Alias', fuzzy:'Fuzzy', unknown:'Unknown' };
+
+let _icLastResult = null;  // for save / history
+let _icTableRows  = [];    // for sort/filter
+
+// ── Run Check ─────────────────────────────────────────────────────────────────
+async function icRunCheck() {
+  const raw = (document.getElementById('ic-raw')?.value || '').trim();
+  if (!raw) { toast('Empty', 'Paste a supplier ingredient list first.'); return; }
+  const btn = document.querySelector('#view-import-check .btn-primary');
+  btn.textContent = '⏳ Checking…'; btn.disabled = true;
+  try {
+    const resp = await fetch('/api/import-compliance/check', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ ingredients: raw })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Check failed');
+    _icLastResult = data;
+    _icTableRows  = data.rows;
+    icRenderResult(data);
+    // Scroll to results
+    document.getElementById('ic-output-col')?.scrollIntoView({ behavior:'smooth', block:'start' });
+  } catch(e) { toast('Error', e.message); }
+  finally { btn.textContent = '🛃 Run Import Check'; btn.disabled = false; }
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function icRenderResult(data) {
+  const { overall, summary, usDraft, rows, allergens, breakdown, counts } = data;
+  const cfg = IC_RISK_CFG[overall] || IC_RISK_CFG.yellow;
+
+  // Banner — fully self-contained, no child element dependencies
+  const banner = document.getElementById('ic-banner');
+  const statsHtml = [
+    `<span style="font-size:12px;color:#4ADE80;">✅ ${counts.green} Green</span>`,
+    `<span style="font-size:12px;color:#FCD34D;">⚠️ ${counts.yellow} Yellow</span>`,
+    `<span style="font-size:12px;color:#F87171;">⛔ ${counts.red} Red</span>`,
+    `<span style="font-size:12px;color:var(--dim);">${counts.total} total</span>`,
+    counts.lowConf > 0 ? `<span style="font-size:12px;color:var(--muted);">· ${counts.lowConf} low-confidence</span>` : ''
+  ].filter(Boolean).join('&nbsp;&nbsp;');
+  banner.style.cssText = `display:block;border-radius:6px;padding:18px 20px;background:${cfg.bg};border:1.5px solid ${cfg.border};margin-bottom:4px;`;
+  banner.innerHTML = `
+    <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${cfg.color};margin-bottom:6px;">${cfg.label}</div>
+    <div style="font-size:15px;font-weight:700;line-height:1.4;color:var(--text);">${summary}</div>
+    <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;">${statsHtml}</div>
+  `;
+
+  // Formula breakdown
+  document.getElementById('ic-breakdown').style.display = 'block';
+  document.getElementById('ic-breakdown-body').innerHTML = breakdown.map(b =>
+    `<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim);">▸ ${b}</div>`
+  ).join('');
+
+  // U.S. draft
+  document.getElementById('ic-draft-card').style.display = 'block';
+  const SKIP = ['NOT APPROVED','UNKNOWN','TRANSLATION','REQUIRES'];
+  const cleanItems = rows.filter(r => r.risk_level !== 'red' && r.matched && !SKIP.some(p => (r.us_name||'').startsWith(p)));
+  const cleanDraft = cleanItems.map(r => r.us_name).join(', ');
+  document.getElementById('ic-draft-text').textContent = 'INGREDIENTS: ' + (cleanDraft || '[Resolve flagged items first]');
+
+  // Packaging notes
+  const pkgNotes = [];
+  if (rows.some(r => r.risk_level === 'red')) pkgNotes.push(`<div style="color:var(--red);font-weight:700;background:var(--red-bg);padding:8px 10px;border-radius:4px;">⛔ DO NOT PRINT — Remove red-flagged ingredients before finalizing packaging.</div>`);
+  if (allergens.length > 0) pkgNotes.push(`<div style="color:var(--orange);font-weight:600;">⚠ Allergen Statement Required: <span style="font-family:var(--mono);">Contains: ${allergens.join(', ')}</span></div>`);
+  const colorRows = rows.filter(r => r.is_color_additive && r.matched && r.risk_level !== 'red');
+  if (colorRows.length) pkgNotes.push(`<div style="color:var(--dim);">🎨 Color additives — FDA-approved names for label: <span style="font-family:var(--mono);color:var(--text);">${colorRows.map(r=>r.us_name).join(', ')}</span>. Each requires FDA batch certificate.</div>`);
+  if (rows.some(r => (r.us_name||'').toLowerCase().includes('aspartame'))) pkgNotes.push(`<div style="color:var(--orange);">⚠ Aspartame: Add PKU statement — "Phenylketonurics: Contains Phenylalanine"</div>`);
+  const pkgBody = document.getElementById('ic-packaging-body');
+  pkgBody.innerHTML = pkgNotes.join('') || '<div style="color:var(--muted);font-size:12px;">No specific packaging warnings for this formula.</div>';
+  document.getElementById('ic-packaging-card').style.display = 'block';
+
+  // Table with filter UI
+  _icTableRows = rows;
+  icRenderTable(rows);
+  document.getElementById('ic-table-card').style.display = 'block';
+  document.getElementById('ic-filter-bar').style.display = 'flex';
+
+  // Smart supplier follow-up
+  icBuildFollowup(data);
+
+  // Show history save button
+  document.getElementById('ic-save-bar').style.display = 'flex';
+}
+
+// ── Table renderer (also used by filter/sort) ─────────────────────────────────
+let _icSortCol = null, _icSortAsc = true;
+
+function icRenderTable(rows) {
+  const tbody = document.getElementById('ic-table-body');
+  tbody.innerHTML = rows.map((r, idx) => {
+    const rc = IC_ROW_CLR[r.risk_level] || IC_ROW_CLR.yellow;
+    const conf = r.confidence || 0;
+    const matchLabel = MT_CONF[r.match_type] || r.match_type || 'Unknown';
+    // Confidence bar color
+    const confColor = conf >= 90 ? '#4ADE80' : conf >= 70 ? '#FCD34D' : '#F87171';
+    const confBar = `<div style="width:${conf}%;height:3px;background:${confColor};border-radius:2px;margin-top:2px;"></div>`;
+    const confBadge = r.match_type === 'unknown' ? `<span style="font-size:9px;color:var(--muted);">Unknown</span>` :
+      `<span style="font-size:9px;color:${confColor};">${matchLabel} ${conf}%</span>${confBar}`;
+    const riskBadge = `<span style="display:inline-block;background:${rc.badge};color:${rc.color};font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;">${(r.risk_level||'?').toUpperCase()}</span>`;
+    const usStyle = r.risk_level==='red'?'color:var(--red);font-weight:700;':r.risk_level==='green'?'color:var(--green);':'color:var(--orange);';
+    const docs = (r.documentation_required||[]).length > 0
+      ? `<span style="font-size:10px;color:var(--muted);">${r.documentation_required.slice(0,2).join(' · ')}${r.documentation_required.length>2?' +'+(r.documentation_required.length-2)+' more':''}</span>`
+      : '<span style="color:var(--dim);font-size:10px;">—</span>';
+    const why = r.why_flagged && r.risk_level !== 'green' ? `<div style="font-size:10px;color:var(--orange);margin-top:3px;">Why: ${r.why_flagged.split('.')[0]}.</div>` : '';
+    const srcLink = r.source_url ? `<a href="${r.source_url}" target="_blank" style="font-size:9px;color:var(--blue);">FDA ref ↗</a>` : '';
+    const colorTag = r.is_color_additive ? `<span style="font-size:9px;background:rgba(96,165,250,.15);color:var(--blue);padding:1px 5px;border-radius:2px;margin-left:4px;">color</span>` : '';
+    return `<tr data-idx="${idx}" style="border-bottom:1px solid var(--border);background:${rc.bg};cursor:pointer;" onclick="icOpenDrawer(${idx})" title="Click for detail">
+      <td style="padding:8px 10px;max-width:130px;">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text);">${r.original}</div>
+        <div style="margin-top:4px;">${confBadge}</div>
+      </td>
+      <td style="padding:8px 10px;font-size:11px;font-weight:600;max-width:140px;${usStyle}">${r.us_name}${colorTag}</td>
+      <td style="padding:8px 10px;font-size:10px;color:var(--dim);white-space:nowrap;">${(r.category||'?').replace(/_/g,' ')}</td>
+      <td style="padding:8px 10px;text-align:center;">${riskBadge}</td>
+      <td style="padding:8px 10px;font-size:10px;color:var(--dim);max-width:210px;line-height:1.5;">${r.notes||''}${why}${r.source_url?'<br>'+srcLink:''}</td>
+      <td style="padding:8px 10px;max-width:160px;">${docs}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--muted);font-size:12px;">No results</td></tr>`;
+}
+
+function icFilterTable() {
+  const f = document.getElementById('ic-filter-risk')?.value || 'all';
+  const q = (document.getElementById('ic-search')?.value || '').toLowerCase();
+  let filtered = _icTableRows;
+  if (f !== 'all') filtered = filtered.filter(r => r.risk_level === f || (f === 'yellow' && !r.matched));
+  if (q) filtered = filtered.filter(r => r.original.toLowerCase().includes(q) || (r.us_name||'').toLowerCase().includes(q));
+  icRenderTable(filtered);
+}
+
+function icSortTable(col) {
+  if (_icSortCol === col) _icSortAsc = !_icSortAsc;
+  else { _icSortCol = col; _icSortAsc = true; }
+  const key = { 0:'original', 1:'us_name', 2:'category', 3:'risk_level', 4:'confidence' }[col] || 'original';
+  const sorted = [..._icTableRows].sort((a,b) => {
+    const av = a[key]||'', bv = b[key]||'';
+    return _icSortAsc ? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av));
+  });
+  icRenderTable(sorted);
+}
+
+// ── Ingredient Detail Drawer ──────────────────────────────────────────────────
+function icOpenDrawer(idx) {
+  const r = _icTableRows[idx];
+  if (!r) return;
+  const rc = IC_ROW_CLR[r.risk_level] || IC_ROW_CLR.yellow;
+  const conf = r.confidence || 0;
+  const confColor = conf >= 90 ? '#4ADE80' : conf >= 70 ? '#FCD34D' : '#F87171';
+
+  // Color additive enhanced panel
+  let colorPanel = '';
+  if (r.is_color_additive) {
+    colorPanel = `
+      <div style="background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.25);border-radius:6px;padding:14px;margin-bottom:16px;">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;">🎨 Color Additive Intelligence</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;">
+          <div><span style="color:var(--muted);">Certified Required</span><br><strong style="color:${r.certified_required?'#FCD34D':'#4ADE80'}">${r.certified_required?'Yes — FDA batch cert':'No cert required'}</strong></div>
+          <div><span style="color:var(--muted);">Synthetic</span><br><strong>${r.synthetic===true?'Synthetic / FD&C':r.synthetic===false?'Natural':'Unknown'}</strong></div>
+          <div><span style="color:var(--muted);">Restricted</span><br><strong style="color:${r.status==='restricted'?'#FCD34D':r.status==='banned'?'#F87171':'#4ADE80'}">${r.status==='restricted'?'Yes — use limits apply':r.status==='banned'?'BANNED':'No known restriction'}</strong></div>
+          <div><span style="color:var(--muted);">Status</span><br><strong>${r.status||'unknown'}</strong></div>
+        </div>
+      </div>`;
+  }
+
+  const docsHtml = (r.documentation_required||[]).length
+    ? (r.documentation_required||[]).map(d=>`<div style="font-size:11px;color:var(--text);padding:4px 0;border-bottom:1px solid var(--border);">▸ ${d}</div>`).join('')
+    : '<div style="font-size:11px;color:var(--muted);">None beyond standard COA</div>';
+
+  const aliasHtml = (r.aliases||[]).length
+    ? (r.aliases||[]).slice(0,8).join(', ')
+    : '—';
+
+  document.getElementById('ic-drawer-content').innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;">
+      <div>
+        <div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px;">${r.us_name}</div>
+        <div style="font-size:11px;color:var(--muted);">Supplier term: <span style="font-family:var(--mono);color:var(--dim);">${r.original}</span></div>
+      </div>
+      <span style="background:${rc.badge};color:${rc.color};font-family:var(--mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:4px;">${(r.risk_level||'?').toUpperCase()}</span>
+    </div>
+    ${colorPanel}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;font-size:11px;">
+      <div><div style="color:var(--muted);font-size:9px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;">Category</div><div>${(r.category||'?').replace(/_/g,' ')}</div></div>
+      <div><div style="color:var(--muted);font-size:9px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;">Status</div><div>${r.status||'unknown'}</div></div>
+      <div><div style="color:var(--muted);font-size:9px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;">Match Type</div><div>${MT_CONF[r.match_type]||r.match_type||'Unknown'}</div></div>
+      <div>
+        <div style="color:var(--muted);font-size:9px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;">Confidence</div>
+        <div style="color:${confColor};font-weight:700;">${conf}%</div>
+        <div style="width:100%;height:3px;background:var(--border2);border-radius:2px;margin-top:3px;"><div style="width:${conf}%;height:100%;background:${confColor};border-radius:2px;"></div></div>
+      </div>
+    </div>
+    ${r.why_flagged ? `<div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:6px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--text);line-height:1.6;"><span style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--orange);display:block;margin-bottom:5px;">Why it matters</span>${r.why_flagged}</div>` : ''}
+    <div style="margin-bottom:14px;">
+      <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Label Declaration</div>
+      <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text);background:var(--surface2);border:1px solid var(--border2);padding:10px 12px;border-radius:4px;">${r.us_name}</div>
+      ${r.labeling_notes ? `<div style="font-size:11px;color:var(--dim);margin-top:6px;">${r.labeling_notes}</div>` : ''}
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Known Aliases</div>
+      <div style="font-size:11px;color:var(--dim);">${aliasHtml}</div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Required Documents</div>
+      ${docsHtml}
+    </div>
+    ${r.source_url ? `<a href="${r.source_url}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--blue);text-decoration:none;margin-top:4px;">↗ FDA Source / Regulation</a>` : ''}
+  `;
+  document.getElementById('ic-drawer').style.display = 'flex';
+}
+
+function icCloseDrawer() { document.getElementById('ic-drawer').style.display = 'none'; }
+
+// ── Smart Supplier Follow-Up ──────────────────────────────────────────────────
+function icBuildFollowup(data) {
+  const flagged = data.rows.filter(r => r.risk_level !== 'green' || (r.documentation_required||[]).length > 0);
+  if (!flagged.length) { document.getElementById('ic-followup-card').style.display = 'none'; return; }
+
+  // Build dynamic per-ingredient requests
+  const items = flagged.map((r, i) => {
+    const docs = (r.documentation_required||[]);
+    let specific = '';
+    if (r.category === 'color_additive') specific = 'FDA batch certificate, COA, and declared use percentage';
+    else if (r.category === 'allergen') specific = 'allergen declaration and source statement';
+    else if (r.category === 'flavor') specific = 'flavor house letter, FEMA GRAS status, natural vs artificial confirmation';
+    else if (!r.matched) specific = 'exact English name, original Chinese/local name, CAS number, COA, and FDA GRAS or food additive status';
+    else if (docs.length) specific = docs.join('; ');
+    else specific = 'COA and regulatory documentation';
+    const usSuffix = r.us_name && r.us_name !== r.original && !['NOT APPROVED','UNKNOWN','TRANSLATION','REQUIRES'].some(p=>r.us_name.startsWith(p)) ? ` (U.S. name: ${r.us_name})` : '';
+    return `${i+1}. ${r.original}${usSuffix}\n   → ${specific}`;
+  }).join('\n\n');
+
+  const supplierName = (document.getElementById('ic-supplier-name')?.value||'').trim();
+  const greeting = supplierName ? `Regarding the formula submitted by ${supplierName}` : 'Regarding the formula under review';
+
+  const txt = `Dear Supplier,
+
+${greeting} — we are preparing this product for U.S. market retail and require documentation before we can approve this formula for import or packaging.
+
+Please provide the following for each ingredient:
+
+${items}
+
+Standard documentation required for all items:
+- Certificate of Analysis (COA) with heavy metals testing
+- Allergen statement
+- U.S. regulatory declaration name
+
+⚠ Any ingredient not compliant with 21 CFR / FDA food additive regulations cannot be included. Please advise on alternatives if an item cannot be documented.
+
+Thank you,
+Hidden Supply`;
+
+  document.getElementById('ic-followup-txt').value = txt;
+  document.getElementById('ic-followup-card').style.display = 'block';
+}
+
+// ── History ───────────────────────────────────────────────────────────────────
+async function icSaveCheck() {
+  if (!_icLastResult) { toast('Nothing to save', 'Run a check first.'); return; }
+  const supplier = (document.getElementById('ic-supplier-name')?.value || '').trim();
+  const entry = {
+    supplier: supplier || 'Unknown',
+    formula: document.getElementById('ic-raw')?.value || '',
+    summary: _icLastResult.summary,
+    overall: _icLastResult.overall,
+    counts: _icLastResult.counts,
+    usDraft: _icLastResult.usDraft,
+    flaggedItems: _icLastResult.rows.filter(r=>r.risk_level!=='green').map(r=>r.original),
+    checkedAt: _icLastResult.checkedAt || new Date().toISOString()
+  };
+  try {
+    const r = await fetch('/api/import-compliance/history', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(entry)
+    });
+    const d = await r.json();
+    if (d.ok) { toast('Saved', 'Check saved to history.'); icLoadHistory(); }
+  } catch(e) { toast('Error', e.message); }
+}
+
+async function icLoadHistory() {
+  try {
+    const r = await fetch('/api/import-compliance/history');
+    const hist = await r.json();
+    const el = document.getElementById('ic-history-list');
+    if (!el) return;
+    if (!hist.length) { el.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:8px 0;">No saved checks yet.</div>'; return; }
+    el.innerHTML = hist.slice(0,10).map(h => {
+      const cfg = IC_RISK_CFG[h.overall] || IC_RISK_CFG.yellow;
+      const dt = new Date(h.checkedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'});
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);gap:8px;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${h.supplier}</div>
+          <div style="font-size:10px;color:var(--muted);">${dt} · ${h.counts?.total||0} ingredients</div>
+          ${h.flaggedItems?.length ? `<div style="font-size:10px;color:var(--dim);margin-top:2px;">Flagged: ${h.flaggedItems.slice(0,3).join(', ')}${h.flaggedItems.length>3?' +more':''}</div>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+          <span style="background:${IC_ROW_CLR[h.overall]?.badge||IC_ROW_CLR.yellow.badge};color:${IC_ROW_CLR[h.overall]?.color||IC_ROW_CLR.yellow.color};font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;">${(h.overall||'?').toUpperCase()}</span>
+          <button onclick="icRestoreHistory(${h.id})" style="background:none;border:1px solid var(--border2);color:var(--dim);font-size:10px;cursor:pointer;border-radius:3px;padding:2px 7px;">Load</button>
+          <button onclick="icDeleteHistory(${h.id},this)" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:2px 4px;" title="Delete">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.error('History load:', e); }
+}
+
+async function icDeleteHistory(id, btn) {
+  await fetch(`/api/import-compliance/history/${id}`, { method:'DELETE' });
+  icLoadHistory();
+}
+
+async function icRestoreHistory(id) {
+  const r = await fetch('/api/import-compliance/history');
+  const hist = await r.json();
+  const entry = hist.find(h => h.id === id);
+  if (!entry) return;
+  document.getElementById('ic-raw').value = entry.formula || '';
+  document.getElementById('ic-supplier-name').value = entry.supplier || '';
+  toast('Restored', `Loaded check from ${new Date(entry.checkedAt).toLocaleDateString()}`);
+}
+
+// ── UI Helpers ────────────────────────────────────────────────────────────────
+function icReset() {
+  document.getElementById('ic-raw').value = '';
+  document.getElementById('ic-supplier-name').value = '';
+  _icLastResult = null; _icTableRows = [];
+  ['ic-banner','ic-breakdown','ic-draft-card','ic-packaging-card','ic-table-card',
+   'ic-followup-card','ic-filter-bar','ic-save-bar'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+}
+
+function icCopyDraft() {
+  const text = document.getElementById('ic-draft-text')?.textContent || '';
+  navigator.clipboard?.writeText(text).then(() => toast('Copied','U.S. ingredient draft copied.'));
+}
+
+function icUseDraft() {
+  // Push draft to Ingredient Intel textarea if present
+  const text = (document.getElementById('ic-draft-text')?.textContent || '').replace(/^INGREDIENTS:\s*/i,'');
+  const iiRaw = document.getElementById('ii-raw');
+  if (iiRaw) { iiRaw.value = text; nfsNav('ingredient-intel'); toast('Sent to Ingredient Intel','Now run Normalize & Analyze.'); }
+}
+
+function icCopyFollowup() {
+  const text = document.getElementById('ic-followup-txt')?.value || '';
+  navigator.clipboard?.writeText(text).then(() => toast('Copied','Supplier follow-up copied.'));
+}
+
+function icExport() {
+  if (!_icLastResult) { toast('Nothing to export','Run a check first.'); return; }
+  const { rows, summary, usDraft, checkedAt } = _icLastResult;
+  const headers = ['Supplier Term','U.S. Name','Category','Risk','Match Type','Confidence %','Why Flagged','Docs Required'];
+  const lines = [headers.join('\t')];
+  rows.forEach(r => lines.push([
+    r.original, r.us_name, r.category, r.risk_level,
+    MT_CONF[r.match_type]||'?', r.confidence||0,
+    (r.why_flagged||'').replace(/\t/g,' '),
+    (r.documentation_required||[]).join('; ')
+  ].join('\t')));
+  const draft = document.getElementById('ic-draft-text')?.textContent || usDraft;
+  const full = `HIDDEN SUPPLY — IMPORT COMPLIANCE CHECK v2\n${'='.repeat(60)}\nGenerated: ${new Date(checkedAt).toLocaleString()}\n\nSUMMARY\n${summary}\n\nU.S. INGREDIENT DRAFT\n${draft}\n\nCOMPLIANCE TABLE (TSV)\n${lines.join('\n')}\n\nPREFLIGHT TOOL ONLY — NOT LEGAL CLEARANCE`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([full],{type:'text/plain'}));
+  a.download = `ic-check-${Date.now()}.txt`;
+  a.click();
+}
+
+async function icDbLoad() {
+  try {
+    const r = await fetch('/api/import-compliance/db');
+    document.getElementById('ic-db-editor').value = await r.text();
+  } catch(e) { toast('Error', e.message); }
+}
+
+async function icDbSave() {
+  const raw = document.getElementById('ic-db-editor')?.value||'';
+  try {
+    JSON.parse(raw);
+    const r = await fetch('/api/import-compliance/db', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: raw
+    });
+    const d = await r.json();
+    const s = document.getElementById('ic-db-status');
+    if (d.ok) { s.textContent=`✓ Saved (${d.count} ingredients)`; s.style.display='block'; setTimeout(()=>s.style.display='none',3000); }
+    else throw new Error(d.error);
+  } catch(e) { toast('Save failed',e.message); }
+}
+
+// nfsNav patching for import-check is handled in nfs-init.js (after all nav versions are defined)
+// ── /Import Compliance Check v2 ───────────────────────────────────────────────
+
 function iiReset() {
   iiState = { clean:'', detectedAllergens:[], selectedAllergens: new Set(), detectedColors:[], dupes:[] };
   const cleanEl = document.getElementById('ii-clean');
@@ -7686,6 +8864,7 @@ window.addEventListener('DOMContentLoaded', () => {
      ═══════════════════════════════════════════════════════════ -->
 <script src="modules/nfs-typography.js"></script>
 <script src="modules/nfs-ingredient-intel.js"></script>
+<script src="modules/nfs-small-pack.js"></script>
 <script src="nfs-init.js"></script>
 
 </body>
