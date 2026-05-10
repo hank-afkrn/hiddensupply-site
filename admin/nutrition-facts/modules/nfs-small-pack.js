@@ -538,6 +538,38 @@ function spcDistAtomHTML(d, fs) {
   return `<div style="font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#000;max-width:220px;">${parts.join('')}</div>`;
 }
 
+// ── Quick export — callable directly from Export Center without nav change ────
+function spcQuickExport(type) {
+  const d = spcGetData();
+  if (!d) { if (typeof toast === 'function') toast('No Project', 'Open a label first.'); return; }
+  const fs   = 6; // FDA minimum
+  const bg   = 'white';
+  const name = (d.name || 'label').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+  switch (type) {
+    case 'mini':
+      spcExportAtom('nutrition', d, fs, bg, name);
+      if (typeof toast === 'function') toast('Exported', name + '_mini_nutrition_panel.html');
+      break;
+    case 'mini-ing':
+      spcExportMiniWithIng(d, fs, bg, name);
+      if (typeof toast === 'function') toast('Exported', name + '_mini_nutrition_ingredients.html');
+      break;
+    case 'split':
+      // Export all 4 atoms + preview
+      spcExportAtom('nutrition',   d, fs, bg, name);
+      setTimeout(() => spcExportAtom('ingredients', d, fs, bg, name), 450);
+      setTimeout(() => spcExportAtom('barcode',     d, fs, bg, name), 900);
+      setTimeout(() => {
+        if (d.distLines.length || d.origin) spcExportAtom('distributor', d, fs, bg, name);
+      }, 1350);
+      setTimeout(() => spcExportCombinedPreview(d, fs, bg, name, true, true, true, !!(d.distLines.length || d.origin)), 1800);
+      if (typeof toast === 'function') setTimeout(() => toast('Split Pack Exported', '4–5 files downloaded'), 2200);
+      break;
+  }
+  if (typeof trackExport === 'function') trackExport('small-pack-quick-' + type, d.name);
+}
+
 // Hook into editorUpdate so preview refreshes when label data changes
 (function() {
   const orig = window.editorUpdate;

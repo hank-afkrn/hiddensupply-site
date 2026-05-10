@@ -2654,6 +2654,24 @@ input:focus, textarea:focus, select:focus {
           </div>
         </div>
 
+        <!-- Small Pack Export (inline) -->
+        <div class="section-label" style="margin-top:24px;">Small Pack Export</div>
+        <div class="export-tier" style="border-color:rgba(139,92,246,0.4);background:rgba(139,92,246,0.04);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div>
+              <div class="export-tier-name" style="color:#a78bfa;">📦 Small Package Assets</div>
+              <div class="export-tier-desc">FDA-compliant atoms for constrained packaging — blister cards, narrow strips, fruit-shaped packs. Each export is tightly cropped and immediately placeable.</div>
+            </div>
+            <span class="badge" style="background:rgba(139,92,246,0.15);color:#a78bfa;">Small Pack</span>
+          </div>
+          <div class="btn-row" style="flex-wrap:wrap;gap:6px;">
+            <button class="btn btn-sm btn-secondary" onclick="spcQuickExport('mini')" title="Nutrition Facts box only — no ingredients, no support copy">📄 Mini FDA Panel</button>
+            <button class="btn btn-sm btn-secondary" onclick="spcQuickExport('mini-ing')" title="Nutrition Facts + ingredients stacked, barcode separate">📦 Mini FDA + Ingredients</button>
+            <button class="btn btn-sm btn-primary" onclick="spcQuickExport('split')" title="4 separate atom files — nutrition, ingredients, barcode, distributor">📦 Designer Split Pack</button>
+          </div>
+          <div style="font-size:10px;color:var(--muted);margin-top:8px;">Open each exported HTML file in browser → Print → Save as PDF for press-ready output.</div>
+        </div>
+
         <!-- Packaging Handoff (v3) -->
         <div class="section-label" style="margin-top:24px;">Packaging Handoff</div>
         <div class="card">
@@ -7135,25 +7153,70 @@ ${metaBlock}
 }
 
 function exportPNG(scale) {
-  const labelEl = document.getElementById('nf-label-preview');
-  if (!labelEl) { toast('No Preview', 'Open a label first.'); return; }
+  if (!nfsCurrent) { toast('No Preview', 'Open a label first.'); return; }
   toast('Rendering...', 'Generating PNG...', 4000);
-  const load = () => {
-    window.html2canvas(labelEl, { scale, backgroundColor: '#ffffff', useCORS: true }).then(canvas => {
-      const name = (nfsCurrent?.name || 'label').toLowerCase().replace(/\s+/g, '-');
-      const tier = scale >= 4 ? 'hires' : 'standard';
+
+  // Build a clean off-screen container — NO transforms, NO constrained rail width,
+  // NO overflow hidden. html2canvas captures exactly what's in the DOM, so we must
+  // inject the label into a pristine context before capturing.
+  const name = (nfsCurrent?.name || 'label').toLowerCase().replace(/\s+/g, '-');
+  const tier = scale >= 4 ? 'hires' : 'standard';
+
+  const doCapture = () => {
+    // 1. Inject a clean <style> block + fresh label HTML into an off-screen div
+    const offscreen = document.createElement('div');
+    offscreen.style.cssText = [
+      'position:fixed', 'left:-9999px', 'top:0',
+      'background:#fff', 'padding:0', 'margin:0',
+      'transform:none', 'zoom:1', 'width:auto',
+      'overflow:visible', 'visibility:visible',
+    ].join(';');
+
+    // Inject the label CSS into the offscreen context via a scoped <style> tag
+    const styleEl = document.createElement('style');
+    styleEl.textContent = getLabelCSS();
+    offscreen.appendChild(styleEl);
+
+    // Clone the label HTML fresh (same as print export — not the live zoomed DOM node)
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = getLabelHTML();
+    // Remove any leftover transform/zoom inline styles from the clone
+    const clonedLabel = wrapper.firstElementChild;
+    if (clonedLabel) {
+      clonedLabel.style.transform = 'none';
+      clonedLabel.style.zoom = '1';
+      clonedLabel.style.width = '';  // let CSS define width naturally
+    }
+    offscreen.appendChild(wrapper);
+    document.body.appendChild(offscreen);
+
+    // 2. Capture the clean clone
+    window.html2canvas(wrapper, {
+      scale,
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      logging: false,
+      // Don't allow html2canvas to inherit viewport transforms
+      windowWidth: 900,
+      windowHeight: 1200,
+    }).then(canvas => {
+      document.body.removeChild(offscreen);
       const a = document.createElement('a');
       a.download = `nf_${name}_${tier}.png`;
       a.href = canvas.toDataURL('image/png');
       a.click();
       trackExport('png-' + tier, nfsCurrent?.name);
       toast('PNG Exported', `${scale}x scale PNG downloaded.`);
-    }).catch(e => { toast('PNG Failed', 'Render error: ' + e.message); });
+    }).catch(e => {
+      try { document.body.removeChild(offscreen); } catch(_) {}
+      toast('PNG Failed', 'Render error: ' + e.message);
+    });
   };
-  if (window.html2canvas) { load(); return; }
+
+  if (window.html2canvas) { doCapture(); return; }
   const s = document.createElement('script');
   s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-  s.onload = load;
+  s.onload = doCapture;
   s.onerror = () => toast('html2canvas unavailable', 'Check internet connection.');
   document.head.appendChild(s);
 }
