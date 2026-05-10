@@ -1929,7 +1929,7 @@ input:focus, textarea:focus, select:focus {
               <button class="btn btn-sm btn-primary" style="justify-content:center;" onclick="nfsSaveProject()">&#128190; Save <span class="kbd" style="margin-left:4px;">⌘S</span></button>
               <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="printLabel('draft')">&#128438; Print PDF</button>
               <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="exportPNG(3)">&#128247; Export PNG</button>
-              <button class="btn btn-sm btn-secondary" style="justify-content:center;border-color:rgba(139,92,246,0.5);color:#a78bfa;" onclick="spcQuickExport('split')">&#128230; Designer Split Pack</button>
+              <button class="btn btn-sm btn-secondary" style="justify-content:center;border-color:rgba(139,92,246,0.5);color:#a78bfa;" onclick="spcQuickExport('split')">&#128230; Split Pack .zip</button>
               <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="nfsNav('compliance')">&#9989; Run Preflight</button>
               <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="nfsNav('export')">&#128228; Export Center →</button>
             </div>
@@ -2666,11 +2666,11 @@ input:focus, textarea:focus, select:focus {
             <span class="badge" style="background:rgba(139,92,246,0.15);color:#a78bfa;">Small Pack</span>
           </div>
           <div class="btn-row" style="flex-wrap:wrap;gap:6px;">
-            <button class="btn btn-sm btn-secondary" onclick="spcQuickExport('mini')" title="Nutrition Facts box only — no ingredients, no support copy">📄 Mini FDA Panel</button>
-            <button class="btn btn-sm btn-secondary" onclick="spcQuickExport('mini-ing')" title="Nutrition Facts + ingredients stacked, barcode separate">📦 Mini FDA + Ingredients</button>
-            <button class="btn btn-sm btn-primary" onclick="spcQuickExport('split')" title="4 separate atom files — nutrition, ingredients, barcode, distributor">📦 Designer Split Pack</button>
+            <button class="btn btn-sm btn-secondary" onclick="spcQuickExport('mini')" title="Micro NF panel only — SVG+PNG in ZIP">📄 Micro NF Panel</button>
+            <button class="btn btn-sm btn-secondary" onclick="spcQuickExport('mini-ing')" title="Micro NF + ingredients — SVG+PNG in ZIP">📦 NF + Ingredients</button>
+            <button class="btn btn-sm btn-primary" onclick="spcQuickExport('split')" title="Full split pack — nutrition, ingredients, barcode, distributor as SVG+PNG in ZIP">📦 Designer Split Pack (.zip)</button>
           </div>
-          <div style="font-size:10px;color:var(--muted);margin-top:8px;">Open each exported HTML file in browser → Print → Save as PDF for press-ready output.</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:8px;">Downloads a <strong>.zip</strong> with SVG + PNG for each atom — drag into Illustrator or Figma directly.</div>
         </div>
 
         <!-- Packaging Handoff (v3) -->

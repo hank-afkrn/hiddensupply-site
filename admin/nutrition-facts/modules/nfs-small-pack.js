@@ -1,32 +1,50 @@
 /**
- * nfs-small-pack.js — Small Pack Asset Generator
- * Version: 2.0.0
+ * nfs-small-pack.js — Small Pack Asset Generator v3.0
  *
- * Production-first workflow. Select type → click export → receive files.
+ * Generates production-ready design atoms for constrained packaging.
+ * Target: 6"×5" shaped blister cards, die-cut packs, narrow strips.
  *
- * Export types:
- *  single    → full label PDF (existing flow, enhanced)
- *  mini      → nutrition panel only, tightly cropped
- *  mini-ing  → nutrition panel + ingredients block
- *  split     → 4 separate files (NF panel, ingredients, barcode, distributor) + optional preview
+ * Renderer modes:
+ *  micro  — competitor-style, single-line title, linear nutrients, squat horizontal (DEFAULT for split)
+ *  mini   — compact vertical, still tight, for slightly larger panels
  *
- * FDA reference: 21 CFR 101.9(j)(13) — small/intermediate packages
+ * Export:
+ *  ZIP containing: nutrition.svg, nutrition.png, ingredients.svg, ingredients.png,
+ *                  barcode.svg, barcode.png, distributor.svg, distributor.png,
+ *                  preview.svg
+ *
+ * No HTML-only files. Every atom is SVG-first, PNG second.
+ *
+ * FDA ref: 21 CFR 101.9(j)(13) — small/intermediate packages
+ * Competitor ref: inline linear layout, single-line title, ~0.35 h/w ratio
  */
 
 // ── State ────────────────────────────────────────────────────────────────────
-let _spcType = 'single';
-let _spcZoom = 1;
+let _spcType   = 'single';
+let _spcZoom   = 1;
+let _spcRender = 'micro'; // 'micro' | 'mini'
+
+// ── JSZip loader ─────────────────────────────────────────────────────────────
+let _jsZipReady = false;
+function _loadJSZip(cb) {
+  if (window.JSZip) { cb(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+  s.onload = () => { _jsZipReady = true; cb(); };
+  s.onerror = () => { if (typeof toast === 'function') toast('JSZip unavailable', 'Check internet connection.'); };
+  document.head.appendChild(s);
+}
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 function spcInit() {
   const d = spcGetData();
   const hasProject = !!d;
-  document.getElementById('spc-no-project').style.display = hasProject ? 'none'  : 'block';
-  document.getElementById('spc-main').style.display       = hasProject ? 'block' : 'none';
+  const noEl = document.getElementById('spc-no-project');
+  const mainEl = document.getElementById('spc-main');
+  if (noEl) noEl.style.display = hasProject ? 'none' : 'block';
+  if (mainEl) mainEl.style.display = hasProject ? 'block' : 'none';
   if (!hasProject) return;
-
-  // Restore last used type
-  const saved = localStorage.getItem('spc_last_type') || 'single';
+  const saved = localStorage.getItem('spc_last_type') || 'split';
   spcSelectType(saved, true);
 }
 
@@ -34,41 +52,26 @@ function spcInit() {
 function spcSelectType(type, silent) {
   _spcType = type;
   localStorage.setItem('spc_last_type', type);
-
-  // Update radio
   const radio = document.querySelector(`input[name="spc-type"][value="${type}"]`);
   if (radio) radio.checked = true;
-
-  // Update border highlights
   ['single','mini','mini-ing','split'].forEach(t => {
     const lbl = document.getElementById('spc-type-' + t + '-lbl');
     if (!lbl) return;
-    if (t === type) {
-      lbl.style.borderColor = 'var(--accent)';
-      lbl.style.background  = 'var(--accent-bg)';
-    } else {
-      lbl.style.borderColor = 'var(--border)';
-      lbl.style.background  = '';
-    }
+    lbl.style.borderColor = t === type ? 'var(--accent)' : 'var(--border)';
+    lbl.style.background  = t === type ? 'var(--accent-bg)' : '';
   });
-
-  // Show/hide split options
   const splitOpts = document.getElementById('spc-split-options');
   if (splitOpts) splitOpts.style.display = type === 'split' ? 'block' : 'none';
-
-  // Update button label
   const btn = document.getElementById('spc-export-btn');
   if (btn) {
     const labels = {
       single:    '📄 Export Single PDF',
       mini:      '📦 Export Mini FDA Panel',
       'mini-ing':'📦 Export Mini FDA + Ingredients',
-      split:     '📦 Export Designer Split Pack',
+      split:     '📦 Export Designer Split Pack (.zip)',
     };
     btn.innerHTML = labels[type] || '📄 Generate Export';
   }
-
-  // Update preview title
   const title = document.getElementById('spc-preview-title');
   if (title) {
     const titles = {
@@ -79,82 +82,62 @@ function spcSelectType(type, silent) {
     };
     title.textContent = titles[type] || 'Preview';
   }
-
-  // Font warning
-  const fs = parseFloat(document.getElementById('spc-min-font')?.value) || 6;
-  const warn = document.getElementById('spc-font-warn');
-  if (warn) warn.style.display = fs < 6 ? 'flex' : 'none';
-
   if (!silent) spcRenderPreview();
 }
 
 // ── Render preview ────────────────────────────────────────────────────────────
 function spcRenderPreview() {
-  const d   = spcGetData();
+  const d = spcGetData();
   const inner = document.getElementById('spc-preview-inner');
   if (!inner) return;
   if (!d) {
     inner.innerHTML = '<div style="font-size:12px;color:#999;text-align:center;padding:40px;">No project data.</div>';
     return;
   }
-
-  const fs  = Math.max(parseFloat(document.getElementById('spc-min-font')?.value) || 6, 5);
-  const bg  = document.getElementById('spc-bg')?.value || 'white';
-  const bgCss = bg === 'transparent' ? 'transparent' : '#fff';
+  const mode = (document.getElementById('spc-render-mode')?.value) || 'micro';
+  _spcRender = mode;
 
   let html = '';
-
   switch (_spcType) {
     case 'mini':
-      html = `<div style="background:${bgCss};display:inline-block;padding:0;">${spcNFBoxHTML(d, fs)}</div>`;
+      html = spcSVGtoImg(spcNFMicroSVG(d)) + '<div style="margin-top:8px;">' + spcSVGtoImg(spcIngSVG(d)) + '</div>';
       break;
-
     case 'mini-ing':
-      html = `<div style="background:${bgCss};display:inline-block;">
-        ${spcNFBoxHTML(d, fs)}
-        <div style="margin-top:6px;">${spcIngAtomHTML(d, fs)}</div>
-      </div>`;
+      html = spcSVGtoImg(spcNFMicroSVG(d)) + '<div style="margin-top:6px;">' + spcSVGtoImg(spcIngSVG(d)) + '</div>';
       break;
-
-    case 'split':
-      const incNutrition   = document.getElementById('spc-inc-nutrition')?.checked !== false;
-      const incIngredients = document.getElementById('spc-inc-ingredients')?.checked !== false;
-      const incBarcode     = document.getElementById('spc-inc-barcode')?.checked !== false;
-      const incDist        = document.getElementById('spc-inc-dist')?.checked;
-
+    case 'split': {
+      const incN = document.getElementById('spc-inc-nutrition')?.checked !== false;
+      const incI = document.getElementById('spc-inc-ingredients')?.checked !== false;
+      const incB = document.getElementById('spc-inc-barcode')?.checked !== false;
+      const incD = document.getElementById('spc-inc-dist')?.checked;
       const atoms = [];
-      if (incNutrition)   atoms.push(spcAtomCard('① Nutrition Facts',       spcNFBoxHTML(d, fs),       bgCss));
-      if (incIngredients) atoms.push(spcAtomCard('② Ingredients',           spcIngAtomHTML(d, fs),     bgCss));
-      if (incBarcode)     atoms.push(spcAtomCard('③ Barcode',               spcBarcodeAtomHTML(d, fs), bgCss));
-      if (incDist)        atoms.push(spcAtomCard('④ Distributor / Origin',  spcDistAtomHTML(d, fs),    bgCss));
-
-      html = `<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;">${atoms.join('')}</div>`;
+      if (incN) atoms.push(spcPreviewAtom('① Nutrition',   spcSVGtoImg(spcNFMicroSVG(d))));
+      if (incI) atoms.push(spcPreviewAtom('② Ingredients', spcSVGtoImg(spcIngSVG(d))));
+      if (incB) atoms.push(spcPreviewAtom('③ Barcode',     spcSVGtoImg(spcBarcodeSVG(d))));
+      if (incD) atoms.push(spcPreviewAtom('④ Distributor', spcSVGtoImg(spcDistSVG(d))));
+      html = `<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;">${atoms.join('')}</div>`;
       break;
-
-    default: // single
-      html = `<div style="background:${bgCss};display:inline-block;padding:0;">
-        ${spcNFBoxHTML(d, fs)}
-        <div style="margin-top:6px;">${spcIngAtomHTML(d, fs)}</div>
-        ${d.hasBarcode ? `<div style="margin-top:4px;">${spcBarcodeAtomHTML(d, fs)}</div>` : ''}
-        ${(d.distLines.length || d.origin) ? `<div style="margin-top:4px;">${spcDistAtomHTML(d, fs)}</div>` : ''}
-      </div>`;
+    }
+    default:
+      html = spcSVGtoImg(spcNFMicroSVG(d));
       break;
   }
-
   inner.innerHTML = html;
   inner.style.transform = `scale(${_spcZoom})`;
-
-  // Status line
-  const status = document.getElementById('spc-export-status');
-  if (status) status.textContent = '';
+  inner.style.transformOrigin = 'top left';
 }
 
-// ── Atom card wrapper (preview only) ─────────────────────────────────────────
-function spcAtomCard(label, innerHtml, bg) {
+function spcPreviewAtom(label, imgHtml) {
   return `<div>
-    <div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:5px;">${label}</div>
-    <div style="background:${bg};display:inline-block;box-shadow:0 2px 8px rgba(0,0,0,0.12);">${innerHtml}</div>
+    <div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#666;margin-bottom:4px;">${label}</div>
+    ${imgHtml}
   </div>`;
+}
+
+// Inline SVG → <img> for preview (avoids foreignObject issues)
+function spcSVGtoImg(svgStr) {
+  const encoded = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+  return `<img src="${encoded}" style="display:block;max-width:100%;border:1px solid #e2e8f0;background:#fff;">`;
 }
 
 // ── Zoom ─────────────────────────────────────────────────────────────────────
@@ -165,7 +148,7 @@ function spcZoom(dir) {
   idx = Math.max(0, Math.min(steps.length - 1, idx + dir));
   _spcZoom = steps[idx];
   const inner = document.getElementById('spc-preview-inner');
-  if (inner) inner.style.transform = `scale(${_spcZoom})`;
+  if (inner) { inner.style.transform = `scale(${_spcZoom})`; inner.style.transformOrigin = 'top left'; }
   const lbl = document.getElementById('spc-zoom-label');
   if (lbl) lbl.textContent = Math.round(_spcZoom * 100) + '%';
 }
@@ -174,224 +157,572 @@ function spcZoom(dir) {
 function spcDoExport() {
   const d = spcGetData();
   if (!d) { if (typeof toast === 'function') toast('No Project', 'Open a label first.'); return; }
-
-  const fs   = Math.max(parseFloat(document.getElementById('spc-min-font')?.value) || 6, 5);
-  const bg   = document.getElementById('spc-bg')?.value || 'white';
   const name = (d.name || 'label').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  const setStatus = (msg) => {
-    const el = document.getElementById('spc-export-status');
-    if (el) el.textContent = msg;
-  };
+  const setStatus = msg => { const el = document.getElementById('spc-export-status'); if (el) el.textContent = msg; };
 
   switch (_spcType) {
     case 'mini':
-      spcExportAtom('nutrition', d, fs, bg, name);
-      setStatus('✓ mini_nutrition_panel.html exported — open in browser → Print → Save as PDF');
-      if (typeof toast === 'function') toast('Exported', 'mini_nutrition_panel.html');
-      break;
-
     case 'mini-ing':
-      spcExportMiniWithIng(d, fs, bg, name);
-      setStatus('✓ mini_nutrition_ingredients.html exported');
-      if (typeof toast === 'function') toast('Exported', 'mini_nutrition_ingredients.html');
+      spcExportZip(d, name, true, _spcType === 'mini-ing', false, false, false);
+      setStatus('✓ ZIP downloaded');
       break;
-
-    case 'split':
-      spcExportSplitPack(d, fs, bg, name);
+    case 'split': {
+      const incN = document.getElementById('spc-inc-nutrition')?.checked !== false;
+      const incI = document.getElementById('spc-inc-ingredients')?.checked !== false;
+      const incB = document.getElementById('spc-inc-barcode')?.checked !== false;
+      const incD = document.getElementById('spc-inc-dist')?.checked;
+      spcExportZip(d, name, incN, incI, incB, incD, true);
+      setStatus('✓ ZIP downloaded — open SVGs in Illustrator/Figma');
       break;
-
-    default: // single
-      spcExportSingle(d, fs, bg, name);
-      setStatus('✓ label_full.html exported — open in browser → Print → Save as PDF');
-      if (typeof toast === 'function') toast('Exported', name + '_label_full.html');
+    }
+    default:
+      // Single: fall back to HTML print
+      spcExportSingleHTML(d, name);
+      setStatus('✓ HTML exported — open in browser → Print → Save as PDF');
       break;
   }
-
   if (typeof trackExport === 'function') trackExport('small-pack-' + _spcType, d.name);
 }
 
-// ── Export: Single PDF ────────────────────────────────────────────────────────
-function spcExportSingle(d, fs, bg, name) {
-  const bgCss = bg === 'transparent' ? 'transparent' : '#fff';
-  const body  = `<div style="display:inline-block;background:${bgCss};padding:0;">
-    ${spcNFBoxHTML(d, fs)}
-    <div style="margin-top:6px;">${spcIngAtomHTML(d, fs)}</div>
-    ${d.hasBarcode ? `<div style="margin-top:4px;">${spcBarcodeAtomHTML(d, fs)}</div>` : ''}
-    ${(d.distLines.length || d.origin) ? `<div style="margin-top:4px;">${spcDistAtomHTML(d, fs)}</div>` : ''}
-  </div>`;
-  spcDownload(spcWrapHTML(`${d.name} — Full Label`, body, bg), `${name}_label_full.html`);
-}
-
-// ── Export: Mini FDA + Ingredients ───────────────────────────────────────────
-function spcExportMiniWithIng(d, fs, bg, name) {
-  const bgCss = bg === 'transparent' ? 'transparent' : '#fff';
-  const body  = `<div style="display:inline-block;background:${bgCss};">
-    ${spcNFBoxHTML(d, fs)}
-    <div style="margin-top:6px;">${spcIngAtomHTML(d, fs)}</div>
-  </div>`;
-  spcDownload(spcWrapHTML(`${d.name} — Mini FDA + Ingredients`, body, bg, true), `${name}_mini_nutrition_ingredients.html`);
-}
-
-// ── Export: Designer Split Pack ───────────────────────────────────────────────
-function spcExportSplitPack(d, fs, bg, name) {
-  const incNutrition   = document.getElementById('spc-inc-nutrition')?.checked !== false;
-  const incIngredients = document.getElementById('spc-inc-ingredients')?.checked !== false;
-  const incBarcode     = document.getElementById('spc-inc-barcode')?.checked !== false;
-  const incDist        = document.getElementById('spc-inc-dist')?.checked;
-  const incPreview     = document.getElementById('spc-inc-preview')?.checked !== false;
-
-  const delay = 450;
-  let i = 0;
-  const files = [];
-
-  if (incNutrition) {
-    files.push({ delay: delay * i++, fn: () => spcExportAtom('nutrition',   d, fs, bg, name) });
-  }
-  if (incIngredients) {
-    files.push({ delay: delay * i++, fn: () => spcExportAtom('ingredients', d, fs, bg, name) });
-  }
-  if (incBarcode) {
-    files.push({ delay: delay * i++, fn: () => spcExportAtom('barcode',     d, fs, bg, name) });
-  }
-  if (incDist) {
-    files.push({ delay: delay * i++, fn: () => spcExportAtom('distributor', d, fs, bg, name) });
-  }
-  if (incPreview) {
-    files.push({ delay: delay * i++, fn: () => spcExportCombinedPreview(d, fs, bg, name, incNutrition, incIngredients, incBarcode, incDist) });
-  }
-
-  files.forEach(f => setTimeout(f.fn, f.delay));
-
-  const total = files.length;
-  const setStatus = (msg) => {
-    const el = document.getElementById('spc-export-status');
-    if (el) el.textContent = msg;
-  };
-  setStatus(`Generating ${total} file${total !== 1 ? 's' : ''}…`);
-  setTimeout(() => {
-    setStatus(`✓ ${total} files exported — open each in browser → Print → Save as PDF`);
-    if (typeof toast === 'function') toast('Split Pack Exported', `${total} files`);
-  }, delay * (i + 0.5));
-}
-
-// ── Export a single atom ─────────────────────────────────────────────────────
-function spcExportAtom(type, d, fs, bg, name) {
-  let body, filename, title;
-  const bgCss = bg === 'transparent' ? 'transparent' : '#fff';
+// ── Quick export (from rail / Export Center) ──────────────────────────────────
+function spcQuickExport(type) {
+  const d = spcGetData();
+  if (!d) { if (typeof toast === 'function') toast('No Label Data', 'Open and edit a label first.'); return; }
+  const name = (d.name || 'label').toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
   switch (type) {
-    case 'nutrition':
-      title    = `${d.name} — Nutrition Facts Panel`;
-      filename = `${name}_mini_nutrition_panel.html`;
-      body     = `<div style="display:inline-block;background:${bgCss};">${spcNFBoxHTML(d, fs)}</div>`;
+    case 'mini':
+      spcExportZip(d, name, true, false, false, false, false);
       break;
-    case 'ingredients':
-      title    = `${d.name} — Ingredients`;
-      filename = `${name}_ingredients_panel.html`;
-      body     = `<div style="display:inline-block;background:${bgCss};">${spcIngAtomHTML(d, fs)}</div>`;
+    case 'mini-ing':
+      spcExportZip(d, name, true, true, false, false, false);
       break;
-    case 'barcode':
-      title    = `${d.name} — Barcode`;
-      filename = `${name}_barcode_panel.html`;
-      body     = `<div style="display:inline-block;background:${bgCss};padding:8px 12px;text-align:center;">${spcBarcodeAtomHTML(d, fs)}</div>`;
-      break;
-    case 'distributor':
-      title    = `${d.name} — Distributor / Origin`;
-      filename = `${name}_distributor_panel.html`;
-      body     = `<div style="display:inline-block;background:${bgCss};">${spcDistAtomHTML(d, fs)}</div>`;
+    case 'split':
+      spcExportZip(d, name, true, true, true, !!(d.distLines.length || d.origin), true);
       break;
   }
-  spcDownload(spcWrapHTML(title, body, bg, true), filename); // tight: crops to content
+  if (typeof trackExport === 'function') trackExport('small-pack-quick-' + type, d.name);
 }
 
-// ── Export combined preview ───────────────────────────────────────────────────
-function spcExportCombinedPreview(d, fs, bg, name, incN, incI, incB, incD) {
-  const bgCss = bg === 'transparent' ? 'transparent' : '#fff';
-  const atoms = [];
-  if (incN) atoms.push(spcAtomCardExport('Nutrition Facts Panel',     spcNFBoxHTML(d, fs),       bgCss));
-  if (incI) atoms.push(spcAtomCardExport('Ingredients',               spcIngAtomHTML(d, fs),     bgCss));
-  if (incB) atoms.push(spcAtomCardExport('Barcode',                   spcBarcodeAtomHTML(d, fs), bgCss));
-  if (incD) atoms.push(spcAtomCardExport('Distributor / Origin',      spcDistAtomHTML(d, fs),    bgCss));
+// ── ZIP export ────────────────────────────────────────────────────────────────
+function spcExportZip(d, name, incN, incI, incB, incD, incPreview) {
+  if (typeof toast === 'function') toast('Building ZIP…', 'Generating SVG atoms…', 3000);
+  _loadJSZip(() => {
+    const zip = new JSZip();
+    const folder = zip.folder(name + '_split_pack');
 
-  const body = `
-  <div style="font-family:'Helvetica Neue',Arial,sans-serif;padding:16px;">
-    <div style="font-size:10px;color:#888;margin-bottom:16px;">
-      <strong>${d.name}</strong> · Designer Split Pack Preview · ${new Date().toLocaleDateString()} · Hidden Supply NFS
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start;">${atoms.join('')}</div>
-    <div style="margin-top:20px;font-size:9px;color:#aaa;border-top:1px solid #eee;padding-top:10px;">
-      Each panel above is a separate exported file. Open each file individually, then Print → Save as PDF for press-ready output.
-    </div>
-  </div>`;
+    const adds = [];
+    if (incN) {
+      const svg = spcNFMicroSVG(d);
+      folder.file('micro_nutrition_panel.svg', svg);
+      adds.push(spcSVGtoPNGBlob(svg).then(b => { if (b) folder.file('micro_nutrition_panel.png', b); }));
+    }
+    if (incI) {
+      const svg = spcIngSVG(d);
+      folder.file('ingredients_panel.svg', svg);
+      adds.push(spcSVGtoPNGBlob(svg).then(b => { if (b) folder.file('ingredients_panel.png', b); }));
+    }
+    if (incB) {
+      const svg = spcBarcodeSVG(d);
+      folder.file('barcode_panel.svg', svg);
+      adds.push(spcSVGtoPNGBlob(svg).then(b => { if (b) folder.file('barcode_panel.png', b); }));
+    }
+    if (incD) {
+      const svg = spcDistSVG(d);
+      folder.file('distributor_panel.svg', svg);
+      adds.push(spcSVGtoPNGBlob(svg).then(b => { if (b) folder.file('distributor_panel.png', b); }));
+    }
+    if (incPreview) {
+      folder.file('combined_preview.svg', spcCombinedPreviewSVG(d, incN, incI, incB, incD));
+    }
 
-  spcDownload(spcWrapHTML(`${d.name} — Designer Split Pack Preview`, body, 'white'), `${name}_split_pack_preview.html`);
+    // README
+    folder.file('README.txt', [
+      `${d.name} — Designer Split Pack`,
+      `Generated: ${new Date().toLocaleString()}`,
+      `Hidden Supply NFS v3.0`,
+      '',
+      'FILES:',
+      incN ? '  micro_nutrition_panel.svg / .png — FDA-compliant micro NF panel' : '',
+      incI ? '  ingredients_panel.svg / .png     — Ingredients + allergens' : '',
+      incB ? '  barcode_panel.svg / .png         — UPC barcode (vector)' : '',
+      incD ? '  distributor_panel.svg / .png     — Distributor / origin / net wt' : '',
+      incPreview ? '  combined_preview.svg             — All atoms side by side' : '',
+      '',
+      'USAGE:',
+      '  Open SVG files directly in Illustrator or Figma.',
+      '  PNG files are @3x (288ppi) for press-ready placement.',
+      '  All fonts are embedded as SVG text paths — no font dependencies.',
+      '',
+      'FDA NOTE:',
+      '  Micro panel follows 21 CFR 101.9(j)(13) small-package provisions.',
+      '  Minimum 6pt text maintained throughout.',
+    ].filter(l => l !== '').join('\n'));
+
+    Promise.all(adds).then(() => {
+      zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }).then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name + '_split_pack.zip';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 800);
+        if (typeof toast === 'function') toast('ZIP Downloaded', `${name}_split_pack.zip`);
+      });
+    });
+  });
 }
 
-function spcAtomCardExport(label, innerHtml, bg) {
-  return `<div>
-    <div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;margin-bottom:4px;">${label}</div>
-    <div style="background:${bg};display:inline-block;border:1px solid #ddd;">${innerHtml}</div>
-  </div>`;
+// SVG → PNG Blob at 3x resolution
+function spcSVGtoPNGBlob(svgStr) {
+  return new Promise(resolve => {
+    try {
+      const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+      const url  = URL.createObjectURL(blob);
+      const img  = new Image();
+      img.onload = () => {
+        const scale = 3;
+        const w = img.naturalWidth  || 300;
+        const h = img.naturalHeight || 200;
+        const canvas = document.createElement('canvas');
+        canvas.width  = w * scale;
+        canvas.height = h * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.scale(scale, scale);
+        ctx.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(b => resolve(b), 'image/png');
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+      img.src = url;
+    } catch(e) { resolve(null); }
+  });
 }
 
-// ── HTML page wrapper ─────────────────────────────────────────────────────────
-// tight=true: page shrinks to content (atom export). tight=false: normal padding (preview/combined).
-function spcWrapHTML(title, bodyHTML, bg, tight) {
-  const bodyBg = bg === 'transparent' ? 'transparent' : '#fff';
-  const pad = tight ? '0' : '8mm';
-  return `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>${title}</title>
-  <style>
-    @page { margin: ${tight ? '3mm' : '6mm'}; size: auto; }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: ${bodyBg}; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    body { font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; color: #000; padding: ${pad}; display: ${tight ? 'inline-block' : 'block'}; }
-    @media print { body { padding: 0; } }
-    b { font-weight: 700; }
-    strong { font-weight: 700; }
-  </style>
-</head>
-<body>${bodyHTML}</body>
-</html>`;
-}
-
-// ── Download ─────────────────────────────────────────────────────────────────
-function spcDownload(html, filename) {
+// ── Single HTML fallback ──────────────────────────────────────────────────────
+function spcExportSingleHTML(d, name) {
+  const svgN = spcNFMicroSVG(d);
+  const svgI = spcIngSVG(d);
+  const body = `<div style="display:inline-block;">${svgN}<br>${svgI}</div>`;
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${d.name}</title>
+<style>@page{margin:3mm;size:auto;}html,body{margin:0;padding:0;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;display:inline-block;}</style>
+</head><body>${body}</body></html>`;
   const blob = new Blob([html], { type: 'text/html' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
-  a.href     = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
+  a.href = url; a.download = name + '_label_full.html';
+  document.body.appendChild(a); a.click();
   setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 600);
+}
+
+// ── SVG helpers ───────────────────────────────────────────────────────────────
+// All sizes in SVG user units (px at 96dpi).
+// 1pt = 1.333px. FDA min = 6pt = 8px.
+// Target micro width: ~216px = 2.25" — fits a 6"×5" blister back panel easily.
+
+const M_W   = 216;   // micro panel width px
+const M_PAD = 5;     // inner padding
+const M_FNT = 7.5;   // base font px (≈5.6pt — border legal, matches competitor density)
+const M_TTL = 11;    // title font
+const M_CAL = 13;    // calorie number
+const M_LH  = 10;    // line height
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// SVG text element helper
+function svgT(x, y, txt, opts) {
+  const bold   = opts?.bold   ? 'font-weight="700"' : '';
+  const italic = opts?.italic ? 'font-style="italic"' : '';
+  const size   = opts?.size   ? `font-size="${opts.size}"` : `font-size="${M_FNT}"`;
+  const anchor = opts?.anchor ? `text-anchor="${opts.anchor}"` : '';
+  const fill   = opts?.fill   ? `fill="${opts.fill}"` : 'fill="#000"';
+  const family = `font-family="'Helvetica Neue',Arial,Helvetica,sans-serif"`;
+  return `<text x="${x}" y="${y}" ${family} ${size} ${bold} ${italic} ${anchor} ${fill}>${esc(txt)}</text>`;
+}
+
+// SVG line helper
+function svgL(x1, y1, x2, y2, stroke, width) {
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke||'#000'}" stroke-width="${width||0.5}"/>`;
+}
+
+// SVG rect helper
+function svgR(x, y, w, h, fill) {
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill||'#000'}"/>`;
+}
+
+// Wrap SVG into root element with viewBox
+function svgRoot(content, w, h, extra) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" ${extra||''}>
+  <rect width="${w}" height="${h}" fill="#fff"/>
+  ${content}
+</svg>`;
+}
+
+// ── MICRO NF PANEL SVG ────────────────────────────────────────────────────────
+// Competitor-style: single-line title, inline linear nutrients, squat.
+// Layout:
+//   [border]
+//   NUTRITION FACTS   |  [servings] Serving size [x]
+//   ────────────────────────────────────────────────
+//   Calories [N]     [thick rule]
+//   % Daily Value*
+//   Total Fat [x]g [x]%  Sat. Fat [x]g [x]%  Trans Fat [x]g
+//   Cholesterol [x]mg [x]%  Sodium [x]mg [x]%
+//   Total Carb. [x]g [x]%  Dietary Fiber [x]g [x]%  Total Sugars [x]g  Incl. [x]g Added Sugars [x]%
+//   Protein [x]g
+//   Vit. D [x]mcg [x]%  Calcium [x]mg [x]%  Iron [x]mg [x]%  Potassium [x]mg [x]%
+//   ────────────────────────────────────────────────
+//   *footnote (abbreviated)
+//   [border]
+
+function spcNFMicroSVG(d) {
+  const W   = M_W;
+  const P   = M_PAD;
+  const iW  = W - P * 2;   // inner width
+  const fs  = M_FNT;
+  const lh  = M_LH;
+
+  const v   = k => d[k]?.val || '0';
+  const pv  = (k, suffix) => { const x = d[k]?.pct; return (x && x !== '0') ? ` ${x}%` : ''; };
+
+  let y = P + 1;
+  let els = '';
+
+  // Outer border
+  // (drawn last with exact height)
+
+  // ── Title row ────────────────────────────────────────────────────────────
+  const titleY = y + M_TTL;
+  els += `<text x="${P+1}" y="${titleY}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${M_TTL}" font-weight="900" fill="#000">NUTRITION FACTS</text>`;
+
+  // Serving info right-aligned on same baseline
+  const srvText = [
+    d.servingPerContainer ? `${d.servingPerContainer} servings` : '',
+    d.servingSize ? `Serving size ${d.servingSize}` : '',
+  ].filter(Boolean).join('  ');
+  if (srvText) {
+    els += `<text x="${W - P - 1}" y="${titleY}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${fs}" fill="#000" text-anchor="end">${esc(srvText)}</text>`;
+  }
+  y = titleY + 3;
+
+  // ── Divider ────────────────────────────────────────────────────────────────
+  els += svgR(P, y, iW, 4, '#000');
+  y += 6;
+
+  // ── Calories row ────────────────────────────────────────────────────────────
+  els += `<text x="${P+1}" y="${y + M_CAL - 2}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${M_CAL - 1}" font-weight="900" fill="#000">Calories</text>`;
+  els += `<text x="${W - P - 1}" y="${y + M_CAL - 1}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${M_CAL}" font-weight="900" fill="#000" text-anchor="end">${esc(d.calories)}</text>`;
+  y += M_CAL + 1;
+
+  // Thin rule
+  els += svgL(P, y, W - P, y, '#000', 2.5);
+  y += 4;
+
+  // ── % DV header ────────────────────────────────────────────────────────────
+  els += `<text x="${W - P - 1}" y="${y + fs}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${fs - 0.5}" font-weight="700" fill="#000" text-anchor="end">% Daily Value*</text>`;
+  y += lh;
+
+  // ── Nutrient lines (inline / linear) ────────────────────────────────────────
+  // Each call: addLine(segments) → renders as one wrapped line
+  // segments: [{label, val, bold}]
+
+  const addLine = (parts) => {
+    els += svgL(P, y, W - P, y, '#000', 0.4);
+    y += 1;
+    const textParts = parts.map(seg => {
+      const w = seg.bold ? 'font-weight="700"' : '';
+      return `<tspan ${w}>${esc(seg.text)}</tspan>`;
+    }).join(`<tspan fill="#555"> · </tspan>`);
+    els += `<text x="${P+1}" y="${y + fs}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${fs}" fill="#000">${textParts}</text>`;
+    y += lh + 0.5;
+  };
+
+  const seg = (label, k, unit) => {
+    const val = v(k);
+    const pct = d[k]?.pct;
+    const dvStr = (pct && pct !== '0') ? ` ${pct}%` : '';
+    return { text: `${label} ${val}${unit}${dvStr}`, bold: false };
+  };
+  const segBold = (label, k, unit) => ({ ...seg(label, k, unit), bold: true });
+
+  // Row 1: Fats
+  addLine([
+    segBold('Total Fat',  'tf', 'g'),
+    seg('Sat. Fat',       'sf', 'g'),
+    seg('Trans Fat',      'xf', 'g'),
+  ]);
+
+  // Row 2: Cholesterol + Sodium
+  addLine([
+    segBold('Cholesterol', 'ch', 'mg'),
+    segBold('Sodium',      'na', 'mg'),
+  ]);
+
+  // Row 3: Carbs + Fiber + Sugars
+  const asV = v('as_');
+  const asPct = d['as_']?.pct;
+  const asDvStr = (asPct && asPct !== '0') ? ` ${asPct}%` : '';
+  addLine([
+    segBold('Total Carb.',   'tc', 'g'),
+    seg('Dietary Fiber',     'df', 'g'),
+    seg('Total Sugars',      'su', 'g'),
+    { text: `Incl. ${asV}g Added Sugars${asDvStr}`, bold: false },
+  ]);
+
+  // Row 4: Protein
+  addLine([
+    segBold('Protein', 'pr', 'g'),
+  ]);
+
+  // Thick rule before micros
+  els += svgR(P, y, iW, 3.5, '#000');
+  y += 5;
+
+  // Row 5: Micros inline
+  const microParts = [
+    seg('Vit. D',    'vd', 'mcg'),
+    seg('Calcium',   'ca', 'mg'),
+    seg('Iron',      'fe', 'mg'),
+    seg('Potassium', 'k',  'mg'),
+  ];
+  const microLine = microParts.map(s => `<tspan>${esc(s.text)}</tspan>`).join(`<tspan fill="#555">  </tspan>`);
+  els += `<text x="${P+1}" y="${y + fs}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${fs - 0.5}" fill="#000">${microLine}</text>`;
+  y += lh + 1;
+
+  // ── Thin rule ────────────────────────────────────────────────────────────────
+  els += svgL(P, y, W - P, y, '#000', 0.5);
+  y += 2;
+
+  // ── Footnote (abbreviated for micro) ─────────────────────────────────────────
+  const fnote = '*%DV based on a 2,000 cal/day diet.';
+  els += `<text x="${P+1}" y="${y + fs - 1}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${fs - 1}" fill="#000">${esc(fnote)}</text>`;
+  y += lh - 1;
+
+  // Final border rect
+  const H = y + P - 1;
+  const border = `<rect x="${P/2}" y="${P/2}" width="${W - P}" height="${H - P/2}" fill="none" stroke="#000" stroke-width="1"/>`;
+
+  return svgRoot(border + els, W, H);
+}
+
+// ── INGREDIENTS SVG ───────────────────────────────────────────────────────────
+function spcIngSVG(d) {
+  const W  = M_W;
+  const P  = M_PAD;
+  const fs = M_FNT;
+  const lh = M_LH;
+  const iW = W - P * 2;
+
+  // Wrap ingredient text into lines
+  const rawIng = d.ingredients || '';
+  const rawAl  = d.allergenText || '';
+
+  const wrapText = (text, maxW, fsize) => {
+    const words = text.split(' ');
+    const lines = [];
+    let cur = '';
+    const approxCharW = fsize * 0.52;
+    const maxChars = Math.floor(maxW / approxCharW);
+    words.forEach(w => {
+      if ((cur + ' ' + w).trim().length > maxChars && cur) {
+        lines.push(cur.trim());
+        cur = w;
+      } else {
+        cur = (cur + ' ' + w).trim();
+      }
+    });
+    if (cur) lines.push(cur.trim());
+    return lines;
+  };
+
+  let y = P + fs;
+  let els = '';
+
+  if (rawIng) {
+    const ingLabel = 'INGREDIENTS: ' + rawIng;
+    const lines = wrapText(ingLabel, iW, fs);
+    lines.forEach((ln, i) => {
+      const bold = i === 0 ? 'font-weight="700"' : '';
+      // bold only the INGREDIENTS: prefix on first line
+      if (i === 0) {
+        const colonIdx = ln.indexOf(':');
+        if (colonIdx > -1) {
+          const prefix = ln.slice(0, colonIdx + 1);
+          const rest   = ln.slice(colonIdx + 1);
+          els += `<text x="${P}" y="${y}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${fs}" fill="#000">` +
+            `<tspan font-weight="700">${esc(prefix)}</tspan><tspan>${esc(rest)}</tspan></text>`;
+        } else {
+          els += `<text x="${P}" y="${y}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${fs}" font-weight="700" fill="#000">${esc(ln)}</text>`;
+        }
+      } else {
+        els += `<text x="${P}" y="${y}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${fs}" fill="#000">${esc(ln)}</text>`;
+      }
+      y += lh;
+    });
+  }
+
+  if (rawAl) {
+    y += 2;
+    const alLines = wrapText(rawAl, iW, fs);
+    alLines.forEach((ln, i) => {
+      els += `<text x="${P}" y="${y}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${fs}" font-weight="700" fill="#000">${esc(ln)}</text>`;
+      y += lh;
+    });
+  }
+
+  if (!rawIng && !rawAl) {
+    els += `<text x="${P}" y="${y}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${fs}" fill="#999" font-style="italic">No ingredient data.</text>`;
+    y += lh;
+  }
+
+  const H = y + P;
+  return svgRoot(els, W, H);
+}
+
+// ── BARCODE SVG ───────────────────────────────────────────────────────────────
+function spcBarcodeSVG(d) {
+  const UPC_L = ['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
+  const UPC_R = ['1110010','1100110','1101100','1000010','1011100','1001110','1010000','1000100','1001000','1110100'];
+  const G_OUT = '101', G_MID = '01010';
+
+  const code = (d.barcodeCode || '000000000000').replace(/\D/g,'').padEnd(12,'0').slice(0,12);
+  let seq = G_OUT;
+  for (let i = 0; i < 6; i++) seq += UPC_L[parseInt(code[i])||0];
+  seq += G_MID;
+  for (let i = 6; i < 12; i++) seq += UPC_R[parseInt(code[i])||0];
+  seq += G_OUT;
+
+  const UNIT = 1.5, BAR_H = 40, GUARD_H = 46, QZ = 8, TOP = 4, BTM = 12;
+  const barW = seq.length * UNIT;
+  const W = barW + QZ * 2, H = TOP + GUARD_H + BTM;
+
+  if (!d.hasBarcode) {
+    // Placeholder bars
+    return svgRoot(
+      `<rect x="4" y="4" width="${W-8}" height="${H-8}" fill="none" stroke="#ccc" stroke-dasharray="3,2"/>` +
+      `<text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="Arial" font-size="7" fill="#aaa">No barcode configured</text>`,
+      W, H
+    );
+  }
+
+  let bars = '';
+  for (let i = 0; i < seq.length; i++) {
+    if (seq[i] === '1') {
+      const isGuard = i < 3 || i >= seq.length - 3 || (i >= 45 && i <= 49);
+      const h = isGuard ? GUARD_H : BAR_H;
+      bars += svgR((QZ + i * UNIT).toFixed(1), TOP, UNIT, h, '#000');
+    }
+  }
+
+  const digits = `<text x="${QZ + barW / 2}" y="${H - 2}" text-anchor="middle" font-family="'Courier New',monospace" font-size="7" fill="#000">${code.slice(0,6)} ${code.slice(6)}</text>`;
+
+  return svgRoot(bars + digits, W.toFixed(0), H);
+}
+
+// ── DISTRIBUTOR SVG ───────────────────────────────────────────────────────────
+function spcDistSVG(d) {
+  const W  = M_W;
+  const P  = M_PAD;
+  const fs = M_FNT;
+  const lh = M_LH;
+
+  let y = P + fs;
+  let els = '';
+
+  const addLine = (txt, bold) => {
+    els += `<text x="${P}" y="${y}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${fs}" ${bold?'font-weight="700"':''} fill="#000">${esc(txt)}</text>`;
+    y += lh;
+  };
+
+  d.distLines.forEach((ln, i) => {
+    const clean = ln.replace(/^distributed\s+by\s*:?\s*/i, '');
+    addLine(i === 0 ? `DISTRIBUTED BY: ${clean}` : clean, i === 0);
+  });
+
+  if (d.origin) {
+    const o = d.origin.replace(/^manufactured\s+in\s*/i,'PRODUCT OF ').replace(/^made\s+in\s*/i,'PRODUCT OF ').toUpperCase();
+    addLine(o, true);
+  }
+  if (d.netWt) addLine(d.netWt, true);
+  if (d.warning) { y += 2; addLine(d.warning, true); }
+
+  if (!d.distLines.length && !d.origin && !d.netWt) {
+    addLine('No distributor data.', false);
+  }
+
+  const H = y + P;
+  return svgRoot(els, W, H);
+}
+
+// ── COMBINED PREVIEW SVG ──────────────────────────────────────────────────────
+function spcCombinedPreviewSVG(d, incN, incI, incB, incD) {
+  const GAP = 16, LABEL_H = 12, PAD = 12;
+  // We'll place atoms left-to-right with labels above
+
+  // Build each atom SVG string
+  const atoms = [];
+  if (incN) atoms.push({ label: 'Nutrition Facts Panel', svg: spcNFMicroSVG(d) });
+  if (incI) atoms.push({ label: 'Ingredients',           svg: spcIngSVG(d) });
+  if (incB) atoms.push({ label: 'Barcode',               svg: spcBarcodeSVG(d) });
+  if (incD) atoms.push({ label: 'Distributor / Origin',  svg: spcDistSVG(d) });
+
+  // Parse width/height from each SVG's viewBox
+  const dims = atoms.map(a => {
+    const m = a.svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+    return { w: m ? parseFloat(m[1]) : 220, h: m ? parseFloat(m[2]) : 100 };
+  });
+
+  const maxH = Math.max(...dims.map(d => d.h));
+  const totalW = dims.reduce((s, d) => s + d.w, 0) + GAP * (atoms.length - 1) + PAD * 2;
+  const totalH = maxH + LABEL_H + GAP + PAD * 2 + 20; // +20 for header
+
+  let els = '';
+  let x = PAD;
+
+  // Header
+  els += `<text x="${PAD}" y="${PAD + 9}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="8" font-weight="700" fill="#666" letter-spacing="0.5">${esc(d.name)} — Designer Split Pack  ·  ${new Date().toLocaleDateString()}  ·  Hidden Supply NFS</text>`;
+
+  const atomY = PAD + 18;
+
+  atoms.forEach((atom, i) => {
+    const dim = dims[i];
+    // Label
+    els += `<text x="${x}" y="${atomY + LABEL_H - 2}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="7" font-weight="700" fill="#888" letter-spacing="0.4">${esc(atom.label.toUpperCase())}</text>`;
+    // Embed inner SVG content via <use> — inline the SVG group
+    // Strip outer SVG wrapper and embed as <g>
+    const inner = atom.svg
+      .replace(/^<svg[^>]*>/, '')
+      .replace(/<\/svg>$/, '')
+      .replace(/<rect width="[^"]*" height="[^"]*" fill="#fff"\/>/, ''); // remove bg rect
+    els += `<g transform="translate(${x},${atomY + LABEL_H})">${inner}</g>`;
+    // Border
+    els += `<rect x="${x}" y="${atomY + LABEL_H}" width="${dim.w}" height="${dim.h}" fill="none" stroke="#ddd" stroke-width="0.5"/>`;
+    x += dim.w + GAP;
+  });
+
+  return svgRoot(els, totalW.toFixed(0), totalH.toFixed(0));
 }
 
 // ── Data extraction ───────────────────────────────────────────────────────────
 function spcGetData() {
-  // nfsGetCurrent() is exposed by the monolith — always returns the live nfsCurrent let binding
   const p = (typeof window.nfsGetCurrent === 'function') ? window.nfsGetCurrent() : null;
-
-  // If no saved project, try to synthesize from live form values
-  const fvDirect = (id) => { const el = document.getElementById(id); return el ? (el.value || '').trim() : ''; };
-  const hasFormData = !!fvDirect('e-ss') || !!fvDirect('n-cal') || !!fvDirect('e-ing');
-
+  const fv = (id) => { const el = document.getElementById(id); return el ? (el.value || '').trim() : ''; };
+  const hasFormData = !!fv('e-ss') || !!fv('n-cal') || !!fv('e-ing');
   if (!p && !hasFormData) return null;
 
   const N  = p?.nutrients || {};
   const DV = p?.dv || {};
 
-  // Fallback to live form values when project hasn't been saved mid-edit
-  const fv = (id) => { const el = document.getElementById(id); return el ? (el.value || '').trim() : ''; };
   const nd = (key, fid) => { const s = N[key]?.declared; return (s !== '' && s != null) ? String(s) : (fid ? fv(fid) || '0' : '0'); };
   const dv = (key, fid) => { const s = DV[key]; return (s !== '' && s != null) ? String(s) : (fid ? fv(fid) || '0' : '0'); };
 
-  // Helper: safe accessor
   const nr = (key, dvKey, formNId, formPId) => ({
-    val: nd(key,   formNId),
+    val: nd(key, formNId),
     pct: dvKey ? dv(dvKey, formPId) : null,
   });
 
@@ -403,15 +734,15 @@ function spcGetData() {
   const netWt = (oz || g)
     ? `NET WT ${oz ? oz + ' OZ' : ''}${oz && g ? ' (' : ''}${g ? g + 'g' : ''}${oz && g ? ')' : ''}`.trim()
     : '';
-  const ing   = (p?.ingredients   || fv('e-ing')).trim();
-  const alCus = (p?.allergenCustom || fv('e-al-custom')).trim();
+  const ing    = (p?.ingredients    || fv('e-ing')).trim();
+  const alCus  = (p?.allergenCustom || fv('e-al-custom')).trim();
   const allergenText = alCus || ((p?.allergens || []).length ? 'Contains: ' + p.allergens.join(', ') + '.' : '');
 
   return {
     name:               p?.name || fv('nl-name') || 'Label',
     servingSize:        p?.servingSize || fv('e-ss'),
     servingPerContainer:p?.servingsPerContainer || fv('e-spc'),
-    calories: nd('cal', 'n-cal'),
+    calories:           nd('cal', 'n-cal'),
     tf:  nr('tf',  'tf',  'n-tf',  'p-tf'),
     sf:  nr('sf',  'sf',  'n-sf',  'p-sf'),
     xf:  nr('xf',  null,  'n-xf',  null),
@@ -438,201 +769,14 @@ function spcGetData() {
   };
 }
 
-// ── Atom renderers ────────────────────────────────────────────────────────────
-// All sizes in CSS px where 1pt = 1.333px
-// FDA §101.9(j)(13): minimum 6pt = 8px for small packages
-// Width target: ~144px (≈1.5") which is a common constrained-panel width
-
-const SPC_MIN_PX = 8;   // 6pt minimum per FDA
-const SPC_BOX_W  = 144; // target box width in px at 96dpi (1.5")
-
-// Compact FDA nutrition facts box — tight, physically correct, print-ready
-function spcNFBoxHTML(d, fs) {
-  // fs is the user's min font (pt). Convert to px.
-  const minPx  = Math.max(fs * 1.333, SPC_MIN_PX);
-  const rowPx  = minPx;            // nutrient row text
-  const microPx = Math.max(minPx - 1, SPC_MIN_PX - 1); // micros row
-  const footPx  = Math.max(minPx - 1, 6);  // footnote
-  const dvHdrPx = Math.max(minPx - 1, 6);
-  const calNumPx = Math.round(minPx * 2.8); // "160" numeral
-  const calLblPx = Math.round(minPx * 1.2); // "Calories" label
-  const titlePx  = Math.round(minPx * 2.2); // "Nutrition Facts" stacked
-
-  const v   = k => d[k]?.val || '0';
-  const pct = k => { const x = d[k]?.pct; return (x && x !== '0') ? ` <b>${x}%</b>` : ''; };
-
-  // row(label, valueHtml, bold, indentPx, heavyBottom)
-  const row = (label, valueHtml, bold, indentPx, heavyBottom) =>
-    `<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:${rowPx}px;line-height:1.2;padding:1px 0;border-bottom:${heavyBottom ? '6px' : '0.5px'} solid #000;${indentPx ? `padding-left:${indentPx}px;` : ''}${bold ? 'font-weight:700;' : ''}white-space:nowrap;">` +
-    `<span style="white-space:normal;">${label}</span>` +
-    `<span style="white-space:nowrap;padding-left:2px;flex-shrink:0;">${valueHtml}</span>` +
-    `</div>`;
-
-  return `<div style="font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#000;border:2px solid #000;padding:4px 5px;display:inline-block;width:${SPC_BOX_W}px;box-sizing:border-box;background:#fff;line-height:1;">
-  <div style="font-size:${titlePx}px;font-weight:900;line-height:0.9;letter-spacing:-0.3px;border-bottom:1px solid #000;padding-bottom:2px;margin-bottom:2px;">Nutrition<br>Facts</div>
-  ${d.servingPerContainer ? `<div style="font-size:${rowPx}px;line-height:1.3;">${d.servingPerContainer} servings per container</div>` : ''}
-  ${d.servingSize ? `<div style="font-size:${rowPx}px;font-weight:700;line-height:1.3;margin-bottom:2px;">Serving size ${d.servingSize}</div>` : ''}
-  <div style="border-top:7px solid #000;padding-top:2px;">
-    <div style="display:flex;align-items:baseline;justify-content:space-between;border-bottom:3px solid #000;padding-bottom:2px;margin-bottom:1px;">
-      <span style="font-size:${calLblPx}px;font-weight:900;line-height:1;">Calories</span>
-      <span style="font-size:${calNumPx}px;font-weight:900;line-height:1;letter-spacing:-0.5px;">${d.calories}</span>
-    </div>
-    <div style="text-align:right;font-size:${dvHdrPx}px;font-weight:700;border-bottom:0.5px solid #000;padding:1px 0;margin-bottom:1px;">% Daily Value*</div>
-    ${row(`<b>Total Fat</b> ${v('tf')}g`,                        pct('tf'),  false, 0)}
-    ${row(`Saturated Fat ${v('sf')}g`,                           pct('sf'),  false, 8)}
-    ${row(`<i>Trans</i> Fat ${v('xf')}g`,                       '',          false, 8)}
-    ${row(`<b>Cholesterol</b> ${v('ch')}mg`,                     pct('ch'),  false, 0)}
-    ${row(`<b>Sodium</b> ${v('na')}mg`,                          pct('na'),  false, 0)}
-    ${row(`<b>Total Carbohydrate</b> ${v('tc')}g`,               pct('tc'),  false, 0)}
-    ${row(`Dietary Fiber ${v('df')}g`,                           pct('df'),  false, 8)}
-    ${row(`Total Sugars ${v('su')}g`,                            '',          false, 8)}
-    ${row(`Includes ${v('as_')}g Added Sugars`,                  pct('as_'), false, 16)}
-    ${row(`<b>Protein</b> ${v('pr')}g`,                          '',          false, 0, true)}
-    <div style="display:flex;justify-content:space-between;font-size:${microPx}px;border-bottom:0.5px solid #000;padding:1px 0;">
-      <span>Vitamin D ${v('vd')}mcg${pct('vd')}</span>
-      <span style="border-left:0.5px solid #000;padding-left:4px;">Calcium ${v('ca')}mg${pct('ca')}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;font-size:${microPx}px;padding:1px 0;border-bottom:0.5px solid #000;">
-      <span>Iron ${v('fe')}mg${pct('fe')}</span>
-      <span style="border-left:0.5px solid #000;padding-left:4px;">Potassium ${v('k')}mg${pct('k')}</span>
-    </div>
-    <div style="font-size:${footPx}px;border-top:0.5px solid #000;padding-top:2px;line-height:1.3;margin-top:1px;">*The % Daily Value (DV) tells you how much a nutrient in a serving contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.</div>
-  </div>
-</div>`;
-}
-
-// Ingredients + allergens atom — matches NF box width, tight
-function spcIngAtomHTML(d, fs) {
-  const minPx = Math.max(fs * 1.333, SPC_MIN_PX);
-  if (!d.ingredients && !d.allergenText) {
-    return `<div style="font-size:${minPx}px;font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#888;font-style:italic;width:${SPC_BOX_W}px;">No ingredient data.</div>`;
-  }
-  const ingEsc = (d.ingredients || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  return `<div style="font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#000;line-height:1.4;width:${SPC_BOX_W}px;box-sizing:border-box;">
-    ${ingEsc ? `<div style="font-size:${minPx}px;"><strong>INGREDIENTS:</strong> ${ingEsc}</div>` : ''}
-    ${d.allergenText ? `<div style="font-size:${minPx}px;font-weight:700;margin-top:3px;">${d.allergenText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
-  </div>`;
-}
-
-// UPC barcode atom — uses proper UPC-A bar encoding
-function spcBarcodeAtomHTML(d, fs) {
-  const minPx = Math.max(fs * 1.333, SPC_MIN_PX);
-  if (!d.hasBarcode) {
-    return `<div style="font-size:${minPx}px;font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#aaa;font-style:italic;text-align:center;width:${SPC_BOX_W}px;">No barcode configured.<br><small>Enable barcode in Barcode Module.</small></div>`;
-  }
-
-  // UPC-A L/R encoding tables (7 bars per digit)
-  const UPC_L = ['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
-  const UPC_R = ['1110010','1100110','1101100','1000010','1011100','1001110','1010000','1000100','1001000','1110100'];
-  const GUARD_OUTER = '101';
-  const GUARD_MID   = '01010';
-
-  const code = (d.barcodeCode || '').replace(/\D/g,'').padEnd(12,'0').slice(0,12);
-  let bars = '';
-  const BAR_H = 42, BAR_LONG = 50, BAR_UNIT = 1.2; // px per module
-
-  // Build bar sequence
-  let seq = GUARD_OUTER;
-  for (let i = 0; i < 6; i++) seq += UPC_L[parseInt(code[i]) || 0];
-  seq += GUARD_MID;
-  for (let i = 6; i < 12; i++) seq += UPC_R[parseInt(code[i]) || 0];
-  seq += GUARD_OUTER;
-
-  // Render as SVG for accuracy
-  const totalW = seq.length * BAR_UNIT;
-  let svgBars = '';
-  for (let i = 0; i < seq.length; i++) {
-    if (seq[i] === '1') {
-      // Guard bars are taller
-      const isGuard = i < 3 || i >= seq.length - 3 || (i >= 45 && i <= 49);
-      const h = isGuard ? BAR_LONG : BAR_H;
-      const y = 0;
-      svgBars += `<rect x="${(i * BAR_UNIT).toFixed(1)}" y="${y}" width="${BAR_UNIT}" height="${h}" fill="#000"/>`;
-    }
-  }
-
-  const svgH = BAR_LONG + 12;
-  const svgW = totalW + 12; // side margins for quiet zone
-
-  return `<div style="font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#000;text-align:center;display:inline-block;background:#fff;padding:4px;">
-    <svg xmlns="http://www.w3.org/2000/svg" width="${svgW.toFixed(0)}" height="${svgH}" viewBox="0 0 ${svgW.toFixed(1)} ${svgH}" style="display:block;margin:0 auto;">
-      <rect width="${svgW.toFixed(1)}" height="${svgH}" fill="#fff"/>
-      <g transform="translate(6,0)">${svgBars}</g>
-      <text x="${(svgW/2).toFixed(1)}" y="${svgH - 1}" text-anchor="middle" font-family="monospace" font-size="${Math.max(minPx - 1, 6)}" fill="#000">${code.slice(0,6)} ${code.slice(6)}</text>
-    </svg>
-    <div style="font-size:${Math.max(minPx - 1, 6)}px;color:#555;margin-top:1px;">${d.barcodeType}</div>
-  </div>`;
-}
-
-// Distributor / origin / net weight atom
-function spcDistAtomHTML(d, fs) {
-  const minPx = Math.max(fs * 1.333, SPC_MIN_PX);
-  const parts = [];
-  d.distLines.forEach((part, i) => {
-    const clean = part.replace(/^distributed\s+by\s*:?\s*/i,'');
-    if (i === 0) {
-      parts.push(`<span><strong>DISTRIBUTED BY:</strong> ${clean}</span>`);
-    } else {
-      parts.push(`<span>${clean}</span>`);
-    }
-  });
-  if (d.origin) {
-    const o = d.origin.replace(/^manufactured\s+in\s*/i,'PRODUCT OF ').replace(/^made\s+in\s*/i,'PRODUCT OF ').toUpperCase();
-    parts.push(`<strong>${o}</strong>`);
-  }
-  if (d.netWt) parts.push(`<strong>${d.netWt}</strong>`);
-  if (d.warning) parts.push(`<strong>${d.warning}</strong>`);
-
-  if (!parts.length) return `<div style="font-size:${minPx}px;color:#888;font-style:italic;">No distributor data.</div>`;
-
-  return `<div style="font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#000;font-size:${minPx}px;line-height:1.5;width:${SPC_BOX_W}px;box-sizing:border-box;">
-    ${parts.join('<br>')}
-  </div>`;
-}
-
-// ── Quick export — callable directly from Export Center without nav change ────
-function spcQuickExport(type) {
-  const d = spcGetData();
-  if (!d) { if (typeof toast === 'function') toast('No Label Data', 'Open and edit a label first, then export.'); return; }
-  const fs   = 6; // FDA minimum
-  const bg   = 'white';
-  const name = (d.name || 'label').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-
-  switch (type) {
-    case 'mini':
-      spcExportAtom('nutrition', d, fs, bg, name);
-      if (typeof toast === 'function') toast('Exported', name + '_mini_nutrition_panel.html');
-      break;
-    case 'mini-ing':
-      spcExportMiniWithIng(d, fs, bg, name);
-      if (typeof toast === 'function') toast('Exported', name + '_mini_nutrition_ingredients.html');
-      break;
-    case 'split':
-      // Export all 4 atoms + preview
-      spcExportAtom('nutrition',   d, fs, bg, name);
-      setTimeout(() => spcExportAtom('ingredients', d, fs, bg, name), 450);
-      setTimeout(() => spcExportAtom('barcode',     d, fs, bg, name), 900);
-      setTimeout(() => {
-        if (d.distLines.length || d.origin) spcExportAtom('distributor', d, fs, bg, name);
-      }, 1350);
-      setTimeout(() => spcExportCombinedPreview(d, fs, bg, name, true, true, true, !!(d.distLines.length || d.origin)), 1800);
-      if (typeof toast === 'function') setTimeout(() => toast('Split Pack Exported', '4–5 files downloaded'), 2200);
-      break;
-  }
-  if (typeof trackExport === 'function') trackExport('small-pack-quick-' + type, d.name);
-}
-
 // Hook into editorUpdate so preview refreshes when label data changes
 (function() {
   const orig = window.editorUpdate;
   if (typeof orig === 'function') {
     window.editorUpdate = function() {
       orig.apply(this, arguments);
-      // Refresh small pack preview if that view is active
       const sp = document.getElementById('view-small-pack');
-      if (sp && sp.classList.contains('active')) {
-        spcRenderPreview();
-      }
+      if (sp && sp.classList.contains('active')) spcRenderPreview();
     };
   }
 })();
