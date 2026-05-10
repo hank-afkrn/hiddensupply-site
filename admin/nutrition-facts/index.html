@@ -3768,6 +3768,8 @@ function nfsMigrateLocalToServer() {
 }
 let nfsCurrentId = localStorage.getItem(NFS_CURRENT_KEY) || null;
 let nfsCurrent = null;   // the live project being edited
+// Expose to external modules (nfs-small-pack.js etc.)
+Object.defineProperty(window, 'nfsCurrent', { get: () => nfsCurrent, set: v => { nfsCurrent = v; }, configurable: true });
 let nfsAllergens = new Set();
 let nfsPreflight = null; // last preflight result
 

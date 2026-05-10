@@ -19,7 +19,8 @@ let _spcZoom = 1;
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 function spcInit() {
-  const hasProject = !!window.nfsCurrent;
+  const d = spcGetData();
+  const hasProject = !!d;
   document.getElementById('spc-no-project').style.display = hasProject ? 'none'  : 'block';
   document.getElementById('spc-main').style.display       = hasProject ? 'block' : 'none';
   if (!hasProject) return;
@@ -367,11 +368,20 @@ function spcDownload(html, filename) {
 
 // ── Data extraction ───────────────────────────────────────────────────────────
 function spcGetData() {
+  // nfsCurrent is exposed via window getter from the monolith
   const p = window.nfsCurrent;
-  if (!p) return null;
 
-  const N  = p.nutrients || {};
-  const DV = p.dv || {};
+  // If no saved project, try to synthesize from live form values
+  // (user has a label open in editor but hasn't saved yet)
+  const fvDirect = (id) => { const el = document.getElementById(id); return el ? (el.value || '').trim() : ''; };
+  const hasFormData = !!fvDirect('e-ss') || !!fvDirect('n-cal') || !!fvDirect('e-ing');
+
+  if (!p && !hasFormData) return null;
+
+  // Use project data when available, fall back to form for each field
+
+  const N  = p?.nutrients || {};
+  const DV = p?.dv || {};
 
   // Fallback to live form values when project hasn't been saved mid-edit
   const fv = (id) => { const el = document.getElementById(id); return el ? (el.value || '').trim() : ''; };
@@ -384,22 +394,22 @@ function spcGetData() {
     pct: dvKey ? dv(dvKey, formPId) : null,
   });
 
-  const bc = p.barcode || {};
-  const rawDist = (p.distributor || fv('e-dist')).trim();
+  const bc = p?.barcode || {};
+  const rawDist = (p?.distributor || fv('e-dist')).trim();
   const distLines = rawDist.split(/[\n|]/).map(l => l.trim()).filter(Boolean);
-  const oz = p.netOz || fv('e-oz');
-  const g  = p.netG  || fv('e-g');
+  const oz = p?.netOz || fv('e-oz');
+  const g  = p?.netG  || fv('e-g');
   const netWt = (oz || g)
     ? `NET WT ${oz ? oz + ' OZ' : ''}${oz && g ? ' (' : ''}${g ? g + 'g' : ''}${oz && g ? ')' : ''}`.trim()
     : '';
-  const ing   = (p.ingredients   || fv('e-ing')).trim();
-  const alCus = (p.allergenCustom || fv('e-al-custom')).trim();
-  const allergenText = alCus || ((p.allergens || []).length ? 'Contains: ' + p.allergens.join(', ') + '.' : '');
+  const ing   = (p?.ingredients   || fv('e-ing')).trim();
+  const alCus = (p?.allergenCustom || fv('e-al-custom')).trim();
+  const allergenText = alCus || ((p?.allergens || []).length ? 'Contains: ' + p.allergens.join(', ') + '.' : '');
 
   return {
-    name:               p.name || 'Label',
-    servingSize:        p.servingSize || fv('e-ss'),
-    servingPerContainer:p.servingsPerContainer || fv('e-spc'),
+    name:               p?.name || fv('nl-name') || 'Label',
+    servingSize:        p?.servingSize || fv('e-ss'),
+    servingPerContainer:p?.servingsPerContainer || fv('e-spc'),
     calories: nd('cal', 'n-cal'),
     tf:  nr('tf',  'tf',  'n-tf',  'p-tf'),
     sf:  nr('sf',  'sf',  'n-sf',  'p-sf'),
@@ -418,9 +428,9 @@ function spcGetData() {
     ingredients:   ing,
     allergenText:  allergenText,
     distLines:     distLines,
-    origin:        (p.origin || fv('e-origin')).trim(),
+    origin:        (p?.origin || fv('e-origin')).trim(),
     netWt:         netWt,
-    warning:       (p.warning || fv('e-warn')).trim(),
+    warning:       (p?.warning || fv('e-warn')).trim(),
     hasBarcode:    !!(bc.include && bc.mode === 'real' && bc.code),
     barcodeCode:   bc.code || '',
     barcodeType:   bc.type || 'UPC-A',
@@ -541,7 +551,7 @@ function spcDistAtomHTML(d, fs) {
 // ── Quick export — callable directly from Export Center without nav change ────
 function spcQuickExport(type) {
   const d = spcGetData();
-  if (!d) { if (typeof toast === 'function') toast('No Project', 'Open a label first.'); return; }
+  if (!d) { if (typeof toast === 'function') toast('No Label Data', 'Open and edit a label first, then export.'); return; }
   const fs   = 6; // FDA minimum
   const bg   = 'white';
   const name = (d.name || 'label').toLowerCase().replace(/[^a-z0-9]+/g, '-');
