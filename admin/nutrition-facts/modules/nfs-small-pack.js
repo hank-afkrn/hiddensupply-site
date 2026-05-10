@@ -229,7 +229,7 @@ function spcExportMiniWithIng(d, fs, bg, name) {
     ${spcNFBoxHTML(d, fs)}
     <div style="margin-top:6px;">${spcIngAtomHTML(d, fs)}</div>
   </div>`;
-  spcDownload(spcWrapHTML(`${d.name} — Mini FDA + Ingredients`, body, bg), `${name}_mini_nutrition_ingredients.html`);
+  spcDownload(spcWrapHTML(`${d.name} — Mini FDA + Ingredients`, body, bg, true), `${name}_mini_nutrition_ingredients.html`);
 }
 
 // ── Export: Designer Split Pack ───────────────────────────────────────────────
@@ -301,7 +301,7 @@ function spcExportAtom(type, d, fs, bg, name) {
       body     = `<div style="display:inline-block;background:${bgCss};">${spcDistAtomHTML(d, fs)}</div>`;
       break;
   }
-  spcDownload(spcWrapHTML(title, body, bg), filename);
+  spcDownload(spcWrapHTML(title, body, bg, true), filename); // tight: crops to content
 }
 
 // ── Export combined preview ───────────────────────────────────────────────────
@@ -335,19 +335,23 @@ function spcAtomCardExport(label, innerHtml, bg) {
 }
 
 // ── HTML page wrapper ─────────────────────────────────────────────────────────
-function spcWrapHTML(title, bodyHTML, bg) {
+// tight=true: page shrinks to content (atom export). tight=false: normal padding (preview/combined).
+function spcWrapHTML(title, bodyHTML, bg, tight) {
   const bodyBg = bg === 'transparent' ? 'transparent' : '#fff';
+  const pad = tight ? '0' : '8mm';
   return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <title>${title}</title>
   <style>
-    @page { margin: 4mm; }
+    @page { margin: ${tight ? '3mm' : '6mm'}; size: auto; }
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; background: ${bodyBg}; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    body { font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; color: #000; padding: 4mm; }
+    body { font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; color: #000; padding: ${pad}; display: ${tight ? 'inline-block' : 'block'}; }
     @media print { body { padding: 0; } }
+    b { font-weight: 700; }
+    strong { font-weight: 700; }
   </style>
 </head>
 <body>${bodyHTML}</body>
@@ -368,17 +372,14 @@ function spcDownload(html, filename) {
 
 // ── Data extraction ───────────────────────────────────────────────────────────
 function spcGetData() {
-  // nfsCurrent is exposed via window getter from the monolith
-  const p = window.nfsCurrent;
+  // nfsGetCurrent() is exposed by the monolith — always returns the live nfsCurrent let binding
+  const p = (typeof window.nfsGetCurrent === 'function') ? window.nfsGetCurrent() : null;
 
   // If no saved project, try to synthesize from live form values
-  // (user has a label open in editor but hasn't saved yet)
   const fvDirect = (id) => { const el = document.getElementById(id); return el ? (el.value || '').trim() : ''; };
   const hasFormData = !!fvDirect('e-ss') || !!fvDirect('n-cal') || !!fvDirect('e-ing');
 
   if (!p && !hasFormData) return null;
-
-  // Use project data when available, fall back to form for each field
 
   const N  = p?.nutrients || {};
   const DV = p?.dv || {};
@@ -438,114 +439,155 @@ function spcGetData() {
 }
 
 // ── Atom renderers ────────────────────────────────────────────────────────────
+// All sizes in CSS px where 1pt = 1.333px
+// FDA §101.9(j)(13): minimum 6pt = 8px for small packages
+// Width target: ~144px (≈1.5") which is a common constrained-panel width
 
-// Compact FDA nutrition facts box — tight, no support copy
+const SPC_MIN_PX = 8;   // 6pt minimum per FDA
+const SPC_BOX_W  = 144; // target box width in px at 96dpi (1.5")
+
+// Compact FDA nutrition facts box — tight, physically correct, print-ready
 function spcNFBoxHTML(d, fs) {
-  const ts  = Math.max(fs * 2.8, 16); // title size
-  const cs  = Math.max(fs * 2.4, 14); // calorie number size
-  const nrs = Math.max(fs, 6);        // nutrient row size
-  const mfs = Math.max(fs - 0.5, 5.5);// micro size
+  // fs is the user's min font (pt). Convert to px.
+  const minPx  = Math.max(fs * 1.333, SPC_MIN_PX);
+  const rowPx  = minPx;            // nutrient row text
+  const microPx = Math.max(minPx - 1, SPC_MIN_PX - 1); // micros row
+  const footPx  = Math.max(minPx - 1, 6);  // footnote
+  const dvHdrPx = Math.max(minPx - 1, 6);
+  const calNumPx = Math.round(minPx * 2.8); // "160" numeral
+  const calLblPx = Math.round(minPx * 1.2); // "Calories" label
+  const titlePx  = Math.round(minPx * 2.2); // "Nutrition Facts" stacked
 
-  const v  = k => d[k]?.val || '0';
-  const p  = k => d[k]?.pct;
-  const pct = k => { const x = p(k); return (x != null && x !== '0') ? `<b>${x}%</b>` : ''; };
+  const v   = k => d[k]?.val || '0';
+  const pct = k => { const x = d[k]?.pct; return (x && x !== '0') ? ` <b>${x}%</b>` : ''; };
 
-  const row = (label, val, unit, dvKey, bold, indent, heavyBot) =>
-    `<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:${nrs}px;padding:1.5px 0;border-bottom:${heavyBot ? '8px' : '0.75px'} solid #000;${indent ? `padding-left:${indent}px;` : ''}${bold ? 'font-weight:700;' : ''}">
-      <span>${label}</span>
-      <span style="white-space:nowrap;padding-left:3px;">${val}${unit} ${dvKey ? pct(dvKey) : ''}</span>
-    </div>`;
+  // row(label, valueHtml, bold, indentPx, heavyBottom)
+  const row = (label, valueHtml, bold, indentPx, heavyBottom) =>
+    `<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:${rowPx}px;line-height:1.2;padding:1px 0;border-bottom:${heavyBottom ? '6px' : '0.5px'} solid #000;${indentPx ? `padding-left:${indentPx}px;` : ''}${bold ? 'font-weight:700;' : ''}white-space:nowrap;">` +
+    `<span style="white-space:normal;">${label}</span>` +
+    `<span style="white-space:nowrap;padding-left:2px;flex-shrink:0;">${valueHtml}</span>` +
+    `</div>`;
 
-  return `<div style="font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#000;border:2.5px solid #000;padding:5px 6px;display:inline-block;min-width:150px;box-sizing:border-box;background:#fff;">
-  <div style="font-size:${ts}px;font-weight:900;line-height:0.92;letter-spacing:-0.5px;border-bottom:1px solid #000;padding-bottom:2px;margin-bottom:2px;white-space:nowrap;">Nutrition<br>Facts</div>
-  ${d.servingPerContainer ? `<div style="font-size:${nrs}px;line-height:1.3;">${d.servingPerContainer} servings per container</div>` : ''}
-  ${d.servingSize ? `<div style="font-size:${nrs}px;font-weight:700;line-height:1.3;margin-bottom:1px;">Serving size ${d.servingSize}</div>` : ''}
-  <div style="border-top:8px solid #000;padding-top:2px;">
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;border-bottom:4px solid #000;padding-bottom:2px;margin-bottom:1px;">
-      <span style="font-size:${Math.max(fs,8)}px;font-weight:900;">Calories</span>
-      <span style="font-size:${cs}px;font-weight:900;letter-spacing:-1px;">${d.calories}</span>
+  return `<div style="font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#000;border:2px solid #000;padding:4px 5px;display:inline-block;width:${SPC_BOX_W}px;box-sizing:border-box;background:#fff;line-height:1;">
+  <div style="font-size:${titlePx}px;font-weight:900;line-height:0.9;letter-spacing:-0.3px;border-bottom:1px solid #000;padding-bottom:2px;margin-bottom:2px;">Nutrition<br>Facts</div>
+  ${d.servingPerContainer ? `<div style="font-size:${rowPx}px;line-height:1.3;">${d.servingPerContainer} servings per container</div>` : ''}
+  ${d.servingSize ? `<div style="font-size:${rowPx}px;font-weight:700;line-height:1.3;margin-bottom:2px;">Serving size ${d.servingSize}</div>` : ''}
+  <div style="border-top:7px solid #000;padding-top:2px;">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;border-bottom:3px solid #000;padding-bottom:2px;margin-bottom:1px;">
+      <span style="font-size:${calLblPx}px;font-weight:900;line-height:1;">Calories</span>
+      <span style="font-size:${calNumPx}px;font-weight:900;line-height:1;letter-spacing:-0.5px;">${d.calories}</span>
     </div>
-    <div style="text-align:right;font-size:${Math.max(fs-1,5)}px;font-weight:700;border-bottom:1px solid #000;padding:1px 0;margin-bottom:1px;">% Daily Value*</div>
-    ${row('Total Fat',           v('tf'),  'g',  'tf',  true,  0)}
-    ${row('Saturated Fat',       v('sf'),  'g',  'sf',  false, 10)}
-    ${row('<i>Trans</i> Fat',    v('xf'),  'g',  null,  false, 10)}
-    ${row('Cholesterol',         v('ch'),  'mg', 'ch',  true,  0)}
-    ${row('Sodium',              v('na'),  'mg', 'na',  true,  0)}
-    ${row('Total Carbohydrate',  v('tc'),  'g',  'tc',  true,  0)}
-    ${row('Dietary Fiber',       v('df'),  'g',  'df',  false, 10)}
-    ${row('Total Sugars',        v('su'),  'g',  null,  false, 10)}
-    ${row(`Incl. ${v('as_')}g Added Sugars`, '', '', 'as_', false, 20)}
-    ${row('Protein',             v('pr'),  'g',  null,  true,  0, true)}
-    <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #000;padding:1.5px 0;">
-      <div style="font-size:${mfs}px;padding-right:3px;border-right:0.5px solid #000;">Vit. D ${v('vd')}mcg <b>${pct('vd')}</b></div>
-      <div style="font-size:${mfs}px;padding-left:3px;">Calcium ${v('ca')}mg <b>${pct('ca')}</b></div>
+    <div style="text-align:right;font-size:${dvHdrPx}px;font-weight:700;border-bottom:0.5px solid #000;padding:1px 0;margin-bottom:1px;">% Daily Value*</div>
+    ${row(`<b>Total Fat</b> ${v('tf')}g`,                        pct('tf'),  false, 0)}
+    ${row(`Saturated Fat ${v('sf')}g`,                           pct('sf'),  false, 8)}
+    ${row(`<i>Trans</i> Fat ${v('xf')}g`,                       '',          false, 8)}
+    ${row(`<b>Cholesterol</b> ${v('ch')}mg`,                     pct('ch'),  false, 0)}
+    ${row(`<b>Sodium</b> ${v('na')}mg`,                          pct('na'),  false, 0)}
+    ${row(`<b>Total Carbohydrate</b> ${v('tc')}g`,               pct('tc'),  false, 0)}
+    ${row(`Dietary Fiber ${v('df')}g`,                           pct('df'),  false, 8)}
+    ${row(`Total Sugars ${v('su')}g`,                            '',          false, 8)}
+    ${row(`Includes ${v('as_')}g Added Sugars`,                  pct('as_'), false, 16)}
+    ${row(`<b>Protein</b> ${v('pr')}g`,                          '',          false, 0, true)}
+    <div style="display:flex;justify-content:space-between;font-size:${microPx}px;border-bottom:0.5px solid #000;padding:1px 0;">
+      <span>Vitamin D ${v('vd')}mcg${pct('vd')}</span>
+      <span style="border-left:0.5px solid #000;padding-left:4px;">Calcium ${v('ca')}mg${pct('ca')}</span>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;padding:1.5px 0;">
-      <div style="font-size:${mfs}px;padding-right:3px;border-right:0.5px solid #000;">Iron ${v('fe')}mg <b>${pct('fe')}</b></div>
-      <div style="font-size:${mfs}px;padding-left:3px;">Potassium ${v('k')}mg <b>${pct('k')}</b></div>
+    <div style="display:flex;justify-content:space-between;font-size:${microPx}px;padding:1px 0;border-bottom:0.5px solid #000;">
+      <span>Iron ${v('fe')}mg${pct('fe')}</span>
+      <span style="border-left:0.5px solid #000;padding-left:4px;">Potassium ${v('k')}mg${pct('k')}</span>
     </div>
-    <div style="font-size:${Math.max(fs-1,5)}px;border-top:1px solid #000;padding-top:2px;line-height:1.35;margin-top:2px;color:#000;">*The % Daily Value tells you how much a nutrient in a serving contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.</div>
+    <div style="font-size:${footPx}px;border-top:0.5px solid #000;padding-top:2px;line-height:1.3;margin-top:1px;">*The % Daily Value (DV) tells you how much a nutrient in a serving contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.</div>
   </div>
 </div>`;
 }
 
-// Ingredients atom — standalone block, tight
+// Ingredients + allergens atom — matches NF box width, tight
 function spcIngAtomHTML(d, fs) {
+  const minPx = Math.max(fs * 1.333, SPC_MIN_PX);
   if (!d.ingredients && !d.allergenText) {
-    return `<div style="font-size:${Math.max(fs,6)}px;font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#888;font-style:italic;">No ingredient data.</div>`;
+    return `<div style="font-size:${minPx}px;font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#888;font-style:italic;width:${SPC_BOX_W}px;">No ingredient data.</div>`;
   }
   const ingEsc = (d.ingredients || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  return `<div style="font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#000;line-height:1.55;max-width:280px;">
-    ${ingEsc ? `<div style="font-size:${Math.max(fs,6)}px;"><strong>INGREDIENTS:</strong> ${ingEsc}</div>` : ''}
-    ${d.allergenText ? `<div style="font-size:${Math.max(fs,6)}px;font-weight:700;margin-top:3px;">${d.allergenText}</div>` : ''}
+  return `<div style="font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#000;line-height:1.4;width:${SPC_BOX_W}px;box-sizing:border-box;">
+    ${ingEsc ? `<div style="font-size:${minPx}px;"><strong>INGREDIENTS:</strong> ${ingEsc}</div>` : ''}
+    ${d.allergenText ? `<div style="font-size:${minPx}px;font-weight:700;margin-top:3px;">${d.allergenText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
   </div>`;
 }
 
-// Barcode atom
+// UPC barcode atom — uses proper UPC-A bar encoding
 function spcBarcodeAtomHTML(d, fs) {
+  const minPx = Math.max(fs * 1.333, SPC_MIN_PX);
   if (!d.hasBarcode) {
-    return `<div style="font-size:${Math.max(fs,6)}px;font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#aaa;font-style:italic;text-align:center;">No barcode configured.<br><span style="font-size:10px;">Enable in Barcode Module.</span></div>`;
+    return `<div style="font-size:${minPx}px;font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#aaa;font-style:italic;text-align:center;width:${SPC_BOX_W}px;">No barcode configured.<br><small>Enable barcode in Barcode Module.</small></div>`;
   }
-  const code = d.barcodeCode || '';
-  // CSS bar pattern from the digit string
-  const bars = Array.from(code).map((c, i) => {
-    const w = (parseInt(c) % 3 === 0) ? 2 : 1;
-    const h = (i % 5 === 0) ? 50 : 45;
-    return `<div style="width:${w}px;height:${h}px;background:#000;flex-shrink:0;"></div>`;
-  }).join('');
-  return `<div style="font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#000;text-align:center;display:inline-block;">
-    <div style="display:flex;gap:1px;height:52px;align-items:flex-end;margin-bottom:3px;justify-content:center;">${bars}</div>
-    <div style="font-size:${Math.max(fs,6)}px;font-family:'Courier New',monospace;letter-spacing:1.5px;">${code}</div>
-    <div style="font-size:${Math.max(fs-1,5)}px;color:#666;">${d.barcodeType}</div>
+
+  // UPC-A L/R encoding tables (7 bars per digit)
+  const UPC_L = ['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
+  const UPC_R = ['1110010','1100110','1101100','1000010','1011100','1001110','1010000','1000100','1001000','1110100'];
+  const GUARD_OUTER = '101';
+  const GUARD_MID   = '01010';
+
+  const code = (d.barcodeCode || '').replace(/\D/g,'').padEnd(12,'0').slice(0,12);
+  let bars = '';
+  const BAR_H = 42, BAR_LONG = 50, BAR_UNIT = 1.2; // px per module
+
+  // Build bar sequence
+  let seq = GUARD_OUTER;
+  for (let i = 0; i < 6; i++) seq += UPC_L[parseInt(code[i]) || 0];
+  seq += GUARD_MID;
+  for (let i = 6; i < 12; i++) seq += UPC_R[parseInt(code[i]) || 0];
+  seq += GUARD_OUTER;
+
+  // Render as SVG for accuracy
+  const totalW = seq.length * BAR_UNIT;
+  let svgBars = '';
+  for (let i = 0; i < seq.length; i++) {
+    if (seq[i] === '1') {
+      // Guard bars are taller
+      const isGuard = i < 3 || i >= seq.length - 3 || (i >= 45 && i <= 49);
+      const h = isGuard ? BAR_LONG : BAR_H;
+      const y = 0;
+      svgBars += `<rect x="${(i * BAR_UNIT).toFixed(1)}" y="${y}" width="${BAR_UNIT}" height="${h}" fill="#000"/>`;
+    }
+  }
+
+  const svgH = BAR_LONG + 12;
+  const svgW = totalW + 12; // side margins for quiet zone
+
+  return `<div style="font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#000;text-align:center;display:inline-block;background:#fff;padding:4px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${svgW.toFixed(0)}" height="${svgH}" viewBox="0 0 ${svgW.toFixed(1)} ${svgH}" style="display:block;margin:0 auto;">
+      <rect width="${svgW.toFixed(1)}" height="${svgH}" fill="#fff"/>
+      <g transform="translate(6,0)">${svgBars}</g>
+      <text x="${(svgW/2).toFixed(1)}" y="${svgH - 1}" text-anchor="middle" font-family="monospace" font-size="${Math.max(minPx - 1, 6)}" fill="#000">${code.slice(0,6)} ${code.slice(6)}</text>
+    </svg>
+    <div style="font-size:${Math.max(minPx - 1, 6)}px;color:#555;margin-top:1px;">${d.barcodeType}</div>
   </div>`;
 }
 
-// Distributor / origin atom
+// Distributor / origin / net weight atom
 function spcDistAtomHTML(d, fs) {
+  const minPx = Math.max(fs * 1.333, SPC_MIN_PX);
   const parts = [];
   d.distLines.forEach((part, i) => {
-    const isWeb = /^https?:\/\//i.test(part) || /^www\./i.test(part) ||
-      (/^[^\s@]+\.(co|com|net|io|org|us|ca|shop|store)(\b|$)/i.test(part) && !part.includes(' '));
+    const clean = part.replace(/^distributed\s+by\s*:?\s*/i,'');
     if (i === 0) {
-      parts.push(`<div style="font-size:${Math.max(fs,6)}px;line-height:1.6;"><strong>DISTRIBUTED BY:</strong> ${part.replace(/^distributed\s+by\s*:?\s*/i,'')}</div>`);
-    } else if (isWeb) {
-      parts.push(`<div style="font-size:${Math.max(fs,6)}px;line-height:1.6;">${part.replace(/^https?:\/\//i,'').toUpperCase()}</div>`);
+      parts.push(`<span><strong>DISTRIBUTED BY:</strong> ${clean}</span>`);
     } else {
-      parts.push(`<div style="font-size:${Math.max(fs,6)}px;line-height:1.6;">${part}</div>`);
+      parts.push(`<span>${clean}</span>`);
     }
   });
   if (d.origin) {
     const o = d.origin.replace(/^manufactured\s+in\s*/i,'PRODUCT OF ').replace(/^made\s+in\s*/i,'PRODUCT OF ').toUpperCase();
-    parts.push(`<div style="font-size:${Math.max(fs,6)}px;font-weight:700;line-height:1.6;">${o}</div>`);
+    parts.push(`<strong>${o}</strong>`);
   }
-  if (d.netWt) {
-    parts.push(`<div style="font-size:${Math.max(fs,6)}px;font-weight:700;line-height:1.6;margin-top:2px;">${d.netWt}</div>`);
-  }
-  if (d.warning) {
-    parts.push(`<div style="font-size:${Math.max(fs,6)}px;font-weight:700;line-height:1.6;margin-top:2px;">${d.warning}</div>`);
-  }
-  if (!parts.length) return `<div style="font-size:${Math.max(fs,6)}px;color:#888;font-style:italic;">No distributor data.</div>`;
-  return `<div style="font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#000;max-width:220px;">${parts.join('')}</div>`;
+  if (d.netWt) parts.push(`<strong>${d.netWt}</strong>`);
+  if (d.warning) parts.push(`<strong>${d.warning}</strong>`);
+
+  if (!parts.length) return `<div style="font-size:${minPx}px;color:#888;font-style:italic;">No distributor data.</div>`;
+
+  return `<div style="font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;color:#000;font-size:${minPx}px;line-height:1.5;width:${SPC_BOX_W}px;box-sizing:border-box;">
+    ${parts.join('<br>')}
+  </div>`;
 }
 
 // ── Quick export — callable directly from Export Center without nav change ────
