@@ -105,11 +105,6 @@ function spcRenderPreview() {
     return;
   }
 
-  // Always render all 3 atoms side by side in preview
-  const svgN = spcNFMicroSVG(d);
-  const svgI = spcIngSVG(d);
-  const svgB = spcBarcodeSVG(d);
-
   const card = (label, svg) =>
     `<div style="display:inline-block;vertical-align:top;margin-right:12px;">
       <div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;margin-bottom:4px;">${label}</div>
@@ -117,13 +112,25 @@ function spcRenderPreview() {
            style="display:block;border:1px solid #dde;background:#fff;max-width:300px;">
     </div>`;
 
+  const svgN = spcNFMicroSVG(d);
+  const svgI = spcIngSVG(d);
+
+  // Show nutrition + ingredients immediately; barcode loads async (JsBarcode CDN)
   inner.innerHTML =
     card('Nutrition Panel', svgN) +
     card('Ingredients', svgI) +
-    card('Barcode', svgB);
+    `<div id="spc-bc-preview-slot" style="display:inline-block;vertical-align:top;">
+      <div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;margin-bottom:4px;">Barcode</div>
+      <div style="font-size:10px;color:#aaa;padding:8px;">Loading…</div>
+    </div>`;
 
   inner.style.transform = `scale(${_spcZoom})`;
   inner.style.transformOrigin = 'top left';
+
+  spcBarcodeSVG(d).then(svgB => {
+    const slot = document.getElementById('spc-bc-preview-slot');
+    if (slot) slot.outerHTML = card('Barcode', svgB);
+  });
 }
 
 // ── Export dispatcher ─────────────────────────────────────────────────────────
@@ -145,35 +152,39 @@ function spcQuickExport(type) {
 
 // ── ZIP: exactly 6 files ──────────────────────────────────────────────────────
 function spcExportZip(d, name) {
-  if (typeof toast === 'function') toast('Building ZIP…', 'Generating SVG atoms…', 3500);
-  _loadJSZip(() => {
-    const zip    = new JSZip();
-    const folder = zip.folder(name + '_split_pack');
+  if (typeof toast === 'function') toast('Building ZIP…', 'Rendering barcode via JsBarcode…', 4000);
+  // spcBarcodeSVG is async (loads JsBarcode from CDN if needed)
+  // Resolve all three SVGs in parallel, then build ZIP
+  Promise.all([
+    Promise.resolve(spcNFMicroSVG(d)),
+    Promise.resolve(spcIngSVG(d)),
+    spcBarcodeSVG(d),
+  ]).then(([svgN, svgI, svgB]) => {
+    _loadJSZip(() => {
+      const zip    = new JSZip();
+      const folder = zip.folder(name + '_split_pack');
 
-    const svgN = spcNFMicroSVG(d);
-    const svgI = spcIngSVG(d);
-    const svgB = spcBarcodeSVG(d);
+      folder.file('nutrition_panel.svg',   svgN);
+      folder.file('ingredients_panel.svg', svgI);
+      folder.file('barcode_panel.svg',     svgB);
 
-    folder.file('nutrition_panel.svg',  svgN);
-    folder.file('ingredients_panel.svg', svgI);
-    folder.file('barcode_panel.svg',    svgB);
-
-    Promise.all([
-      spcSVGtoPNGBlob(svgN).then(b => { if (b) folder.file('nutrition_panel.png',  b); }),
-      spcSVGtoPNGBlob(svgI).then(b => { if (b) folder.file('ingredients_panel.png', b); }),
-      spcSVGtoPNGBlob(svgB).then(b => { if (b) folder.file('barcode_panel.png',    b); }),
-    ]).then(() => {
-      zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }).then(blob => {
-        const url = URL.createObjectURL(blob);
-        const a   = document.createElement('a');
-        a.href = url;
-        a.download = name + '_split_pack.zip';
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 800);
-        if (typeof toast === 'function') toast('ZIP Downloaded', `${name}_split_pack.zip — 6 files`);
-        const st = document.getElementById('spc-export-status');
-        if (st) st.textContent = '✓ ZIP: nutrition, ingredients, barcode  (SVG + PNG each)';
+      Promise.all([
+        spcSVGtoPNGBlob(svgN).then(b => { if (b) folder.file('nutrition_panel.png',   b); }),
+        spcSVGtoPNGBlob(svgI).then(b => { if (b) folder.file('ingredients_panel.png', b); }),
+        spcSVGtoPNGBlob(svgB).then(b => { if (b) folder.file('barcode_panel.png',     b); }),
+      ]).then(() => {
+        zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }).then(blob => {
+          const url = URL.createObjectURL(blob);
+          const a   = document.createElement('a');
+          a.href = url;
+          a.download = name + '_split_pack.zip';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 800);
+          if (typeof toast === 'function') toast('ZIP Downloaded', `${name}_split_pack.zip — 6 files`);
+          const st = document.getElementById('spc-export-status');
+          if (st) st.textContent = '✓ ZIP: nutrition, ingredients, barcode (SVG + PNG each)';
+        });
       });
     });
   });
@@ -450,52 +461,77 @@ function spcIngSVG(d) {
 }
 
 // ── BARCODE SVG ───────────────────────────────────────────────────────────────
-function spcBarcodeSVG(d) {
-  // UPC-A encoding tables
-  const UPC_L = ['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
-  const UPC_R = ['1110010','1100110','1101100','1000010','1011100','1001110','1010000','1000100','1001000','1110100'];
-  const G_OUT = '101', G_MID = '01010';
+// Uses JsBarcode (same library as the main label system) rendered into a
+// detached SVG element, then serialized. This guarantees identical geometry,
+// module widths, quiet zones, and guard bar proportions to the working barcode.
+// Falls back to a placeholder rect when no barcode is configured.
 
-  if (!d.hasBarcode) {
-    const W = SPC_W, H = 60;
-    const content = `<rect x="4" y="4" width="${W-8}" height="${H-12}" fill="none" stroke="#ccc" stroke-dasharray="3,2" rx="2"/>` +
-      `<text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="Arial" font-size="8" fill="#bbb">No barcode configured</text>`;
-    return svgRoot(content, W, H);
-  }
-
-  const code = (d.barcodeCode || '').replace(/\D/g,'').padEnd(12,'0').slice(0,12);
-  let seq = G_OUT;
-  for (let i = 0; i < 6; i++)  seq += UPC_L[parseInt(code[i]) || 0];
-  seq += G_MID;
-  for (let i = 6; i < 12; i++) seq += UPC_R[parseInt(code[i]) || 0];
-  seq += G_OUT;
-
-  const UNIT     = 1.8;  // module width px
-  const BAR_H    = 48;   // normal bar height
-  const GUARD_H  = 56;   // guard bar height
-  const QZ       = 10;   // quiet zone
-  const TOP      = 4;
-  const DIGIT_H  = 10;
-
-  const barW = seq.length * UNIT;
-  const W    = Math.ceil(barW + QZ * 2);
-  const H    = TOP + GUARD_H + DIGIT_H + 2;
-
-  let bars = '';
-  for (let i = 0; i < seq.length; i++) {
-    if (seq[i] === '1') {
-      const isGuard = i < 3 || i >= seq.length - 3 || (i >= 45 && i <= 49);
-      const bh = isGuard ? GUARD_H : BAR_H;
-      bars += svgRect((QZ + i * UNIT).toFixed(1), TOP, UNIT.toFixed(1), bh, '#000');
+function spcBarcodeSVG(d, cb) {
+  // Always returns a Promise<string> — caller must await it.
+  return new Promise(resolve => {
+    if (!d.hasBarcode) {
+      const W = SPC_W, H = 64;
+      resolve(svgRoot(
+        `<rect x="4" y="4" width="${W-8}" height="${H-12}" fill="none" stroke="#ccc" stroke-dasharray="3,2" rx="2"/>` +
+        `<text x="${W/2}" y="${H/2+4}" text-anchor="middle" font-family="Arial" font-size="8" fill="#bbb">No barcode configured</text>`,
+        W, H
+      ));
+      return;
     }
-  }
 
-  // Standard UPC-A retail grouping: N NNNNN NNNNN N
-  const upcFormatted = `${code[0]}\u2009${code.slice(1,6)}\u2009${code.slice(6,11)}\u2009${code[11]}`;
-  const digits = `<text x="${W/2}" y="${H - 2}" text-anchor="middle" ` +
-    `font-family="'Courier New',Courier,monospace" font-size="8" fill="#000">${upcFormatted}</text>`;
+    const code = (d.barcodeCode || '').replace(/\D/g,'').padEnd(12,'0').slice(0,12);
+    const format = (d.barcodeType || 'UPC-A').replace('-','') === 'EAN13' ? 'EAN13' : 'UPC';
 
-  return svgRoot(bars + digits, W, H);
+    const doRender = () => {
+      try {
+        // Create a detached SVG element — JsBarcode writes into it in-place
+        const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svgEl.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+
+        JsBarcode(svgEl, code, {
+          format,
+          width:        1.6,   // module width (matches main label: 1.5)
+          height:       50,    // bar height (matches main label: 50)
+          displayValue: true,
+          fontSize:     10,
+          margin:       8,     // quiet zone (matches main label margin: 4 + extra for export)
+          background:   '#ffffff',
+          lineColor:    '#000000',
+          textMargin:   2,
+          fontOptions:  '',
+          font:         'monospace',
+        });
+
+        // Serialize the rendered SVG
+        const serialized = new XMLSerializer().serializeToString(svgEl);
+        resolve(serialized);
+      } catch(e) {
+        // Render error fallback
+        const W = SPC_W, H = 64;
+        resolve(svgRoot(
+          `<text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="Arial" font-size="8" fill="#c00">Barcode render error: ${esc(e.message)}</text>`,
+          W, H
+        ));
+      }
+    };
+
+    // Load JsBarcode if not already available (same CDN as main label)
+    if (window.JsBarcode) {
+      doRender();
+    } else {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js';
+      s.onload  = doRender;
+      s.onerror = () => {
+        const W = SPC_W, H = 64;
+        resolve(svgRoot(
+          `<text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="Arial" font-size="8" fill="#c00">JsBarcode unavailable</text>`,
+          W, H
+        ));
+      };
+      document.head.appendChild(s);
+    }
+  });
 }
 
 // ── Data extraction ───────────────────────────────────────────────────────────
