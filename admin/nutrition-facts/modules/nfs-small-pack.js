@@ -727,11 +727,13 @@ function spcNFLinearSVG(d) {
     chunk(false, 'Dietary Fiber ', `${v('df')}g${pct('df')},`);
   }
 
-  // Total Sugars — atomic, includes inline added sugars note
-  const asV  = v('as_');
+  // Total Sugars — split into two chunks: "Total Sugars Xg" then "(Incl. Xg Added Sugars, X% DV),"
+  // This prevents the combined string from overflowing the line width.
+  const asV   = v('as_');
   const asPct = d['as_']?.pct;
   const asDV  = (asPct && asPct !== '0') ? `, ${asPct}% DV` : '';
-  chunk(false, 'Total Sugars ', `${v('su')}g (Incl. ${asV}g Added Sugars${asDV}),`);
+  chunk(false, 'Total Sugars ', `${v('su')}g`);
+  chunks.push([{ text: `(Incl. ${asV}g Added Sugars${asDV}),`, bold: false }]);
 
   // Protein — ends with period, no trailing comma
   chunk(true, 'Protein ', `${v('pr')}g.`);
