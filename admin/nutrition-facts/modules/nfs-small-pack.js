@@ -735,9 +735,9 @@ function spcNFLinearSVG(d) {
   // We mark it with a lineBreak flag so the wrap loop always starts a new line before it.
   chunks.push([{ text: 'Amount per serving:', type: 'lbl', forceNewLine: true }]);
 
-  // Calories — "Calories " bold label + larger number — forced to its own line
+  // Calories — own line, nothing else shares it
   chunks.push([
-    { text: 'Calories ', type: 'cal-lbl', forceNewLine: true },
+    { text: 'Calories ', type: 'cal-lbl', forceNewLine: true, forceOwnLine: true },
     { text: `${d.calories},`, type: 'cal-num' },
   ]);
 
@@ -774,25 +774,28 @@ function spcNFLinearSVG(d) {
   let curLine  = [];
   let curLineW = 0;
 
+  const flushLine = () => {
+    if (curLine.length) { lines.push({ chunks: curLine, w: curLineW }); curLine = []; curLineW = 0; }
+  };
+
   for (const ch of chunks) {
-    const cw_ch  = chunkW(ch);
-    const needed = curLine.length > 0 ? SPACE_W + cw_ch : cw_ch;
+    const cw_ch     = chunkW(ch);
     const forceBreak = ch[0]?.forceNewLine;
-    if (forceBreak && curLine.length > 0) {
-      // Flush current line, force this chunk onto a new line
-      lines.push({ chunks: curLine, w: curLineW });
-      curLine  = [ch];
-      curLineW = cw_ch;
-    } else if (!forceBreak && curLine.length > 0 && curLineW + needed > wrapAt) {
-      lines.push({ chunks: curLine, w: curLineW });
-      curLine  = [ch];
-      curLineW = cw_ch;
-    } else {
-      curLine.push(ch);
-      curLineW += needed;
+    const forceEnd   = ch[0]?.forceOwnLine; // flush after as well
+
+    if (forceBreak) flushLine();
+
+    const needed = curLine.length > 0 ? SPACE_W + cw_ch : cw_ch;
+    if (curLine.length > 0 && curLineW + needed > wrapAt) {
+      flushLine();
     }
+    const isFirst = curLine.length === 0;
+    curLine.push(ch);
+    curLineW += isFirst ? cw_ch : SPACE_W + cw_ch;
+
+    if (forceEnd) flushLine();
   }
-  if (curLine.length) lines.push({ chunks: curLine, w: curLineW });
+  flushLine();
 
   // Auto-fit box width to content (no dead whitespace)
   const footText = '*%DV based on a 2,000 calorie/day diet.';
