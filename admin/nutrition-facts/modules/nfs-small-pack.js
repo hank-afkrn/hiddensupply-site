@@ -692,17 +692,17 @@ function spcNFLinearSVG(d) {
   // Competitor style: bold labels, normal-weight values, huge Calories number.
   // FDA min = 6pt = 8px. All sizes in SVG px.
   const P        = SPC_PX;   // outer padding
-  const BORDER   = 2;        // box border (heavier for legibility)
+  const BORDER   = 3;        // box border — thick like competitor
 
   // Token types and their visual properties
   // type: 'title' | 'lbl' | 'val' | 'cal-lbl' | 'cal-num' | 'foot'
   const STYLE = {
-    title:   { fs: 13,   fw: 900, cw: 0.62 },  // "Nutrition Facts" — large bold title
+    title:   { fs: 12,   fw: 900, cw: 0.61 },  // "Nutrition Facts" — large bold title
     lbl:     { fs: 8.5,  fw: 900, cw: 0.60 },  // nutrient labels — bold
     val:     { fs: 8.5,  fw: 400, cw: 0.51 },  // nutrient values — normal weight
-    'cal-lbl': { fs: 9,  fw: 900, cw: 0.61 },  // "Calories " label — bold
-    'cal-num': { fs: 22, fw: 900, cw: 0.62 },  // "160," number — huge, dominant
-    foot:    { fs: 7,    fw: 700, cw: 0.52 },  // footnote
+    'cal-lbl': { fs: 8.5, fw: 900, cw: 0.60 }, // "Calories " label — bold, same size as lbl
+    'cal-num': { fs: 16, fw: 900, cw: 0.61 },  // "160," — ~1.9× body, not gigantic
+    foot:    { fs: 7.5,  fw: 700, cw: 0.52 },  // footnote
   };
 
   const tw = (text, type) => text.length * STYLE[type].cw * STYLE[type].fs;
@@ -731,12 +731,13 @@ function spcNFLinearSVG(d) {
     ]);
   }
 
-  // "Amount per serving:" — bold, own chunk
-  chunks.push([{ text: 'Amount per serving:', type: 'lbl' }]);
+  // "Amount per serving:" — bold, FORCED to its own line (never shares with serv. size)
+  // We mark it with a lineBreak flag so the wrap loop always starts a new line before it.
+  chunks.push([{ text: 'Amount per serving:', type: 'lbl', forceNewLine: true }]);
 
-  // Calories — "Calories " bold label + huge number
+  // Calories — "Calories " bold label + larger number — forced to its own line
   chunks.push([
-    { text: 'Calories ', type: 'cal-lbl' },
+    { text: 'Calories ', type: 'cal-lbl', forceNewLine: true },
     { text: `${d.calories},`, type: 'cal-num' },
   ]);
 
@@ -776,7 +777,13 @@ function spcNFLinearSVG(d) {
   for (const ch of chunks) {
     const cw_ch  = chunkW(ch);
     const needed = curLine.length > 0 ? SPACE_W + cw_ch : cw_ch;
-    if (curLine.length > 0 && curLineW + needed > wrapAt) {
+    const forceBreak = ch[0]?.forceNewLine;
+    if (forceBreak && curLine.length > 0) {
+      // Flush current line, force this chunk onto a new line
+      lines.push({ chunks: curLine, w: curLineW });
+      curLine  = [ch];
+      curLineW = cw_ch;
+    } else if (!forceBreak && curLine.length > 0 && curLineW + needed > wrapAt) {
       lines.push({ chunks: curLine, w: curLineW });
       curLine  = [ch];
       curLineW = cw_ch;
