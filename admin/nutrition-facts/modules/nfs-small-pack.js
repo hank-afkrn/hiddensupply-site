@@ -104,23 +104,24 @@ function spcSelectType(type, silent) {
   localStorage.setItem('spc_last_type', type);
   const radio = document.querySelector(`input[name="spc-type"][value="${type}"]`);
   if (radio) radio.checked = true;
-  ['single','mini','mini-ing','split','simplified'].forEach(t => {
+  ['single','mini','mini-ing','split','simplified','linear'].forEach(t => {
     const lbl = document.getElementById('spc-type-' + t + '-lbl');
     if (!lbl) return;
     lbl.style.borderColor = t === type ? 'var(--accent)' : 'var(--border)';
     lbl.style.background  = t === type ? 'var(--accent-bg)' : '';
   });
-  // Show/hide size toggle — only relevant for split and simplified
+  // Show/hide size toggle — relevant for split, simplified, and linear
   const sizeToggle = document.getElementById('spc-size-toggle');
-  if (sizeToggle) sizeToggle.style.display = (type === 'split' || type === 'simplified') ? 'block' : 'none';
+  if (sizeToggle) sizeToggle.style.display = (type === 'split' || type === 'simplified' || type === 'linear') ? 'block' : 'none';
   // Show/hide split options
   const splitOpts = document.getElementById('spc-split-options');
   if (splitOpts) splitOpts.style.display = type === 'split' ? 'block' : 'none';
   const btn = document.getElementById('spc-export-btn');
   if (btn) {
-    if (type === 'split')      btn.innerHTML = '📦 Export Split Pack (.zip)';
+    if (type === 'split')           btn.innerHTML = '📦 Export Split Pack (.zip)';
     else if (type === 'simplified') btn.innerHTML = '📄 Export Simplified NF (.zip)';
-    else                       btn.innerHTML = '📄 Export';
+    else if (type === 'linear')     btn.innerHTML = '📄 Export Linear NF (.zip)';
+    else                            btn.innerHTML = '📄 Export';
   }
   if (!silent) spcRenderPreview();
 }
@@ -161,12 +162,19 @@ function spcRenderPreview() {
     </div>`;
 
   if (_spcType === 'simplified') {
-    // Simplified: show simplified NF + ingredients panel
     const svgN = spcNFSimplifiedSVG(d);
     const svgI = spcIngSVG(d);
     inner.innerHTML =
       card('Simplified Nutrition Facts', svgN, '≤40 sq in') +
       card('Ingredients', svgI);
+    inner.style.transform = `scale(${_spcZoom})`;
+    inner.style.transformOrigin = 'top left';
+    return;
+  }
+
+  if (_spcType === 'linear') {
+    const svgL = spcNFLinearSVG(d);
+    inner.innerHTML = card('Linear NF', svgL, 'most compact');
     inner.style.transform = `scale(${_spcZoom})`;
     inner.style.transformOrigin = 'top left';
     return;
@@ -206,6 +214,9 @@ function spcDoExport() {
   if (_spcType === 'simplified') {
     spcExportSimplifiedZip(d, name);
     if (typeof trackExport === 'function') trackExport('small-pack-simplified', d.name);
+  } else if (_spcType === 'linear') {
+    spcExportLinearZip(d, name);
+    if (typeof trackExport === 'function') trackExport('small-pack-linear', d.name);
   } else {
     spcExportZip(d, name);
     if (typeof trackExport === 'function') trackExport('small-pack-split', d.name);
@@ -221,6 +232,9 @@ function spcQuickExport(type) {
   if (type === 'simplified') {
     spcExportSimplifiedZip(d, name);
     if (typeof trackExport === 'function') trackExport('small-pack-quick-simplified', d.name);
+  } else if (type === 'linear') {
+    spcExportLinearZip(d, name);
+    if (typeof trackExport === 'function') trackExport('small-pack-quick-linear', d.name);
   } else {
     spcExportZip(d, name);
     if (typeof trackExport === 'function') trackExport('small-pack-quick-' + type, d.name);
@@ -294,6 +308,33 @@ function spcExportSimplifiedZip(d, name) {
         if (typeof toast === 'function') toast('ZIP Downloaded', `${name}_simplified_nf.zip — 4 files (SVG + PNG each)`);
         const st = document.getElementById('spc-export-status');
         if (st) st.textContent = '✓ ZIP: simplified_nf + ingredients (SVG + PNG each)';
+      });
+    });
+  });
+}
+
+// ── LINEAR NF ZIP export ──────────────────────────────────────────────────────
+// Standalone linear panel export — 2 files: linear_nf.svg + linear_nf.png
+function spcExportLinearZip(d, name) {
+  if (typeof toast === 'function') toast('Building ZIP…', 'Generating linear NF panel…', 3000);
+  const svgL = spcNFLinearSVG(d);
+  _loadJSZip(() => {
+    const zip    = new JSZip();
+    const folder = zip.folder(name + '_linear_nf');
+    folder.file('linear_nf.svg', svgL);
+    spcSVGtoPNGBlob(svgL).then(b => {
+      if (b) folder.file('linear_nf.png', b);
+      zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }).then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a   = document.createElement('a');
+        a.href = url;
+        a.download = name + '_linear_nf.zip';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 800);
+        if (typeof toast === 'function') toast('ZIP Downloaded', `${name}_linear_nf.zip — SVG + PNG`);
+        const st = document.getElementById('spc-export-status');
+        if (st) st.textContent = '✓ ZIP: linear_nf (SVG + PNG)';
       });
     });
   });
