@@ -802,21 +802,22 @@ function spcNFTabularSVG(d) {
   y += 4;
 
   // ── Calories ───────────────────────────────────────────────────────────────
-  y += LH_CAL - 2;
-  els += txt(xLbl, y, '<tspan font-size="8" font-weight="900">Calories</tspan>', FS_CAL_L, 400);
+  // Align cal label baseline to match the big number baseline
+  y += LH_CAL;
+  els += txt(xLbl, y, 'Calories', FS_CAL_L, 900);
   els += txt(xDV, y, esc(String(d.calories || '0')), FS_CAL_N, 900, 'end');
 
-  // ── Thin rule ──────────────────────────────────────────────────────────────
-  y += 4;
+  // ── Thin rule below Calories ───────────────────────────────────────────────
+  y += 5;
   els += rule(y, 0.5);
   y += 2;
 
   // ── Column header ──────────────────────────────────────────────────────────
   y += FS_HDR + 1;
-  els += txt(xAmt, y, 'Amount', FS_HDR, 700, 'end');
-  els += txt(xDV,  y, '%DV*',   FS_HDR, 700, 'end');
+  els += txt(xLbl, y, 'Amount per serving', FS_HDR, 700);
+  els += txt(xDV,  y, '%DV*',               FS_HDR, 700, 'end');
 
-  // ── Thin rule ──────────────────────────────────────────────────────────────
+  // ── Thin rule below header ─────────────────────────────────────────────────
   y += 3;
   els += rule(y, 0.5);
 
@@ -859,20 +860,27 @@ function spcNFTabularSVG(d) {
   y += 3;
 
   // ── Micronutrient bullet line ──────────────────────────────────────────────
+  // Wrap across 2 lines if needed (2 per line = 2+2 split)
   const micros = [];
   const addMicro = (label, key, unit) => {
     const val = v(key);
     const dv  = hasPct(key) ? ' ' + pct(key) : '';
     micros.push(`${label} ${val}${unit}${dv}`);
   };
-  addMicro('Vit. D',   'vd', 'mcg');
-  addMicro('Calcium',  'ca', 'mg');
-  addMicro('Iron',     'fe', 'mg');
-  addMicro('Potassium','k',  'mg');
+  addMicro('Vit. D',    'vd', 'mcg');
+  addMicro('Calcium',   'ca', 'mg');
+  addMicro('Iron',      'fe', 'mg');
+  addMicro('Potassium', 'k',  'mg');
 
-  y += FS_MICRO + 3;
-  const microLine = micros.join(' \u2022 ');
-  els += txt(xLbl, y, esc(microLine), FS_MICRO, 400);
+  // Two micros per line to avoid overflow
+  const microLines = [
+    micros.slice(0, 2).join(' \u2022 '),
+    micros.slice(2).join(' \u2022 '),
+  ].filter(Boolean);
+  for (const ml of microLines) {
+    y += FS_MICRO + 2.5;
+    els += txt(xLbl, y, esc(ml), FS_MICRO, 400);
+  }
 
   // ── Thin rule + footnote ───────────────────────────────────────────────────
   y += 4;
