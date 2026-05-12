@@ -1929,8 +1929,22 @@ input:focus, textarea:focus, select:focus {
               <button class="btn btn-sm btn-primary" style="justify-content:center;" onclick="nfsSaveProject()">&#128190; Save <span class="kbd" style="margin-left:4px;">⌘S</span></button>
               <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="printLabel('draft')">&#128438; Print PDF</button>
               <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="exportPNG(3)">&#128247; Export PNG</button>
+              <div style="display:flex;gap:4px;flex-wrap:wrap;padding:4px 2px 0;">
+                <button id="qs-size-standard" onclick="spcSetSize('standard')"
+                  style="flex:1;padding:3px 6px;font-size:9px;border-radius:4px;border:1.5px solid var(--accent);cursor:pointer;background:var(--accent);color:#fff;font-weight:700;transition:all .15s;white-space:nowrap;">
+                  2.625"
+                </button>
+                <button id="qs-size-compact" onclick="spcSetSize('compact')"
+                  style="flex:1;padding:3px 6px;font-size:9px;border-radius:4px;border:1.5px solid var(--border);cursor:pointer;background:var(--surface);color:var(--text);font-weight:400;transition:all .15s;white-space:nowrap;">
+                  2.0"
+                </button>
+                <button id="qs-size-micro" onclick="spcSetSize('micro')"
+                  style="flex:1;padding:3px 6px;font-size:9px;border-radius:4px;border:1.5px solid var(--border);cursor:pointer;background:var(--surface);color:var(--text);font-weight:400;transition:all .15s;white-space:nowrap;">
+                  1.5"
+                </button>
+              </div>
               <button class="btn btn-sm btn-secondary" style="justify-content:center;border-color:rgba(139,92,246,0.5);color:#a78bfa;" onclick="spcQuickExport('split')">&#128230; Split Pack .zip</button>
-              <div style="font-size:8px;color:var(--dim);line-height:1.35;padding:0 2px;">Compact mode for constrained packaging. Compliance responsibility remains with manufacturer/importer of record.</div>
+              <div style="font-size:8px;color:var(--dim);line-height:1.35;padding:0 2px;">Panel width for split pack. Compliance responsibility remains with manufacturer/importer of record.</div>
               <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="nfsNav('compliance')">&#9989; Run Preflight</button>
               <button class="btn btn-sm btn-secondary" style="justify-content:center;" onclick="nfsNav('export')">&#128228; Export Center →</button>
             </div>

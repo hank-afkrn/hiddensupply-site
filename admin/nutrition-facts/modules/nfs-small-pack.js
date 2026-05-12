@@ -83,8 +83,8 @@ function spcSetSize(size, silent) {
   localStorage.setItem('spc_last_size', _spcSize);
   SPC_W  = SPC_W_PRESETS[_spcSize] || 252;
   SPC_IW = SPC_W - SPC_PX * 2;
-  // Update ALL size button sets (export center + small pack view)
-  const prefixes = ['spc-size-', 'spc-sp-size-'];
+  // Update ALL size button sets (quick export sidebar + export center + small pack view)
+  const prefixes = ['qs-size-', 'spc-size-', 'spc-sp-size-'];
   ['standard','compact','micro'].forEach(s => {
     prefixes.forEach(pfx => {
       const btn = document.getElementById(pfx + s);
