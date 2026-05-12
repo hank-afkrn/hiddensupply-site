@@ -688,88 +688,98 @@ function spcNFSimplifiedSVG(d) {
 // Height auto-adjusts to content.
 //
 function spcNFLinearSVG(d) {
-  // ── Typography ─────────────────────────────────────────────────────────
-  // All sizes in SVG px. FDA min = 6pt = 8px.
-  // We use a fixed base size regardless of SPC_W — the box auto-fits to content.
-  const P       = SPC_PX;          // outer padding (5px)
-  const FS      = 8.5;             // body text — 8.5px ≈ 6.4pt (≥6pt FDA min)
-  const FS_CAL  = 11.5;            // "Calories N," — larger, competitor style
-  const FS_FOOT = 7;               // footnote
-  const LH      = 12;              // line height
-  const BORDER  = 2;               // box border width (heavier = more legible)
+  // ── Typography ────────────────────────────────────────────────────────────
+  // Competitor style: bold labels, normal-weight values, huge Calories number.
+  // FDA min = 6pt = 8px. All sizes in SVG px.
+  const P        = SPC_PX;   // outer padding
+  const BORDER   = 2;        // box border (heavier for legibility)
 
-  // Char-width estimators (Helvetica Neue / Arial condensed, semi-bold baseline)
-  // Using 700 as "normal" weight for the body — heavier than before
-  const cw  = FS * 0.54;          // normal (weight 700)
-  const cwB = FS * 0.60;          // bold (weight 900)
-  const cwC = FS_CAL * 0.60;      // Calories chunk (900 weight, larger font)
-  const cwF = FS_FOOT * 0.52;     // footnote
-
-  const estimateW = (text, bold, cal) => {
-    const w = cal ? cwC : (bold ? cwB : cw);
-    return text.length * w;
+  // Token types and their visual properties
+  // type: 'title' | 'lbl' | 'val' | 'cal-lbl' | 'cal-num' | 'foot'
+  const STYLE = {
+    title:   { fs: 13,   fw: 900, cw: 0.62 },  // "Nutrition Facts" — large bold title
+    lbl:     { fs: 8.5,  fw: 900, cw: 0.60 },  // nutrient labels — bold
+    val:     { fs: 8.5,  fw: 400, cw: 0.51 },  // nutrient values — normal weight
+    'cal-lbl': { fs: 9,  fw: 900, cw: 0.61 },  // "Calories " label — bold
+    'cal-num': { fs: 22, fw: 900, cw: 0.62 },  // "160," number — huge, dominant
+    foot:    { fs: 7,    fw: 700, cw: 0.52 },  // footnote
   };
+
+  const tw = (text, type) => text.length * STYLE[type].cw * STYLE[type].fs;
 
   const v   = k => String(d[k]?.val || '0');
   const pct = k => { const x = d[k]?.pct; return (x && x !== '0') ? ` (${x}% DV)` : ''; };
 
-  // ── Build atomic chunks ──────────────────────────────────────────────────
-  // Each chunk = [ {text, bold, cal}, ... ] — never broken across lines.
+  // ── Token builder ─────────────────────────────────────────────────────────
+  // A "chunk" is an array of tokens that must stay on the same line.
+  // A "token" is { text, type }.
   const chunks = [];
-  const chunk  = (labelBold, labelText, valueText, isCal) => {
+
+  // Header line: "Nutrition Facts" (title) + "Servings: 5," (val)
+  // Pack them together so they always appear on the same first line
+  {
+    const headerTokens = [{ text: 'Nutrition Facts', type: 'title' }];
+    if (d.servingPerContainer) headerTokens.push({ text: ` Servings: `, type: 'lbl' }, { text: `${d.servingPerContainer},`, type: 'val' });
+    chunks.push(headerTokens);
+  }
+
+  // Serv. size — own line (bold label, normal value)
+  if (d.servingSize) {
     chunks.push([
-      { text: labelText, bold: labelBold, cal: !!isCal },
-      { text: valueText, bold: false,     cal: !!isCal },
+      { text: 'Serv. size: ', type: 'lbl' },
+      { text: `${d.servingSize},`,  type: 'val' },
     ]);
-  };
+  }
 
-  // Header
-  chunks.push([{ text: 'Nutrition Facts', bold: true, cal: false }]);
-  if (d.servingPerContainer) chunks.push([{ text: `Servings: ${d.servingPerContainer},`, bold: false, cal: false }]);
-  if (d.servingSize)         chunks.push([{ text: `Serv. size: ${d.servingSize},`,        bold: false, cal: false }]);
-  chunks.push([{ text: 'Amount per serving:', bold: false, cal: false }]);
+  // "Amount per serving:" — bold, own chunk
+  chunks.push([{ text: 'Amount per serving:', type: 'lbl' }]);
 
-  // Calories — bigger font, full bold
-  chunk(true, 'Calories ', `${d.calories},`, true);
+  // Calories — "Calories " bold label + huge number
+  chunks.push([
+    { text: 'Calories ', type: 'cal-lbl' },
+    { text: `${d.calories},`, type: 'cal-num' },
+  ]);
 
-  // Nutrients
-  chunk(true,  'Total Fat ',     `${v('tf')}g${pct('tf')},`);
-  if (v('sf') !== '0') chunk(false, 'Saturated Fat ', `${v('sf')}g${pct('sf')},`);
-  if (v('xf') !== '0') chunk(false, 'Trans Fat ',     `${v('xf')}g,`);
-  chunk(true,  'Cholesterol ',   `${v('ch')}mg${pct('ch')},`);
-  chunk(true,  'Sodium ',        `${v('na')}mg${pct('na')},`);
-  chunk(true,  'Total Carb. ',   `${v('tc')}g${pct('tc')},`);
-  if (v('df') !== '0') chunk(false, 'Dietary Fiber ', `${v('df')}g${pct('df')},`);
+  // Nutrient helper: bold label + normal value, atomic chunk
+  const nc = (label, val) => chunks.push([
+    { text: label, type: 'lbl' },
+    { text: val,   type: 'val' },
+  ]);
 
-  // Total Sugars — split so "(Incl...)" can wrap independently
+  nc('Total Fat ',   `${v('tf')}g${pct('tf')},`);
+  if (v('sf') !== '0') nc('Saturated Fat ', `${v('sf')}g${pct('sf')},`);
+  if (v('xf') !== '0') nc('Trans Fat ',     `${v('xf')}g,`);
+  nc('Cholesterol ', `${v('ch')}mg${pct('ch')},`);
+  nc('Sodium ',      `${v('na')}mg${pct('na')},`);
+  nc('Total Carb. ', `${v('tc')}g${pct('tc')},`);
+  if (v('df') !== '0') nc('Dietary Fiber ', `${v('df')}g${pct('df')},`);
+
+  // Total Sugars — label normal (competitor style), split Added Sugars onto own chunk if needed
   const asV  = v('as_');
   const asPct = d['as_']?.pct;
   const asDV  = (asPct && asPct !== '0') ? `, ${asPct}% DV` : '';
-  chunk(false, 'Total Sugars ', `${v('su')}g`);
-  chunks.push([{ text: `(Incl. ${asV}g Added Sugars${asDV}),`, bold: false, cal: false }]);
+  nc('Total Sugars ', `${v('su')}g`);
+  chunks.push([{ text: `(Incl. ${asV}g Added Sugars${asDV}),`, type: 'val' }]);
 
-  chunk(true, 'Protein ', `${v('pr')}g.`);
+  nc('Protein ', `${v('pr')}g.`);
 
-  // ── Compute wrap width ────────────────────────────────────────────────────
-  // Target: wrap at SPC_W inner width, but then SHRINK the box to the widest
-  // rendered line so there's no dead whitespace on the right.
-  const SPACE_W  = cw * 0.7;
-  const chunkPxW = ch => ch.reduce((s, t) => s + estimateW(t.text, t.bold, t.cal), 0);
+  // ── Word-wrap onto lines ──────────────────────────────────────────────────
+  // Wrap at SPC_IW; box width then shrinks to widest rendered line.
+  const chunkW  = ch => ch.reduce((s, t) => s + tw(t.text, t.type), 0);
+  const SPACE_W = STYLE.val.fs * 0.51 * 0.8;   // inter-chunk space width estimate
+  const wrapAt  = SPC_IW - 4;
 
-  const wrapAt = SPC_IW - 4;   // max wrap width = current preset inner width
-
-  // First pass: wrap chunks into lines
   const lines  = [];
   let curLine  = [];
   let curLineW = 0;
 
   for (const ch of chunks) {
-    const chW    = chunkPxW(ch);
-    const needed = curLine.length > 0 ? SPACE_W + chW : chW;
+    const cw_ch  = chunkW(ch);
+    const needed = curLine.length > 0 ? SPACE_W + cw_ch : cw_ch;
     if (curLine.length > 0 && curLineW + needed > wrapAt) {
       lines.push({ chunks: curLine, w: curLineW });
       curLine  = [ch];
-      curLineW = chW;
+      curLineW = cw_ch;
     } else {
       curLine.push(ch);
       curLineW += needed;
@@ -777,38 +787,42 @@ function spcNFLinearSVG(d) {
   }
   if (curLine.length) lines.push({ chunks: curLine, w: curLineW });
 
-  // Footnote width
+  // Auto-fit box width to content (no dead whitespace)
   const footText = '*%DV based on a 2,000 calorie/day diet.';
-  const footW    = footText.length * cwF;
-
-  // Actual box width = widest line + left/right padding (no extra dead space)
+  const footW    = tw(footText, 'foot');
   const contentW = Math.max(...lines.map(l => l.w), footW);
-  const W        = Math.ceil(contentW + P * 2 + 6);   // +6 = 3px each side breathing room
+  const W        = Math.ceil(contentW + P * 2 + 8);
 
-  // ── Render SVG ───────────────────────────────────────────────────────────
+  // ── Render SVG ────────────────────────────────────────────────────────────
   let y   = P;
   let els = '';
 
   for (const { chunks: lineChunks } of lines) {
-    y += LH;
+    // Line height: use the tallest token's font size + small gap
+    const maxFS = Math.max(...lineChunks.flatMap(ch => ch.map(t => STYLE[t.type].fs)));
+    y += maxFS + 3;   // font size + 3px gap
+
     let tspans = '';
     lineChunks.forEach((ch, ci) => {
-      if (ci > 0) tspans += `<tspan font-size="${FS}"> </tspan>`;
+      if (ci > 0) {
+        // inter-chunk space at base val size
+        tspans += `<tspan font-size="${STYLE.val.fs}" font-weight="400"> </tspan>`;
+      }
       ch.forEach(tok => {
-        const fs   = tok.cal ? FS_CAL : FS;
-        const fw   = (tok.bold || tok.cal) ? '900' : '700';  // min 700 — heavier baseline
+        const { fs, fw } = STYLE[tok.type];
         tspans += `<tspan font-size="${fs}" font-weight="${fw}">${esc(tok.text)}</tspan>`;
       });
     });
-    els += `<text x="${P + 3}" y="${y}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" fill="#000">${tspans}</text>`;
+    els += `<text x="${P + 3}" y="${y}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" dominant-baseline="auto" fill="#000">${tspans}</text>`;
   }
 
   // Footnote rule + text
-  y += Math.round(LH * 0.45);
-  els += svgLine(P, y, W - P, y, 0.75, '#000');
+  y += 5;
+  els += svgLine(P, y, W - P, y, 1, '#000');
   y += 3;
-  els += `<text x="${P + 3}" y="${y + FS_FOOT}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${FS_FOOT}" font-weight="700" fill="#000">${esc(footText)}</text>`;
-  y += FS_FOOT + P;
+  const { fs: ffs, fw: ffw } = STYLE.foot;
+  els += `<text x="${P + 3}" y="${y + ffs}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${ffs}" font-weight="${ffw}" fill="#000">${esc(footText)}</text>`;
+  y += ffs + P;
 
   const H      = y;
   const border = `<rect x="${BORDER / 2}" y="${BORDER / 2}" width="${W - BORDER}" height="${H - BORDER}" fill="none" stroke="#000" stroke-width="${BORDER}"/>`;
