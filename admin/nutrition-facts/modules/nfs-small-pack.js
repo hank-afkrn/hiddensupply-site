@@ -637,11 +637,11 @@ function spcNFSimplifiedSVG(d) {
 // Layout: paragraph-style prose, nutrients run inline with commas.
 // %DV inline in parens after each value. Bold on key nutrient names.
 //
-// Example output:
-//   Nutrition Facts  Servings: 5, Serv. size: 1/5 piece (27g),
-//   Amount per serving: Calories 100, Total Fat 0g (0% DV),
-//   Sodium 15mg (1% DV), Total Carb. 23g (8% DV),
-//   Total Sugars 14g (Incl. 14g Added Sugars, 28% DV), Protein 1g.
+// Key rules:
+//  - "Nutrition Facts" flows inline with serving info — all one paragraph
+//  - Each "NutrientName value unit (%DV)," is an ATOMIC chunk — never splits
+//  - Line breaks happen between chunks only
+//  - Bold: Nutrition Facts, Calories, Total Fat, Cholesterol, Sodium, Total Carb., Protein
 //
 // Width is set by SPC_W (uses same presets as split/simplified).
 // Height auto-adjusts to content.
@@ -652,138 +652,136 @@ function spcNFLinearSVG(d) {
   const iW  = SPC_IW;
 
   // Scale typography to panel width (base reference: 192px = 2.0")
-  const scale  = W / 192;
-  const sc     = n => Math.round(n * scale * 10) / 10;
+  const scale   = W / 192;
+  const sc      = n => Math.round(n * scale * 10) / 10;
 
-  const FS     = sc(7.5);   // body font size (≥6pt FDA min)
-  const LH     = sc(10);    // line height
-  const FS_FOOT= sc(6);     // footnote
+  const FS      = sc(7.5);   // body font size (≥6pt FDA min)
+  const LH      = sc(11);    // line height — slightly more open than font size
+  const FS_FOOT = sc(6);     // footnote (FDA min 6pt)
 
-  // Char-width estimator for Helvetica-style sans-serif at FS
-  // Avg char width ~0.52× font size; bold chars slightly wider at ~0.58×
-  const charW      = FS * 0.52;
-  const charW_bold = FS * 0.58;
-
-  // Build the "tokens" that make up the prose. Each token is:
-  //   { text: string, bold: boolean, noSpaceBefore: boolean }
-  // We'll word-wrap at iW, keeping track of pixel width per line.
+  // Char-width estimator for Helvetica/Arial at this font size.
+  // Avg ~0.53× for normal, ~0.59× for bold (condensed sans-serif)
+  const cw  = FS * 0.53;
+  const cwB = FS * 0.59;
+  const estimateW = (text, bold) => text.length * (bold ? cwB : cw);
 
   const v   = k => String(d[k]?.val || '0');
   const pct = k => { const x = d[k]?.pct; return (x && x !== '0') ? ` (${x}% DV)` : ''; };
-  const hasPct = k => { const x = d[k]?.pct; return !!(x && x !== '0'); };
 
-  // Build token list
-  // Each token: { text, bold }
-  const tokens = [];
-  const add    = (text, bold) => tokens.push({ text, bold: !!bold });
+  // ── Build atomic chunks ──────────────────────────────────────────────────
+  // Each chunk = array of sub-tokens [ {text, bold}, ... ] that MUST stay on same line.
+  // Chunks are placed sequentially; we break between chunks (never inside one).
 
-  // Header: "Nutrition Facts"
-  add('Nutrition Facts ', true);
+  const chunks = [];
 
-  // Serving info
-  if (d.servingPerContainer) {
-    add(`Servings: ${d.servingPerContainer}, `, false);
-  }
-  if (d.servingSize) {
-    add(`Serv. size: ${d.servingSize}, `, false);
-  }
+  // Helper: add one atomic chunk (bold label + normal value)
+  const chunk = (labelBold, labelText, valueText) => {
+    chunks.push([
+      { text: labelText, bold: labelBold },
+      { text: valueText, bold: false },
+    ]);
+  };
 
-  // Amount per serving intro
-  add('Amount per serving: ', false);
+  // CHUNK 1: "Nutrition Facts Servings: N, Serv. size: X, Amount per serving:"
+  // This all stays together as one opening chunk.
+  let headerText = '';
+  if (d.servingPerContainer) headerText += `Servings: ${d.servingPerContainer}, `;
+  if (d.servingSize)         headerText += `Serv. size: ${d.servingSize}, `;
+  headerText += 'Amount per serving:';
+  chunks.push([
+    { text: 'Nutrition Facts ', bold: true },
+    { text: headerText,         bold: false },
+  ]);
 
-  // Calories
-  add('Calories ', true);
-  add(`${d.calories}, `, false);
+  // Calories — atomic: "Calories 160,"
+  chunk(true, 'Calories ', `${d.calories},`);
 
-  // Total Fat
-  add('Total Fat ', true);
-  add(`${v('tf')}g${pct('tf')}, `, false);
+  // Total Fat — atomic: "Total Fat 0g (0% DV),"
+  chunk(true, 'Total Fat ', `${v('tf')}g${pct('tf')},`);
 
-  // Saturated Fat (sub, not bold, only if non-zero)
+  // Saturated Fat (only if non-zero)
   if (v('sf') !== '0') {
-    add('Saturated Fat ', false);
-    add(`${v('sf')}g${pct('sf')}, `, false);
+    chunk(false, 'Saturated Fat ', `${v('sf')}g${pct('sf')},`);
   }
 
   // Trans Fat (only if non-zero)
   if (v('xf') !== '0') {
-    add('Trans Fat ', false);
-    add(`${v('xf')}g, `, false);
+    chunk(false, 'Trans Fat ', `${v('xf')}g,`);
   }
 
   // Cholesterol
-  add('Cholesterol ', true);
-  add(`${v('ch')}mg${pct('ch')}, `, false);
+  chunk(true, 'Cholesterol ', `${v('ch')}mg${pct('ch')},`);
 
   // Sodium
-  add('Sodium ', true);
-  add(`${v('na')}mg${pct('na')}, `, false);
+  chunk(true, 'Sodium ', `${v('na')}mg${pct('na')},`);
 
   // Total Carb
-  add('Total Carb. ', true);
-  add(`${v('tc')}g${pct('tc')}, `, false);
+  chunk(true, 'Total Carb. ', `${v('tc')}g${pct('tc')},`);
 
   // Dietary Fiber (only if non-zero)
   if (v('df') !== '0') {
-    add('Dietary Fiber ', false);
-    add(`${v('df')}g${pct('df')}, `, false);
+    chunk(false, 'Dietary Fiber ', `${v('df')}g${pct('df')},`);
   }
 
-  // Total Sugars
-  add('Total Sugars ', false);
-  const asV   = v('as_');
+  // Total Sugars — atomic, includes inline added sugars note
+  const asV  = v('as_');
   const asPct = d['as_']?.pct;
   const asDV  = (asPct && asPct !== '0') ? `, ${asPct}% DV` : '';
-  add(`${v('su')}g (Incl. ${asV}g Added Sugars${asDV}), `, false);
+  chunk(false, 'Total Sugars ', `${v('su')}g (Incl. ${asV}g Added Sugars${asDV}),`);
 
-  // Protein — ends with period
-  add('Protein ', true);
-  add(`${v('pr')}g.`, false);
+  // Protein — ends with period, no trailing comma
+  chunk(true, 'Protein ', `${v('pr')}g.`);
 
-  // ── Word-wrap tokens into lines ──────────────────────────────────────────
-  // We measure pixel width of each token and break when we exceed iW.
-  // A "line" is an array of tokens.
+  // ── Word-wrap: place chunks onto lines ───────────────────────────────────
+  // Each chunk gets a leading space separator (except the first chunk on a line).
+  // We never break inside a chunk.
 
-  const estimateW = (text, bold) => {
-    // Simple estimate: count chars × avg char width
-    return text.length * (bold ? charW_bold : charW);
-  };
+  const SPACE_W = cw * 0.8;  // width of inter-chunk space
 
-  const lines = [];
-  let curLine = [];
-  let curW    = 0;
+  // Compute display width of a chunk
+  const chunkW = ch => ch.reduce((sum, tok) => sum + estimateW(tok.text, tok.bold), 0);
 
-  for (const tok of tokens) {
-    const tw = estimateW(tok.text, tok.bold);
-    if (curW + tw > iW && curLine.length > 0) {
+  // lines = array of arrays of chunks
+  const lines  = [];
+  let curLine  = [];
+  let curLineW = 0;
+
+  for (const ch of chunks) {
+    const cw_ch  = chunkW(ch);
+    const needed = curLine.length > 0 ? SPACE_W + cw_ch : cw_ch;
+
+    if (curLine.length > 0 && curLineW + needed > iW) {
+      // Flush current line, start new one
       lines.push(curLine);
-      curLine = [tok];
-      curW    = tw;
+      curLine  = [ch];
+      curLineW = cw_ch;
     } else {
-      curLine.push(tok);
-      curW += tw;
+      curLine.push(ch);
+      curLineW += needed;
     }
   }
   if (curLine.length) lines.push(curLine);
 
-  // ── Render to SVG ────────────────────────────────────────────────────────
+  // ── Render SVG ───────────────────────────────────────────────────────────
   let y   = P;
   let els = '';
 
-  for (const line of lines) {
+  for (const lineChunks of lines) {
     y += LH;
-    // Build a <text> element with <tspan> children for bold switching
+    // Build one <text> per line; inter-chunk space is a normal-weight space tspan
     let tspans = '';
-    let xCursor = P + 2;
-    for (const tok of line) {
-      const bw = tok.bold ? ' font-weight="900"' : '';
-      tspans += `<tspan${bw}>${esc(tok.text)}</tspan>`;
-    }
+    lineChunks.forEach((ch, ci) => {
+      if (ci > 0) tspans += `<tspan> </tspan>`;  // inter-chunk space
+      ch.forEach(tok => {
+        const bw = tok.bold ? ' font-weight="900"' : '';
+        tspans += `<tspan${bw}>${esc(tok.text)}</tspan>`;
+      });
+    });
     els += `<text x="${P + 2}" y="${y}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${FS}" fill="#000">${tspans}</text>`;
   }
 
-  // Footnote
-  y += LH * 0.3;
+  // Footnote separator + text
+  y += Math.round(LH * 0.4);
   els += svgLine(P, y, W - P, y, 0.5, '#000');
   y += 2;
   els += `<text x="${P + 2}" y="${y + FS_FOOT}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${FS_FOOT}" fill="#000">*%DV based on a 2,000 calorie/day diet.</text>`;
