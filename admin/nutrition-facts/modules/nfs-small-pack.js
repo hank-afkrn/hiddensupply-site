@@ -649,7 +649,8 @@ function spcNFSimplifiedSVG(d) {
 function spcNFLinearSVG(d) {
   const W   = SPC_W;
   const P   = SPC_PX;
-  const iW  = SPC_IW;
+  // Usable inner width — subtract extra right margin to prevent border overflow
+  const iW  = SPC_IW - 4;
 
   // Scale typography to panel width (base reference: 192px = 2.0")
   const scale   = W / 192;
