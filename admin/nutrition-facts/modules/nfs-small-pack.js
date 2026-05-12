@@ -682,16 +682,19 @@ function spcNFLinearSVG(d) {
     ]);
   };
 
-  // CHUNK 1: "Nutrition Facts Servings: N, Serv. size: X, Amount per serving:"
-  // This all stays together as one opening chunk.
-  let headerText = '';
-  if (d.servingPerContainer) headerText += `Servings: ${d.servingPerContainer}, `;
-  if (d.servingSize)         headerText += `Serv. size: ${d.servingSize}, `;
-  headerText += 'Amount per serving:';
-  chunks.push([
-    { text: 'Nutrition Facts ', bold: true },
-    { text: headerText,         bold: false },
-  ]);
+  // CHUNK 1: "Nutrition Facts" — always its own chunk so it anchors the first line
+  chunks.push([{ text: 'Nutrition Facts', bold: true }]);
+
+  // CHUNK 2: serving info — each piece is its own small chunk so they can wrap naturally
+  if (d.servingPerContainer) {
+    chunks.push([{ text: `Servings: ${d.servingPerContainer},`, bold: false }]);
+  }
+  if (d.servingSize) {
+    chunks.push([{ text: `Serv. size: ${d.servingSize},`, bold: false }]);
+  }
+
+  // CHUNK 3: "Amount per serving:" — own chunk, soft intro before Calories
+  chunks.push([{ text: 'Amount per serving:', bold: false }]);
 
   // Calories — atomic: "Calories 160,"
   chunk(true, 'Calories ', `${d.calories},`);
