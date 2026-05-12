@@ -1,5 +1,5 @@
 /**
- * nfs-small-pack.js — Small Pack Asset Generator v3.2
+ * nfs-small-pack.js — Small Pack Asset Generator v3.3
  *
  * Single renderer path for both preview and export.
  * Generates: nutrition_panel.svg/.png, ingredients_panel.svg/.png, barcode_panel.svg/.png
@@ -174,15 +174,17 @@ function spcRenderPreview() {
 
   const svgN = spcNFMicroSVG(d);
   const svgI = spcIngSVG(d);
+  const svgL = spcNFLinearSVG(d);
 
-  // Show nutrition + ingredients immediately; barcode loads async (JsBarcode CDN)
+  // Show nutrition + ingredients + linear immediately; barcode loads async
   inner.innerHTML =
     card('Nutrition Panel', svgN) +
     card('Ingredients', svgI) +
     `<div id="spc-bc-preview-slot" style="display:inline-block;vertical-align:top;margin-bottom:12px;">
       <div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;margin-bottom:4px;">Barcode</div>
       <div style="font-size:10px;color:#aaa;padding:8px;">Loading…</div>
-    </div>`;
+    </div>` +
+    card('Linear Panel', svgL, 'linear');
 
   inner.style.transform = `scale(${_spcZoom})`;
   inner.style.transformOrigin = 'top left';
@@ -225,28 +227,29 @@ function spcQuickExport(type) {
   }
 }
 
-// ── ZIP: exactly 6 files ──────────────────────────────────────────────────────
+// ── ZIP: 8 files (+ linear panel) ────────────────────────────────────────────
 function spcExportZip(d, name) {
-  if (typeof toast === 'function') toast('Building ZIP…', 'Rendering barcode via JsBarcode…', 4000);
-  // spcBarcodeSVG is async (loads JsBarcode from CDN if needed)
-  // Resolve all three SVGs in parallel, then build ZIP
+  if (typeof toast === 'function') toast('Building ZIP…', 'Rendering panels…', 4000);
   Promise.all([
     Promise.resolve(spcNFMicroSVG(d)),
     Promise.resolve(spcIngSVG(d)),
     spcBarcodeSVG(d),
-  ]).then(([svgN, svgI, svgB]) => {
+    Promise.resolve(spcNFLinearSVG(d)),
+  ]).then(([svgN, svgI, svgB, svgL]) => {
     _loadJSZip(() => {
       const zip    = new JSZip();
       const folder = zip.folder(name + '_split_pack');
 
-      folder.file('nutrition_panel.svg',   svgN);
-      folder.file('ingredients_panel.svg', svgI);
-      folder.file('barcode_panel.svg',     svgB);
+      folder.file('nutrition_panel.svg',        svgN);
+      folder.file('ingredients_panel.svg',      svgI);
+      folder.file('barcode_panel.svg',          svgB);
+      folder.file('nutrition_panel_linear.svg', svgL);
 
       Promise.all([
-        spcSVGtoPNGBlob(svgN).then(b => { if (b) folder.file('nutrition_panel.png',   b); }),
-        spcSVGtoPNGBlob(svgI).then(b => { if (b) folder.file('ingredients_panel.png', b); }),
-        spcSVGtoPNGBlob(svgB).then(b => { if (b) folder.file('barcode_panel.png',     b); }),
+        spcSVGtoPNGBlob(svgN).then(b => { if (b) folder.file('nutrition_panel.png',        b); }),
+        spcSVGtoPNGBlob(svgI).then(b => { if (b) folder.file('ingredients_panel.png',      b); }),
+        spcSVGtoPNGBlob(svgB).then(b => { if (b) folder.file('barcode_panel.png',          b); }),
+        spcSVGtoPNGBlob(svgL).then(b => { if (b) folder.file('nutrition_panel_linear.png', b); }),
       ]).then(() => {
         zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }).then(blob => {
           const url = URL.createObjectURL(blob);
@@ -256,9 +259,9 @@ function spcExportZip(d, name) {
           document.body.appendChild(a);
           a.click();
           setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 800);
-          if (typeof toast === 'function') toast('ZIP Downloaded', `${name}_split_pack.zip — 6 files`);
+          if (typeof toast === 'function') toast('ZIP Downloaded', `${name}_split_pack.zip — 8 files (+ linear panel)`);
           const st = document.getElementById('spc-export-status');
-          if (st) st.textContent = '✓ ZIP: nutrition, ingredients, barcode (SVG + PNG each)';
+          if (st) st.textContent = '✓ ZIP: nutrition, ingredients, barcode, linear panel (SVG + PNG each)';
         });
       });
     });
@@ -623,6 +626,171 @@ function spcNFSimplifiedSVG(d) {
 
   const H = y;
   const border = `<rect x="${P/2}" y="${P/2}" width="${W - P}" height="${H - P/2}" fill="none" stroke="#000" stroke-width="1.2"/>`;
+  return svgRoot(border + els, W, H);
+}
+
+// ── LINEAR NF PANEL SVG ───────────────────────────────────────────────────────
+//
+// FDA 21 CFR 101.9(j)(13)(ii)(B) — Linear display format.
+// Allowed when total label surface area ≤40 sq in.
+//
+// Layout: paragraph-style prose, nutrients run inline with commas.
+// %DV inline in parens after each value. Bold on key nutrient names.
+//
+// Example output:
+//   Nutrition Facts  Servings: 5, Serv. size: 1/5 piece (27g),
+//   Amount per serving: Calories 100, Total Fat 0g (0% DV),
+//   Sodium 15mg (1% DV), Total Carb. 23g (8% DV),
+//   Total Sugars 14g (Incl. 14g Added Sugars, 28% DV), Protein 1g.
+//
+// Width is set by SPC_W (uses same presets as split/simplified).
+// Height auto-adjusts to content.
+//
+function spcNFLinearSVG(d) {
+  const W   = SPC_W;
+  const P   = SPC_PX;
+  const iW  = SPC_IW;
+
+  // Scale typography to panel width (base reference: 192px = 2.0")
+  const scale  = W / 192;
+  const sc     = n => Math.round(n * scale * 10) / 10;
+
+  const FS     = sc(7.5);   // body font size (≥6pt FDA min)
+  const LH     = sc(10);    // line height
+  const FS_FOOT= sc(6);     // footnote
+
+  // Char-width estimator for Helvetica-style sans-serif at FS
+  // Avg char width ~0.52× font size; bold chars slightly wider at ~0.58×
+  const charW      = FS * 0.52;
+  const charW_bold = FS * 0.58;
+
+  // Build the "tokens" that make up the prose. Each token is:
+  //   { text: string, bold: boolean, noSpaceBefore: boolean }
+  // We'll word-wrap at iW, keeping track of pixel width per line.
+
+  const v   = k => String(d[k]?.val || '0');
+  const pct = k => { const x = d[k]?.pct; return (x && x !== '0') ? ` (${x}% DV)` : ''; };
+  const hasPct = k => { const x = d[k]?.pct; return !!(x && x !== '0'); };
+
+  // Build token list
+  // Each token: { text, bold }
+  const tokens = [];
+  const add    = (text, bold) => tokens.push({ text, bold: !!bold });
+
+  // Header: "Nutrition Facts"
+  add('Nutrition Facts ', true);
+
+  // Serving info
+  if (d.servingPerContainer) {
+    add(`Servings: ${d.servingPerContainer}, `, false);
+  }
+  if (d.servingSize) {
+    add(`Serv. size: ${d.servingSize}, `, false);
+  }
+
+  // Amount per serving intro
+  add('Amount per serving: ', false);
+
+  // Calories
+  add('Calories ', true);
+  add(`${d.calories}, `, false);
+
+  // Total Fat
+  add('Total Fat ', true);
+  add(`${v('tf')}g${pct('tf')}, `, false);
+
+  // Saturated Fat (sub, not bold, only if non-zero)
+  if (v('sf') !== '0') {
+    add('Saturated Fat ', false);
+    add(`${v('sf')}g${pct('sf')}, `, false);
+  }
+
+  // Trans Fat (only if non-zero)
+  if (v('xf') !== '0') {
+    add('Trans Fat ', false);
+    add(`${v('xf')}g, `, false);
+  }
+
+  // Cholesterol
+  add('Cholesterol ', true);
+  add(`${v('ch')}mg${pct('ch')}, `, false);
+
+  // Sodium
+  add('Sodium ', true);
+  add(`${v('na')}mg${pct('na')}, `, false);
+
+  // Total Carb
+  add('Total Carb. ', true);
+  add(`${v('tc')}g${pct('tc')}, `, false);
+
+  // Dietary Fiber (only if non-zero)
+  if (v('df') !== '0') {
+    add('Dietary Fiber ', false);
+    add(`${v('df')}g${pct('df')}, `, false);
+  }
+
+  // Total Sugars
+  add('Total Sugars ', false);
+  const asV   = v('as_');
+  const asPct = d['as_']?.pct;
+  const asDV  = (asPct && asPct !== '0') ? `, ${asPct}% DV` : '';
+  add(`${v('su')}g (Incl. ${asV}g Added Sugars${asDV}), `, false);
+
+  // Protein — ends with period
+  add('Protein ', true);
+  add(`${v('pr')}g.`, false);
+
+  // ── Word-wrap tokens into lines ──────────────────────────────────────────
+  // We measure pixel width of each token and break when we exceed iW.
+  // A "line" is an array of tokens.
+
+  const estimateW = (text, bold) => {
+    // Simple estimate: count chars × avg char width
+    return text.length * (bold ? charW_bold : charW);
+  };
+
+  const lines = [];
+  let curLine = [];
+  let curW    = 0;
+
+  for (const tok of tokens) {
+    const tw = estimateW(tok.text, tok.bold);
+    if (curW + tw > iW && curLine.length > 0) {
+      lines.push(curLine);
+      curLine = [tok];
+      curW    = tw;
+    } else {
+      curLine.push(tok);
+      curW += tw;
+    }
+  }
+  if (curLine.length) lines.push(curLine);
+
+  // ── Render to SVG ────────────────────────────────────────────────────────
+  let y   = P;
+  let els = '';
+
+  for (const line of lines) {
+    y += LH;
+    // Build a <text> element with <tspan> children for bold switching
+    let tspans = '';
+    let xCursor = P + 2;
+    for (const tok of line) {
+      const bw = tok.bold ? ' font-weight="900"' : '';
+      tspans += `<tspan${bw}>${esc(tok.text)}</tspan>`;
+    }
+    els += `<text x="${P + 2}" y="${y}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${FS}" fill="#000">${tspans}</text>`;
+  }
+
+  // Footnote
+  y += LH * 0.3;
+  els += svgLine(P, y, W - P, y, 0.5, '#000');
+  y += 2;
+  els += `<text x="${P + 2}" y="${y + FS_FOOT}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${FS_FOOT}" fill="#000">*%DV based on a 2,000 calorie/day diet.</text>`;
+  y += FS_FOOT + P;
+
+  const H      = y;
+  const border = `<rect x="${P / 2}" y="${P / 2}" width="${W - P}" height="${H - P / 2}" fill="none" stroke="#000" stroke-width="1"/>`;
   return svgRoot(border + els, W, H);
 }
 
