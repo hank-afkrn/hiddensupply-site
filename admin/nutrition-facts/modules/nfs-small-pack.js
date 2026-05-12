@@ -104,15 +104,15 @@ function spcSelectType(type, silent) {
   localStorage.setItem('spc_last_type', type);
   const radio = document.querySelector(`input[name="spc-type"][value="${type}"]`);
   if (radio) radio.checked = true;
-  ['single','mini','mini-ing','split','simplified','linear'].forEach(t => {
+  ['single','mini','mini-ing','split','simplified','tabular','linear'].forEach(t => {
     const lbl = document.getElementById('spc-type-' + t + '-lbl');
     if (!lbl) return;
     lbl.style.borderColor = t === type ? 'var(--accent)' : 'var(--border)';
     lbl.style.background  = t === type ? 'var(--accent-bg)' : '';
   });
-  // Show/hide size toggle — relevant for split, simplified, and linear
+  // Show/hide size toggle — relevant for split, simplified, tabular, and linear
   const sizeToggle = document.getElementById('spc-size-toggle');
-  if (sizeToggle) sizeToggle.style.display = (type === 'split' || type === 'simplified' || type === 'linear') ? 'block' : 'none';
+  if (sizeToggle) sizeToggle.style.display = (type === 'split' || type === 'simplified' || type === 'tabular' || type === 'linear') ? 'block' : 'none';
   // Show/hide split options
   const splitOpts = document.getElementById('spc-split-options');
   if (splitOpts) splitOpts.style.display = type === 'split' ? 'block' : 'none';
@@ -120,6 +120,7 @@ function spcSelectType(type, silent) {
   if (btn) {
     if (type === 'split')           btn.innerHTML = '📦 Export Split Pack (.zip)';
     else if (type === 'simplified') btn.innerHTML = '📄 Export Simplified NF (.zip)';
+    else if (type === 'tabular')    btn.innerHTML = '📄 Export Compact Tabular (.zip)';
     else if (type === 'linear')     btn.innerHTML = '📄 Export Linear NF (.zip)';
     else                            btn.innerHTML = '📄 Export';
   }
@@ -172,6 +173,14 @@ function spcRenderPreview() {
     return;
   }
 
+  if (_spcType === 'tabular') {
+    const svgT = spcNFTabularSVG(d);
+    inner.innerHTML = card('Compact Tabular NF', svgT, 'blister card');
+    inner.style.transform = `scale(${_spcZoom})`;
+    inner.style.transformOrigin = 'top left';
+    return;
+  }
+
   if (_spcType === 'linear') {
     const svgL = spcNFLinearSVG(d);
     inner.innerHTML = card('Linear NF', svgL, 'most compact');
@@ -214,6 +223,9 @@ function spcDoExport() {
   if (_spcType === 'simplified') {
     spcExportSimplifiedZip(d, name);
     if (typeof trackExport === 'function') trackExport('small-pack-simplified', d.name);
+  } else if (_spcType === 'tabular') {
+    spcExportTabularZip(d, name);
+    if (typeof trackExport === 'function') trackExport('small-pack-tabular', d.name);
   } else if (_spcType === 'linear') {
     spcExportLinearZip(d, name);
     if (typeof trackExport === 'function') trackExport('small-pack-linear', d.name);
@@ -232,6 +244,9 @@ function spcQuickExport(type) {
   if (type === 'simplified') {
     spcExportSimplifiedZip(d, name);
     if (typeof trackExport === 'function') trackExport('small-pack-quick-simplified', d.name);
+  } else if (type === 'tabular') {
+    spcExportTabularZip(d, name);
+    if (typeof trackExport === 'function') trackExport('small-pack-quick-tabular', d.name);
   } else if (type === 'linear') {
     spcExportLinearZip(d, name);
     if (typeof trackExport === 'function') trackExport('small-pack-quick-linear', d.name);
@@ -308,6 +323,33 @@ function spcExportSimplifiedZip(d, name) {
         if (typeof toast === 'function') toast('ZIP Downloaded', `${name}_simplified_nf.zip — 4 files (SVG + PNG each)`);
         const st = document.getElementById('spc-export-status');
         if (st) st.textContent = '✓ ZIP: simplified_nf + ingredients (SVG + PNG each)';
+      });
+    });
+  });
+}
+
+// ── COMPACT TABULAR ZIP export ────────────────────────────────────────────────
+// Standalone tabular panel export — 2 files: compact_tabular_nf.svg + compact_tabular_nf.png
+function spcExportTabularZip(d, name) {
+  if (typeof toast === 'function') toast('Building ZIP…', 'Generating compact tabular NF panel…', 3000);
+  const svgT = spcNFTabularSVG(d);
+  _loadJSZip(() => {
+    const zip    = new JSZip();
+    const folder = zip.folder(name + '_compact_tabular');
+    folder.file('compact_tabular_nf.svg', svgT);
+    spcSVGtoPNGBlob(svgT).then(b => {
+      if (b) folder.file('compact_tabular_nf.png', b);
+      zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }).then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a   = document.createElement('a');
+        a.href = url;
+        a.download = name + '_compact_tabular.zip';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 800);
+        if (typeof toast === 'function') toast('ZIP Downloaded', `${name}_compact_tabular.zip — SVG + PNG`);
+        const st = document.getElementById('spc-export-status');
+        if (st) st.textContent = '✓ ZIP: compact_tabular_nf (SVG + PNG)';
       });
     });
   });
@@ -667,6 +709,180 @@ function spcNFSimplifiedSVG(d) {
 
   const H = y;
   const border = `<rect x="${P/2}" y="${P/2}" width="${W - P}" height="${H - P/2}" fill="none" stroke="#000" stroke-width="1.2"/>`;
+  return svgRoot(border + els, W, H);
+}
+
+// ── COMPACT TABULAR NF PANEL SVG ─────────────────────────────────────────────
+//
+// FDA 21 CFR 101.9(j)(13)(ii)(A) — Tabular display for small/intermediate packages.
+// Square-ish layout: two-column (Amount | %DV), Calories prominent, nutrients in tight rows.
+// Micronutrients in compact bullet line at bottom.
+//
+// Layout:
+// ┌────────────────────────────────┐
+// │ NUTRITION FACTS                │  ← bold title
+// │ 3 servings per container       │  ← servings line
+// │ Serving size  1/3 piece (28g)  │  ← serving size line
+// │████████████████████████████████│  ← thick rule (4px)
+// │ Calories              160      │  ← large calories
+// │────────────────────────────────│  ← thin rule
+// │              Amount  %DV       │  ← column headers (right-aligned)
+// │ Total Fat    0g       0%       │
+// │  Sat. Fat    0g       0%       │
+// │  Trans Fat   0g                │
+// │ Cholesterol  0mg      0%       │
+// │ Sodium       32mg     1%       │
+// │ Total Carb.  37g      14%      │
+// │  Dietary Fiber 0g     0%       │
+// │  Total Sugars  37g             │
+// │   Incl. 14g Added Sugars  75%  │
+// │ Protein      2g               │
+// │████████████████████████████████│  ← thick rule
+// │ Vit.D 0mcg · Calcium 0mg ···  │  ← micro line
+// │────────────────────────────────│  ← thin rule
+// │ *The %DV tells you… 2,000 cal  │  ← footnote
+// └────────────────────────────────┘
+//
+function spcNFTabularSVG(d) {
+  const W       = SPC_W;
+  const P       = 5;
+  const BORDER  = 3;
+  const iW      = W - P * 2;
+
+  // Typography
+  const FS_TITLE = 11;   // "NUTRITION FACTS"
+  const FS_SERV  = 7.5;  // servings / serving size lines
+  const FS_CAL_L = 8;    // "Calories" label
+  const FS_CAL_N = 16;   // calorie number (large)
+  const FS_HDR   = 6.5;  // column header "Amount per serving / %DV"
+  const FS_NUT   = 7.5;  // nutrient rows
+  const FS_MICRO = 6.5;  // micronutrient bullet line
+  const FS_FOOT  = 6.5;  // footnote
+
+  const LH_SERV  = 9.5;
+  const LH_NUT   = 9;
+  const LH_CAL   = 20;   // calories row height (big number)
+
+  const v   = k => String(d[k]?.val  || '0');
+  const pct = k => { const x = d[k]?.pct; return (x && x !== '0') ? x + '%' : '0%'; };
+  const hasPct = k => { const x = d[k]?.pct; return !!(x && x !== '0'); };
+
+  // Column layout — right edges
+  // | label ... | amount right=xAmt | %DV right=xDV |
+  const xDV  = W - P - 1;         // %DV column right edge
+  const xAmt = xDV - 26;          // Amount column right edge (26px for "0%" + space)
+  const xLbl = P + 2;             // label left edge
+
+  let y   = P;
+  let els = '';
+
+  const txt = (x, yy, content, fs, fw, anchor) =>
+    `<text x="${x}" y="${yy}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${fs}" font-weight="${fw||400}" text-anchor="${anchor||'start'}" fill="#000">${content}</text>`;
+
+  const rule = (yy, sw) =>
+    `<line x1="${P}" y1="${yy}" x2="${W-P}" y2="${yy}" stroke="#000" stroke-width="${sw}"/>`;
+
+  // ── Title ──────────────────────────────────────────────────────────────────
+  y += FS_TITLE + 4;
+  els += txt(xLbl, y, 'NUTRITION FACTS', FS_TITLE, 900);
+
+  // ── Servings ───────────────────────────────────────────────────────────────
+  if (d.servingPerContainer) {
+    y += LH_SERV;
+    els += txt(xLbl, y, esc(`${d.servingPerContainer} servings per container`), FS_SERV, 700);
+  }
+  if (d.servingSize) {
+    y += LH_SERV;
+    els += txt(xLbl, y, `<tspan font-weight="900">Serving size</tspan><tspan font-weight="400">  ${esc(d.servingSize)}</tspan>`, FS_SERV, 400);
+  }
+
+  // ── Thick rule ─────────────────────────────────────────────────────────────
+  y += 5;
+  els += rule(y, 4);
+  y += 4;
+
+  // ── Calories ───────────────────────────────────────────────────────────────
+  y += LH_CAL - 2;
+  els += txt(xLbl, y, '<tspan font-size="8" font-weight="900">Calories</tspan>', FS_CAL_L, 400);
+  els += txt(xDV, y, esc(String(d.calories || '0')), FS_CAL_N, 900, 'end');
+
+  // ── Thin rule ──────────────────────────────────────────────────────────────
+  y += 4;
+  els += rule(y, 0.5);
+  y += 2;
+
+  // ── Column header ──────────────────────────────────────────────────────────
+  y += FS_HDR + 1;
+  els += txt(xAmt, y, 'Amount', FS_HDR, 700, 'end');
+  els += txt(xDV,  y, '%DV*',   FS_HDR, 700, 'end');
+
+  // ── Thin rule ──────────────────────────────────────────────────────────────
+  y += 3;
+  els += rule(y, 0.5);
+
+  // ── Nutrient row helper ────────────────────────────────────────────────────
+  // indent: extra left indent in px (for sub-rows)
+  const nutRow = (label, amtText, dvText, bold, indent) => {
+    y += LH_NUT;
+    const fw  = bold ? 900 : 700;
+    const lx  = xLbl + (indent || 0);
+    els += rule(y + 1.5, 0.5);  // thin rule below each row
+    els += txt(lx,   y, esc(label),  FS_NUT, fw);
+    els += txt(xAmt, y, esc(amtText), FS_NUT, 400, 'end');
+    if (dvText) els += txt(xDV, y, esc(dvText), FS_NUT, 700, 'end');
+  };
+
+  nutRow('Total Fat',       `${v('tf')}g`,  pct('tf'), true,  0);
+  if (v('sf') !== '0') nutRow('Sat. Fat',   `${v('sf')}g`, pct('sf'), false, 6);
+  if (v('xf') !== '0') nutRow('Trans Fat',  `${v('xf')}g`, '',        false, 6);
+  nutRow('Cholesterol',     `${v('ch')}mg`, pct('ch'), true,  0);
+  nutRow('Sodium',          `${v('na')}mg`, pct('na'), true,  0);
+  nutRow('Total Carb.',     `${v('tc')}g`,  pct('tc'), true,  0);
+  if (v('df') !== '0') nutRow('Dietary Fiber', `${v('df')}g`, pct('df'), false, 6);
+  nutRow('Total Sugars',    `${v('su')}g`,  '',        false, 6);
+
+  // Added Sugars sub-row
+  {
+    const asV   = v('as_');
+    const asDV  = hasPct('as_') ? pct('as_') : '';
+    y += LH_NUT;
+    els += rule(y + 1.5, 0.5);
+    els += txt(xLbl + 10, y, esc(`Incl. ${asV}g Added Sugars`), FS_NUT, 400);
+    if (asDV) els += txt(xDV, y, esc(asDV), FS_NUT, 700, 'end');
+  }
+
+  nutRow('Protein', `${v('pr')}g`, '', true, 0);
+
+  // ── Thick rule ─────────────────────────────────────────────────────────────
+  y += 5;
+  els += rule(y, 3);
+  y += 3;
+
+  // ── Micronutrient bullet line ──────────────────────────────────────────────
+  const micros = [];
+  const addMicro = (label, key, unit) => {
+    const val = v(key);
+    const dv  = hasPct(key) ? ' ' + pct(key) : '';
+    micros.push(`${label} ${val}${unit}${dv}`);
+  };
+  addMicro('Vit. D',   'vd', 'mcg');
+  addMicro('Calcium',  'ca', 'mg');
+  addMicro('Iron',     'fe', 'mg');
+  addMicro('Potassium','k',  'mg');
+
+  y += FS_MICRO + 3;
+  const microLine = micros.join(' \u2022 ');
+  els += txt(xLbl, y, esc(microLine), FS_MICRO, 400);
+
+  // ── Thin rule + footnote ───────────────────────────────────────────────────
+  y += 4;
+  els += rule(y, 0.5);
+  y += FS_FOOT + 3;
+  els += txt(xLbl, y, '*%DV = % Daily Value. 2,000 cal/day used for general advice.', FS_FOOT, 400);
+
+  y += P + 2;
+  const H      = y;
+  const border = `<rect x="${BORDER/2}" y="${BORDER/2}" width="${W-BORDER}" height="${H-BORDER}" fill="none" stroke="#000" stroke-width="${BORDER}"/>`;
   return svgRoot(border + els, W, H);
 }
 
