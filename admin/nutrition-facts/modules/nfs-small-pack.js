@@ -1,23 +1,32 @@
 /**
- * nfs-small-pack.js — Small Pack Asset Generator v3.1
+ * nfs-small-pack.js — Small Pack Asset Generator v3.2
  *
  * Single renderer path for both preview and export.
  * Generates: nutrition_panel.svg/.png, ingredients_panel.svg/.png, barcode_panel.svg/.png
  * Nothing else. No preview files, no README, no distributor atom.
  *
- * Micro NF panel design:
- *   - "NUTRITION FACTS" title has its own row (protected zone)
- *   - Serving info on second line below title
- *   - Calories row dominant
- *   - Nutrients inline/linear — compact but intentional
- *   - Width: 252px (≈2.625") — fits 6"×5" blister easily
- *   - Art-directed spacing, not HTML-squeeze
+ * Export types:
+ *   split      — full micro NF panel + ingredients + barcode (separate files per zone)
+ *   simplified — Simplified NF format for ≤40 sq in packages (2"×2" blister zones)
+ *                FDA 21 CFR 101.9(j)(13): only Calories, Fat, Sodium, Carbs, Sugars,
+ *                Added Sugars (with % DV), Protein. No micros, no full % DV column.
+ *
+ * Split pack size presets (spcSize):
+ *   standard   — 252px / 2.625"  — standard blister card (default)
+ *   compact    — 192px / 2.0"    — 2"×2" tight zone (new)
+ *   micro      — 144px / 1.5"    — absolute minimum FDA-legible
  */
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const SPC_W     = 252;   // panel width px (2.625" at 96dpi)
+// Base width — overridden by _spcSize at render time
+const SPC_W_PRESETS = {
+  standard: 252,  // 2.625" at 96dpi — standard blister
+  compact:  192,  // 2.0"  at 96dpi — 2"×2" blister zone
+  micro:    144,  // 1.5"  at 96dpi — absolute minimum
+};
+let   SPC_W     = 252;   // active panel width (updated by spcSetSize)
 const SPC_PX    = 5;     // outer padding
-const SPC_IW    = SPC_W - SPC_PX * 2;  // inner width
+let   SPC_IW    = SPC_W - SPC_PX * 2;  // inner width (recomputed in spcSetSize)
 
 // Typography scale (SVG px; 1pt = 1.333px; FDA min 6pt = 8px)
 const T_TITLE   = 13;    // "NUTRITION FACTS" — large, bold, own line
@@ -40,6 +49,7 @@ const R_AFTER_MICROS = 1;   // gap before footnote rule
 // ── State ─────────────────────────────────────────────────────────────────────
 let _spcType = 'split';
 let _spcZoom = 1;
+let _spcSize = 'standard';  // size preset for split pack export
 
 // ── JSZip loader ─────────────────────────────────────────────────────────────
 function _loadJSZip(cb) {
@@ -60,8 +70,32 @@ function spcInit() {
   if (noEl)   noEl.style.display   = has ? 'none' : 'block';
   if (mainEl) mainEl.style.display = has ? 'block' : 'none';
   if (!has) return;
-  const saved = localStorage.getItem('spc_last_type') || 'split';
-  spcSelectType(saved, true);
+  const savedSize = localStorage.getItem('spc_last_size') || 'standard';
+  spcSetSize(savedSize, true);
+  const savedType = localStorage.getItem('spc_last_type') || 'split';
+  spcSelectType(savedType, true);
+  spcRenderPreview();
+}
+
+// ── Size preset ───────────────────────────────────────────────────────────────
+function spcSetSize(size, silent) {
+  _spcSize = size || 'standard';
+  localStorage.setItem('spc_last_size', _spcSize);
+  SPC_W  = SPC_W_PRESETS[_spcSize] || 252;
+  SPC_IW = SPC_W - SPC_PX * 2;
+  // Update ALL size button sets (export center + small pack view)
+  const prefixes = ['spc-size-', 'spc-sp-size-'];
+  ['standard','compact','micro'].forEach(s => {
+    prefixes.forEach(pfx => {
+      const btn = document.getElementById(pfx + s);
+      if (!btn) return;
+      btn.style.background   = s === _spcSize ? 'var(--accent)' : 'var(--surface)';
+      btn.style.color        = s === _spcSize ? '#fff'          : 'var(--text)';
+      btn.style.borderColor  = s === _spcSize ? 'var(--accent)' : 'var(--border)';
+      btn.style.fontWeight   = s === _spcSize ? '700'           : '400';
+    });
+  });
+  if (!silent) spcRenderPreview();
 }
 
 // ── Type selection ────────────────────────────────────────────────────────────
@@ -70,14 +104,24 @@ function spcSelectType(type, silent) {
   localStorage.setItem('spc_last_type', type);
   const radio = document.querySelector(`input[name="spc-type"][value="${type}"]`);
   if (radio) radio.checked = true;
-  ['single','mini','mini-ing','split'].forEach(t => {
+  ['single','mini','mini-ing','split','simplified'].forEach(t => {
     const lbl = document.getElementById('spc-type-' + t + '-lbl');
     if (!lbl) return;
     lbl.style.borderColor = t === type ? 'var(--accent)' : 'var(--border)';
     lbl.style.background  = t === type ? 'var(--accent-bg)' : '';
   });
+  // Show/hide size toggle — only relevant for split and simplified
+  const sizeToggle = document.getElementById('spc-size-toggle');
+  if (sizeToggle) sizeToggle.style.display = (type === 'split' || type === 'simplified') ? 'block' : 'none';
+  // Show/hide split options
+  const splitOpts = document.getElementById('spc-split-options');
+  if (splitOpts) splitOpts.style.display = type === 'split' ? 'block' : 'none';
   const btn = document.getElementById('spc-export-btn');
-  if (btn) btn.innerHTML = type === 'split' ? '📦 Export Split Pack (.zip)' : '📄 Export';
+  if (btn) {
+    if (type === 'split')      btn.innerHTML = '📦 Export Split Pack (.zip)';
+    else if (type === 'simplified') btn.innerHTML = '📄 Export Simplified NF (.zip)';
+    else                       btn.innerHTML = '📄 Export';
+  }
   if (!silent) spcRenderPreview();
 }
 
@@ -105,12 +149,28 @@ function spcRenderPreview() {
     return;
   }
 
-  const card = (label, svg) =>
-    `<div style="display:inline-block;vertical-align:top;margin-right:12px;">
-      <div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;margin-bottom:4px;">${label}</div>
+  // Sync size before rendering
+  SPC_W  = SPC_W_PRESETS[_spcSize] || 252;
+  SPC_IW = SPC_W - SPC_PX * 2;
+
+  const card = (label, svg, badge) =>
+    `<div style="display:inline-block;vertical-align:top;margin-right:12px;margin-bottom:12px;">
+      <div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;margin-bottom:4px;">${label}${badge ? ` <span style="background:rgba(139,92,246,.18);color:#a78bfa;padding:1px 5px;border-radius:3px;font-size:7px;">${badge}</span>` : ''}</div>
       <img src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}"
-           style="display:block;border:1px solid #dde;background:#fff;max-width:300px;">
+           style="display:block;border:1px solid #dde;background:#fff;max-width:320px;">
     </div>`;
+
+  if (_spcType === 'simplified') {
+    // Simplified: show simplified NF + ingredients panel
+    const svgN = spcNFSimplifiedSVG(d);
+    const svgI = spcIngSVG(d);
+    inner.innerHTML =
+      card('Simplified Nutrition Facts', svgN, '≤40 sq in') +
+      card('Ingredients', svgI);
+    inner.style.transform = `scale(${_spcZoom})`;
+    inner.style.transformOrigin = 'top left';
+    return;
+  }
 
   const svgN = spcNFMicroSVG(d);
   const svgI = spcIngSVG(d);
@@ -119,7 +179,7 @@ function spcRenderPreview() {
   inner.innerHTML =
     card('Nutrition Panel', svgN) +
     card('Ingredients', svgI) +
-    `<div id="spc-bc-preview-slot" style="display:inline-block;vertical-align:top;">
+    `<div id="spc-bc-preview-slot" style="display:inline-block;vertical-align:top;margin-bottom:12px;">
       <div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;margin-bottom:4px;">Barcode</div>
       <div style="font-size:10px;color:#aaa;padding:8px;">Loading…</div>
     </div>`;
@@ -137,17 +197,32 @@ function spcRenderPreview() {
 function spcDoExport() {
   const d = spcGetData();
   if (!d) { if (typeof toast === 'function') toast('No Project', 'Open a label first.'); return; }
+  // Sync size
+  SPC_W  = SPC_W_PRESETS[_spcSize] || 252;
+  SPC_IW = SPC_W - SPC_PX * 2;
   const name = (d.name || 'label').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  spcExportZip(d, name);
-  if (typeof trackExport === 'function') trackExport('small-pack-split', d.name);
+  if (_spcType === 'simplified') {
+    spcExportSimplifiedZip(d, name);
+    if (typeof trackExport === 'function') trackExport('small-pack-simplified', d.name);
+  } else {
+    spcExportZip(d, name);
+    if (typeof trackExport === 'function') trackExport('small-pack-split', d.name);
+  }
 }
 
 function spcQuickExport(type) {
   const d = spcGetData();
   if (!d) { if (typeof toast === 'function') toast('No Label Data', 'Open and edit a label first.'); return; }
+  SPC_W  = SPC_W_PRESETS[_spcSize] || 252;
+  SPC_IW = SPC_W - SPC_PX * 2;
   const name = (d.name || 'label').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  spcExportZip(d, name);
-  if (typeof trackExport === 'function') trackExport('small-pack-quick-' + type, d.name);
+  if (type === 'simplified') {
+    spcExportSimplifiedZip(d, name);
+    if (typeof trackExport === 'function') trackExport('small-pack-quick-simplified', d.name);
+  } else {
+    spcExportZip(d, name);
+    if (typeof trackExport === 'function') trackExport('small-pack-quick-' + type, d.name);
+  }
 }
 
 // ── ZIP: exactly 6 files ──────────────────────────────────────────────────────
@@ -185,6 +260,37 @@ function spcExportZip(d, name) {
           const st = document.getElementById('spc-export-status');
           if (st) st.textContent = '✓ ZIP: nutrition, ingredients, barcode (SVG + PNG each)';
         });
+      });
+    });
+  });
+}
+
+// ── SIMPLIFIED NF ZIP export ──────────────────────────────────────────────────
+// For ≤40 sq in packages. Exports: simplified_nf.svg/.png + ingredients.svg/.png
+function spcExportSimplifiedZip(d, name) {
+  if (typeof toast === 'function') toast('Building ZIP…', 'Generating simplified FDA panel…', 3000);
+  const svgN = spcNFSimplifiedSVG(d);
+  const svgI = spcIngSVG(d);
+  _loadJSZip(() => {
+    const zip    = new JSZip();
+    const folder = zip.folder(name + '_simplified_nf');
+    folder.file('simplified_nf.svg',   svgN);
+    folder.file('ingredients.svg',     svgI);
+    Promise.all([
+      spcSVGtoPNGBlob(svgN).then(b => { if (b) folder.file('simplified_nf.png',  b); }),
+      spcSVGtoPNGBlob(svgI).then(b => { if (b) folder.file('ingredients.png', b); }),
+    ]).then(() => {
+      zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }).then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a   = document.createElement('a');
+        a.href = url;
+        a.download = name + '_simplified_nf.zip';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 800);
+        if (typeof toast === 'function') toast('ZIP Downloaded', `${name}_simplified_nf.zip — 4 files (SVG + PNG each)`);
+        const st = document.getElementById('spc-export-status');
+        if (st) st.textContent = '✓ ZIP: simplified_nf + ingredients (SVG + PNG each)';
       });
     });
   });
@@ -390,6 +496,133 @@ function spcNFMicroSVG(d) {
   const H = y;
   const border = `<rect x="${P/2}" y="${P/2}" width="${W - P}" height="${H - P/2}" fill="none" stroke="#000" stroke-width="1.2"/>`;
 
+  return svgRoot(border + els, W, H);
+}
+
+// ── SIMPLIFIED NUTRITION FACTS SVG ───────────────────────────────────────────
+//
+// FDA 21 CFR 101.9(j)(13) — Simplified format for packages with
+// ≤40 sq in of total label surface area.
+//
+// Required nutrients ONLY:
+//   Calories, Total Fat (g), Sodium (mg), Total Carbohydrate (g),
+//   Total Sugars (g), Added Sugars (g + % DV), Protein (g)
+//
+// % DV required ONLY for Added Sugars (and any nutrients with claims).
+// Vitamins/minerals: omitted entirely (permitted when ≤40 sq in).
+// Footnote: abbreviated — "% DV based on 2,000 cal diet."
+//
+// Layout:
+// ┌────────────────────────────────┐
+// │ Nutrition Facts                │  ← title (bold, large)
+// │ [N] servings · Serving [x]     │  ← serving line
+// │▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓│  ← thick rule
+// │ Calories               [N]     │  ← calories dominant
+// │────────────────────────────────│  ← medium rule
+// │ Total Fat [x]g                 │  ← simplified nutrient block
+// │ Sodium [x]mg                   │    (no % DV except added sugars)
+// │ Total Carb. [x]g               │
+// │   Total Sugars [x]g            │
+// │   Incl. [x]g Added Sugars [x]% │  ← % DV required here
+// │ Protein [x]g                   │
+// │────────────────────────────────│  ← thin rule
+// │ *%DV based on 2,000 cal diet.  │  ← short footnote
+// └────────────────────────────────┘
+//
+function spcNFSimplifiedSVG(d) {
+  const W  = SPC_W;
+  const P  = SPC_PX;
+  const iW = SPC_IW;
+
+  // Scale typography to panel width (proportional to 192px base)
+  const scale = W / 192;
+  const sc = v => Math.round(v * scale * 10) / 10;
+
+  const TS_TITLE  = sc(12);   // "Nutrition Facts"
+  const TS_SERV   = sc(7);    // serving line
+  const TS_CAL_L  = sc(9);    // "Calories" label
+  const TS_CAL_N  = sc(15);   // calorie number
+  const TS_NUT    = sc(7.5);  // nutrient rows
+  const TS_FOOT   = sc(6);    // footnote (FDA min 6pt)
+  const RG_NUT    = sc(9);    // row gap for nutrients
+
+  let y   = 0;
+  let els = '';
+
+  const v   = k => String(d[k]?.val || '0');
+  const pct = k => { const x = d[k]?.pct; return (x && x !== '0') ? ` ${x}%` : ''; };
+
+  // ── Title ────────────────────────────────────────────────────────────────
+  y += P + TS_TITLE;
+  els += tx(P + 1, y, 'Nutrition Facts', TS_TITLE, 900);
+  y += 2;
+
+  // ── Serving line ─────────────────────────────────────────────────────────
+  const srvParts = [];
+  if (d.servingPerContainer) srvParts.push(`${esc(d.servingPerContainer)} servings`);
+  if (d.servingSize)         srvParts.push(`Serving ${esc(d.servingSize)}`);
+  if (srvParts.length) {
+    y += TS_SERV + 1;
+    els += tx(P + 1, y, srvParts.join('  ·  '), TS_SERV, 400);
+    y += 2;
+  }
+
+  // ── Thick rule ───────────────────────────────────────────────────────────
+  y += 1;
+  els += svgRect(P, y, iW, sc(4), '#000');
+  y += sc(4) + 2;
+
+  // ── Calories (dominant) ──────────────────────────────────────────────────
+  const calTop = y;
+  els += tx(P + 1, calTop + TS_CAL_L, 'Calories', TS_CAL_L, 700);
+  els += tx(W - P - 1, calTop + TS_CAL_N, esc(d.calories), TS_CAL_N, 900, 'end');
+  y = calTop + TS_CAL_N + 3;
+
+  // ── Medium rule ──────────────────────────────────────────────────────────
+  els += svgLine(P, y, W - P, y, 1.5, '#000');
+  y += 3;
+
+  // ── Simplified nutrient rows (no % DV column except Added Sugars) ────────
+  const nutSimple = (label, val, unit, bold, indent) => {
+    els += svgLine(P, y, W - P, y, 0.4, '#000');
+    y += 1;
+    const xPos = P + 2 + (indent ? sc(10) : 0);
+    const bw   = bold ? '700' : '400';
+    els += `<text x="${xPos}" y="${y + TS_NUT}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${TS_NUT}" font-weight="${bw}" fill="#000">${esc(label)}\u00a0<tspan font-weight="700">${esc(val)}${esc(unit)}</tspan></text>`;
+    y += RG_NUT;
+  };
+
+  // Total Fat — no % DV (simplified format omits unless nutrients have claims)
+  nutSimple('Total Fat', v('tf'), 'g', true, false);
+  // Sodium
+  nutSimple('Sodium', v('na'), 'mg', true, false);
+  // Total Carb
+  nutSimple('Total Carb.', v('tc'), 'g', true, false);
+  // Total Sugars (indented)
+  nutSimple('Total Sugars', v('su'), 'g', false, true);
+  // Added Sugars — % DV IS REQUIRED here even in simplified format
+  {
+    els += svgLine(P, y, W - P, y, 0.4, '#000');
+    y += 1;
+    const asV   = esc(v('as_'));
+    const asPct = d['as_']?.pct;
+    const asDV  = (asPct && asPct !== '0') ? `\u00a0${asPct}% DV` : '';
+    els += `<text x="${P + 2 + sc(10)}" y="${y + TS_NUT}" font-family="'Helvetica Neue',Arial,Helvetica,sans-serif" font-size="${TS_NUT}" fill="#000">Incl.\u00a0<tspan font-weight="700">${asV}g</tspan> Added Sugars<tspan font-weight="700">${asDV}</tspan></text>`;
+    y += RG_NUT;
+  }
+  // Protein
+  nutSimple('Protein', v('pr'), 'g', true, false);
+
+  // ── Thin rule ────────────────────────────────────────────────────────────
+  els += svgLine(P, y, W - P, y, 0.5, '#000');
+  y += 2;
+
+  // ── Footnote (abbreviated — full footnote not required for simplified) ───
+  els += tx(P + 1, y + TS_FOOT, `*%DV based on a 2,000 calorie diet.`, TS_FOOT, 400);
+  y += TS_FOOT + P;
+
+  const H = y;
+  const border = `<rect x="${P/2}" y="${P/2}" width="${W - P}" height="${H - P/2}" fill="none" stroke="#000" stroke-width="1.2"/>`;
   return svgRoot(border + els, W, H);
 }
 

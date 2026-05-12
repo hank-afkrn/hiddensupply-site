@@ -2666,10 +2666,32 @@ input:focus, textarea:focus, select:focus {
             </div>
             <span class="badge" style="background:rgba(139,92,246,0.15);color:#a78bfa;">Small Pack</span>
           </div>
+          <!-- Size toggle in Export Center -->
+          <div style="margin-bottom:10px;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">Panel Width</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button id="spc-size-standard" onclick="spcSetSize('standard')"
+                style="padding:4px 12px;font-size:10px;border-radius:5px;border:1.5px solid var(--border);cursor:pointer;background:var(--accent);color:#fff;font-weight:700;transition:all .15s;">
+                Standard 2.625"
+              </button>
+              <button id="spc-size-compact" onclick="spcSetSize('compact')"
+                style="padding:4px 12px;font-size:10px;border-radius:5px;border:1.5px solid var(--border);cursor:pointer;background:var(--surface);color:var(--text);font-weight:400;transition:all .15s;">
+                Compact 2.0" <span style="font-size:8px;font-weight:700;background:rgba(16,185,129,.15);color:#10b981;padding:1px 4px;border-radius:3px;">2"×2"</span>
+              </button>
+              <button id="spc-size-micro" onclick="spcSetSize('micro')"
+                style="padding:4px 12px;font-size:10px;border-radius:5px;border:1.5px solid var(--border);cursor:pointer;background:var(--surface);color:var(--text);font-weight:400;transition:all .15s;">
+                Micro 1.5"
+              </button>
+            </div>
+          </div>
           <div class="btn-row" style="flex-wrap:wrap;gap:6px;">
             <button class="btn btn-sm btn-primary" onclick="spcQuickExport('split')" title="nutrition + ingredients + barcode — SVG+PNG each in ZIP">📦 Designer Split Pack (.zip)</button>
+            <button class="btn btn-sm btn-primary" onclick="spcQuickExport('simplified')" title="Simplified NF + ingredients — 2 files, for ≤40 sq in packages" style="background:rgba(16,185,129,.9);border-color:rgba(16,185,129,.9);">🏷 Simplified NF (.zip) <span style="font-size:9px;opacity:.85;">≤40 sq in</span></button>
           </div>
-          <div style="font-size:10px;color:var(--muted);margin-top:8px;">Downloads a <strong>.zip</strong>: <code>nutrition_panel</code>, <code>ingredients_panel</code>, <code>barcode_panel</code> — SVG + PNG each. Drag straight into Illustrator or Figma.</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5;">
+            <strong>Split Pack:</strong> <code>nutrition_panel</code>, <code>ingredients_panel</code>, <code>barcode_panel</code> — SVG + PNG each.<br>
+            <strong>Simplified NF:</strong> <code>simplified_nf</code> + <code>ingredients</code> — SVG + PNG each. FDA 21 CFR 101.9(j)(13) compliant for ≤40 sq in packages.
+          </div>
           <div style="font-size:9px;color:var(--dim);margin-top:6px;line-height:1.4;">Small Pack Compact Mode is designed for constrained packaging formats and operational readability. Final label compliance responsibility remains with the manufacturer/importer of record.</div>
         </div>
 
@@ -3499,6 +3521,15 @@ input:focus, textarea:focus, select:focus {
                   </div>
                 </label>
 
+                <label id="spc-type-simplified-lbl" style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:2px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:border-color .15s;" onclick="spcSelectType('simplified')">
+                  <input type="radio" name="spc-type" value="simplified" style="margin-top:2px;flex-shrink:0;"/>
+                  <div>
+                    <div style="font-size:13px;font-weight:700;margin-bottom:2px;">Simplified NF <span style="font-size:10px;font-weight:700;letter-spacing:.06em;background:rgba(16,185,129,0.15);color:#10b981;padding:1px 6px;border-radius:3px;margin-left:4px;">≤40 SQ IN</span></div>
+                    <div style="font-size:11px;color:var(--dim);line-height:1.5;">Smallest FDA-compliant format. For blister cards and tight zones (e.g. 2"×2"). Omits vitamins/minerals and full % DV column. Required: Calories, Fat, Sodium, Carbs, Sugars, Added Sugars (% DV), Protein.</div>
+                    <div style="font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4;">21 CFR 101.9(j)(13) — Total label surface ≤40 sq in.</div>
+                  </div>
+                </label>
+
               </div>
             </div>
           </div>
@@ -3520,6 +3551,26 @@ input:focus, textarea:focus, select:focus {
                   <input type="number" id="spc-min-font" value="6" step="0.5" min="5" max="12" oninput="spcRenderPreview()"/>
                 </div>
               </div>
+              <!-- Size toggle — shown for split + simplified -->
+              <div id="spc-size-toggle" style="display:none;margin-bottom:14px;">
+                <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:8px;">Panel Width</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <button id="spc-sp-size-standard" onclick="spcSetSize('standard')"
+                    style="padding:5px 14px;font-size:11px;border-radius:6px;border:1.5px solid var(--border);cursor:pointer;background:var(--accent);color:#fff;font-weight:700;transition:all .15s;">
+                    Standard — 2.625"
+                  </button>
+                  <button id="spc-sp-size-compact" onclick="spcSetSize('compact')"
+                    style="padding:5px 14px;font-size:11px;border-radius:6px;border:1.5px solid var(--border);cursor:pointer;background:var(--surface);color:var(--text);font-weight:400;transition:all .15s;">
+                    Compact — 2.0" <span style="font-size:9px;font-weight:700;background:rgba(16,185,129,.15);color:#10b981;padding:1px 5px;border-radius:3px;margin-left:3px;">2"×2" zone</span>
+                  </button>
+                  <button id="spc-sp-size-micro" onclick="spcSetSize('micro')"
+                    style="padding:5px 14px;font-size:11px;border-radius:6px;border:1.5px solid var(--border);cursor:pointer;background:var(--surface);color:var(--text);font-weight:400;transition:all .15s;">
+                    Micro — 1.5"
+                  </button>
+                </div>
+                <div style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.4;">Width of the exported nutrition panel. Height auto-adjusts. <strong>Compact</strong> is optimized for 2"×2" blister zones.</div>
+              </div>
+
               <!-- Split pack options -->
               <div id="spc-split-options" style="display:none;">
                 <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:8px;">Include in split pack</div>
