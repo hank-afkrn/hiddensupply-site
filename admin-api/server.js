@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const GITHUB_TOKEN = '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';
+const GITHUB_TOKEN = process.env.GITHUB_PAT || '';
 const REPO = 'hank-afkrn/hiddensupply-site';
 const PORT = 8083;
 

@@ -31,3 +31,16 @@
   for = "/img/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# ── Affiliate network proxy ───────────────────────────────────────────────────
+[[redirects]]
+  from   = "/affiliate"
+  to     = "https://kyuyrxaj.gensparkclaw.com/affiliate"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/affiliate/*"
+  to     = "https://kyuyrxaj.gensparkclaw.com/affiliate/:splat"
+  status = 200
+  force  = true
